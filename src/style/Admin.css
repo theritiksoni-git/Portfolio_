@@ -1,0 +1,132 @@
+.Admin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #2a1617;
+}
+.Admin .heading {
+  font-family: Dune Rise;
+  color: #d2b616;
+  font-size: xx-large;
+}
+.Admin .FormArea {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.Admin .FormArea form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #0e0e0f;
+  padding: 2rem;
+  border-radius: 25px;
+}
+.Admin .FormArea .Inputs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #d2b616;
+  color: #d2b616;
+  margin-top: 20px;
+  padding: 4px;
+  width: 400px;
+}
+.Admin .FormArea .Inputs .FormIcon {
+  margin: 5px;
+  font-size: 20px;
+}
+.Admin .FormArea .Inputs label {
+  position: absolute;
+  color: #d2b616;
+  font-size: 19px;
+  pointer-events: none;
+  transition: 0.3s;
+  margin-left: 35px;
+}
+.Admin .FormArea .Inputs input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  height: 30px;
+  font-size: 17px;
+  width: 100%;
+  color: #2a1617;
+  margin: 5px;
+  resize: none;
+  color: #cccccc;
+}
+.Admin .FormArea .Inputs input:focus ~ label, .Admin .FormArea .Inputs input:valid ~ label {
+  transform: translateY(-140%);
+  font-size: 14px;
+}
+.Admin .FormArea .error {
+  color: #d2b616;
+  margin-top: 20px;
+}
+.Admin .FormArea .SubmitBtn {
+  background-color: #d2b616;
+  border: none;
+  outline: none;
+  color: #2a1617;
+  height: 40px;
+  margin-top: 25px;
+  font-size: 15px;
+  transition: 0.3s;
+  padding: 10px;
+  border-radius: 10px;
+}
+.Admin .FormArea .SubmitBtn:hover {
+  box-shadow: 0px 0px 10px #d2b616;
+}
+.Admin .FormArea .SubmitBtn:focus {
+  box-shadow: none !important;
+}
+
+.adminhome {
+  background-color: #2a1617;
+  height: 100vh;
+  width: 100vw;
+  margin: 0px;
+  padding: 0vh;
+}
+.adminhome .adminhomebody {
+  color: #d2b616;
+  width: 100%;
+  z-index: 999;
+  padding-top: 8vh;
+}
+.adminhome .adminhomebody .adminNav {
+  position: fixed;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 8vh;
+  z-index: 9999;
+  background-color: #0e0e0f;
+  box-shadow: 0px 0px 10px #d2b616;
+}
+.adminhome .adminhomebody .adminNav h2 {
+  font-family: dune rise;
+  padding-left: 2rem;
+}
+.adminhome .adminhomebody .adminNav .navlist button {
+  margin: 20px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  color: #cccccc;
+  font-size: 15px;
+  transition: 0.3s;
+}
+.adminhome .adminhomebody .adminNav .navlist button:hover {
+  color: #d2b616;
+}
+.adminhome .adminhomebody .content {
+  padding: 10px;
+}

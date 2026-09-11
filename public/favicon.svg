@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Background Gradient matching zinc-900 / dark aesthetic -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+
+    <!-- Cyan Glow Filter -->
+    <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark Rounded Badge Container -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
+  <rect width="62" height="62" x="1" y="1" rx="15" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.45"/>
+
+  <!-- Exact Lucide Disc / Film Identity Icon -->
+  <g filter="url(#cyanGlow)" stroke="#38bdf8" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer Disc Edge -->
+    <circle cx="32" cy="32" r="19"/>
+    <!-- Center Hub Track -->
+    <circle cx="32" cy="32" r="6" fill="#38bdf8" fill-opacity="0.25"/>
+    <circle cx="32" cy="32" r="2.5" fill="#38bdf8"/>
+  </g>
+</svg>

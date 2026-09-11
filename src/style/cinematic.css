@@ -1,0 +1,2981 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Typography Utilities */
+.font-syne {
+  font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-space {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+}
+
+.font-inter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Root Styling */
+:root {
+  --bg-primary: #050608;
+  --bg-surface: #0a0c10;
+  --accent-cyan: #38bdf8;
+  --accent-amber: #fbbf24;
+  --accent-purple: #a855f7;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-primary);
+  color: #f3f4f6;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Zero-Lag Hardware-Accelerated Futuristic Cyan Arrow Cursor */
+@media (hover: hover) and (pointer: fine) {
+  html, body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='26' viewBox='0 0 24 26' fill='none'%3E%3Cpath d='M1 1L5.5 22L10 15L18.5 13.5L1 1Z' fill='%2309090b' stroke='%2338bdf8' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2.5 3.5L9.5 14.5' stroke='%2338bdf8' stroke-width='1' stroke-linecap='round' opacity='0.85'/%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E") 0 0, auto !important;
+  }
+
+  a, button, [role="button"], [data-cursor], input[type="button"], input[type="submit"], select, .cursor-pointer {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='28' viewBox='0 0 26 28' fill='none'%3E%3Cpath d='M1 1L6 24L11 16.5L20 15L1 1Z' fill='%230284c7' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M3 4L10.5 16' stroke='%23ffffff' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='1.5' cy='1.5' r='2' fill='%2338bdf8' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E") 0 0, pointer !important;
+  }
+}
+
+
+
+/* NLE Timeline Themed Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050608;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+/* ─── Cinematic 35mm Celluloid Film Grain Overlay ───────────────────────── */
+.film-grain {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 99990;
+  opacity: 0.065;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  animation: grainJitter 0.35s steps(4) infinite;
+  will-change: transform;
+}
+
+@keyframes grainJitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-1.5%, 1%); }
+  50% { transform: translate(1%, -1.5%); }
+  75% { transform: translate(-0.8%, -0.8%); }
+  100% { transform: translate(1.2%, 0.8%); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Fluid, hardware-accelerated cinematic dissolve for page route transitions */
+.cinematic-page-enter {
+  animation: cinematicPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes cinematicPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+/* Authentic Cinema Camera Tally Indicator (ARRI / Sony CineAlta / RED) */
+@keyframes cameraTally {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.camera-tally-dot {
+  animation: cameraTally 1.2s ease-in-out infinite;
+}
+
+/* Glassmorphism & Cinematic Glows */
+.glass-panel {
+  background: rgba(10, 12, 16, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES FOR CLEAN A4 RESUME EXPORT
+   Eliminates repeating pages, hides background app layers
+   ═══════════════════════════════════════════════════════ */
+@media print {
+  :root,
+  html,
+  body {
+    color-scheme: light !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 10mm 12mm;
+  }
+
+  /* Reset document root and all parent containers to natural white page flow */
+  html,
+  body,
+  #root,
+  #root > div,
+  .app-shell,
+  main,
+  .cinematic-page-enter,
+  .cinematic-page-enter > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #18181b !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* Completely purge background application shell layers, header, nav, and HUD from print */
+  header,
+  nav,
+  footer,
+  .site-loader,
+  .film-grain,
+  .animus-plexus-void,
+  .animus-plexus-void--fixed,
+  canvas,
+  #viewport-hud,
+  .viewport-hud,
+  .camera-tally-dot,
+  .cinematic-audio-player,
+  .youtube-background-audio,
+  [data-cursor],
+  .no-print,
+  #modal-scroll-wrapper > header {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+  }
+
+  /* When printing from the modal, completely collapse the background main page */
+  body.resume-modal-open main,
+  body:has(#modal-backdrop-overlay) main {
+    display: none !important;
+  }
+
+  /* Reset modal overlay wrappers to static block flow (NOT fixed, NOT absolute, NOT overflow-scroll) */
+  #modal-backdrop-overlay {
+    position: static !important;
+    inset: auto !important;
+    z-index: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  #modal-scroll-wrapper {
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .cinematic-page-enter {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Format printable resume as clean static A4 flow document */
+  #printable-resume {
+    position: static !important;
+    float: none !important;
+    clear: both !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #18181b !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Hide buttons and interactive UI elements during print */
+  #printable-resume button,
+  #printable-resume [data-cursor],
+  #printable-resume .no-print,
+  #printable-resume header {
+    display: none !important;
+  }
+
+  /* Prevent awkward page break slices */
+  #printable-resume h1,
+  #printable-resume h2,
+  #printable-resume h3 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  #printable-resume .resume-job-block,
+  #printable-resume .resume-section-block,
+  #printable-resume .border-l-2,
+  #printable-resume .grid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Force high-contrast crisp print typography */
+  #printable-resume h1,
+  #printable-resume h2,
+  #printable-resume h3,
+  #printable-resume strong,
+  #printable-resume .font-syne,
+  #printable-resume .text-white,
+  #printable-resume .text-zinc-950 {
+    color: #09090b !important;
+    font-weight: 700 !important;
+  }
+
+  #printable-resume .text-cyan-400,
+  #printable-resume .text-cyan-300,
+  #printable-resume .text-sky-700,
+  #printable-resume .text-sky-800,
+  #printable-resume .text-sky-900,
+  #printable-resume .text-emerald-400,
+  #printable-resume .text-emerald-700,
+  #printable-resume .text-purple-300,
+  #printable-resume .text-purple-700,
+  #printable-resume .text-amber-300,
+  #printable-resume .text-amber-700 {
+    color: #0284c7 !important;
+  }
+
+  #printable-resume .text-zinc-600,
+  #printable-resume .text-zinc-500,
+  #printable-resume .text-zinc-400 {
+    color: #52525b !important;
+  }
+
+  #printable-resume .text-zinc-700,
+  #printable-resume .text-zinc-800,
+  #printable-resume .text-zinc-300,
+  #printable-resume .text-zinc-200 {
+    color: #27272a !important;
+  }
+
+  /* Clean subtle background containers for print */
+  #printable-resume .bg-zinc-900,
+  #printable-resume .bg-zinc-950,
+  #printable-resume .bg-zinc-900\/90,
+  #printable-resume .bg-zinc-900\/60,
+  #printable-resume .bg-zinc-900\/50,
+  #printable-resume .bg-zinc-900\/40,
+  #printable-resume .bg-zinc-900\/30,
+  #printable-resume .bg-zinc-50,
+  #printable-resume .bg-zinc-50\/80,
+  #printable-resume .bg-cyan-950\/60 {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+  }
+
+  #printable-resume .border-white\/10,
+  #printable-resume .border-white\/5,
+  #printable-resume .border-zinc-200 {
+    border-color: #e2e8f0 !important;
+  }
+
+  #printable-resume .border-emerald-400,
+  #printable-resume .border-emerald-600 {
+    border-color: #059669 !important;
+  }
+
+  #printable-resume .border-cyan-400,
+  #printable-resume .border-sky-600 {
+    border-color: #0284c7 !important;
+  }
+
+  #printable-resume .border-purple-400,
+  #printable-resume .border-purple-600 {
+    border-color: #7c3aed !important;
+  }
+
+  #printable-resume .border-amber-400,
+  #printable-resume .border-amber-600 {
+    border-color: #d97706 !important;
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════
+   Cinematic Audio Player HUD
+   ═══════════════════════════════════════════════════════ */
+
+.youtube-background-audio {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cinematic-audio-player {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.cinematic-audio-player.audio-player-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.audio-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.audio-skip-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 4px;
+  background: rgba(5, 6, 8, 0.82);
+  color: rgba(148, 163, 184, 0.8);
+  font: 700 12px/1 'JetBrains Mono', 'Courier New', monospace;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.audio-skip-btn:hover:not(:disabled) {
+  color: rgb(103, 232, 249);
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(8, 47, 73, 0.5);
+}
+
+.audio-skip-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.audio-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 12px;
+  border-radius: 4px;
+  background: rgba(5, 6, 8, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(148, 163, 184, 0.7);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.4s ease, color 0.4s ease,
+    box-shadow 0.4s ease, background 0.4s ease;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-toggle-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.03), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.audio-toggle-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.audio-toggle-btn:hover {
+  border-color: rgba(56, 189, 248, 0.25);
+  color: rgba(203, 213, 225, 0.9);
+  background: rgba(5, 6, 8, 0.92);
+}
+
+.audio-toggle-btn.audio-playing {
+  border-color: rgba(56, 189, 248, 0.35);
+  color: rgba(56, 189, 248, 0.85);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.08), inset 0 0 12px rgba(56, 189, 248, 0.04);
+}
+
+/* Decorative HUD brackets */
+.audio-bracket {
+  font-size: 11px;
+  opacity: 0.4;
+  line-height: 1;
+}
+
+.audio-playing .audio-bracket {
+  opacity: 0.7;
+}
+
+/* Waveform bars container */
+.audio-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+
+/* Individual waveform bar */
+.audio-bar {
+  display: block;
+  width: 2px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: height 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* Animated bars when playing */
+.audio-bar-active {
+  animation: audioBarPulse var(--bar-duration, 0.6s) ease-in-out var(--bar-delay, 0s) infinite alternate;
+}
+
+@keyframes audioBarPulse {
+  0% {
+    height: 2px;
+    opacity: 0.4;
+  }
+
+  100% {
+    height: var(--bar-height, 8px);
+    opacity: 0.95;
+  }
+}
+
+/* Text label */
+.audio-label {
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.audio-toggle-btn:hover .audio-label,
+.audio-playing .audio-label {
+  opacity: 0.9;
+}
+
+/* Pulse glow ring on activation */
+.audio-glow-ring {
+  position: absolute;
+  inset: -1px;
+  border-radius: 5px;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  animation: audioRingPulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes audioRingPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* Site boot sequence */
+.site-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(1.5rem, 5vw, 5rem);
+  color: #f3f4f6;
+  background: #050608;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+.site-loader::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: 0.34;
+  background-image: linear-gradient(rgba(56, 189, 248, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.site-loader--leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.site-loader__glow {
+  position: absolute;
+  width: min(70vw, 760px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 116, 144, 0.2), rgba(5, 6, 8, 0) 68%);
+  filter: blur(12px);
+  animation: loaderPulse 2.4s ease-in-out infinite;
+}
+
+.site-loader__content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+}
+
+.site-loader__eyebrow,
+.site-loader__footer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.58rem, 2vw, 0.72rem);
+  font-weight: 500;
+  letter-spacing: clamp(0.08em, 0.5vw, 0.16em);
+}
+
+.site-loader__eyebrow {
+  color: #7dd3fc;
+}
+
+.site-loader__title {
+  margin: 1.25rem 0 2.25rem;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.85rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.site-loader__meter {
+  height: 2px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.site-loader__meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #e0f2fe);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.8);
+  transition: width 0.08s linear;
+}
+
+.site-loader__footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Bottom-Left Corner Clean Quote Text */
+.site-loader__corner-quote {
+  position: absolute;
+  bottom: 58px;
+  left: 64px;
+  max-width: min(90vw, 540px);
+  text-align: left;
+  z-index: 10;
+  pointer-events: none;
+  animation: cornerQuoteFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cornerQuoteFade {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.site-loader__corner-quote-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(0.95rem, 1.35vw, 1.12rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.55;
+  color: #e2e8f0;
+  margin: 0 0 0.4rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.site-loader__corner-quote-author {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .site-loader__corner-quote {
+    bottom: 52px;
+    left: 24px;
+    right: 24px;
+    max-width: none;
+  }
+  .site-loader__corner-quote-text {
+    font-size: 0.88rem;
+  }
+  .site-loader__corner-quote-author {
+    font-size: 10px;
+  }
+}
+
+.site-loader__corner {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-color: rgba(125, 211, 252, 0.65);
+  border-style: solid;
+}
+
+.site-loader__corner--top-left {
+  top: 24px;
+  left: 24px;
+  border-width: 1px 0 0 1px;
+}
+
+.site-loader__corner--top-right {
+  top: 24px;
+  right: 24px;
+  border-width: 1px 1px 0 0;
+}
+
+.site-loader__corner--bottom-left {
+  bottom: 24px;
+  left: 24px;
+  border-width: 0 0 1px 1px;
+}
+
+.site-loader__corner--bottom-right {
+  right: 24px;
+  bottom: 24px;
+  border-width: 0 1px 1px 0;
+}
+
+/* Corner Telemetry HUD Labels */
+.site-loader__corner-meta {
+  position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.35;
+}
+
+.site-loader__corner-meta--top-left {
+  top: 24px;
+  left: 64px;
+  text-align: left;
+}
+
+.site-loader__corner-meta--top-right {
+  top: 24px;
+  right: 64px;
+  text-align: right;
+}
+
+.site-loader__corner-meta--bottom-left {
+  bottom: 24px;
+  left: 64px;
+  text-align: left;
+}
+
+.site-loader__corner-meta--bottom-right {
+  bottom: 24px;
+  right: 64px;
+  text-align: right;
+}
+
+.site-loader__corner-tag {
+  color: #38bdf8;
+  font-weight: 700;
+  opacity: 0.9;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.site-loader__corner-sub {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+@media (max-width: 640px) {
+  .site-loader {
+    padding: 1rem 0.75rem;
+  }
+  .site-loader__corner {
+    width: 20px;
+    height: 20px;
+  }
+  .site-loader__corner--top-left {
+    top: 12px;
+    left: 12px;
+  }
+  .site-loader__corner--top-right {
+    top: 12px;
+    right: 12px;
+  }
+  .site-loader__corner--bottom-left {
+    bottom: 12px;
+    left: 12px;
+  }
+  .site-loader__corner--bottom-right {
+    bottom: 12px;
+    right: 12px;
+  }
+  .site-loader__headphone-mark {
+    width: 4.75rem;
+    height: 4.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .site-loader__headphone-mark svg {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  .site-loader__corner-meta {
+    font-size: 8px;
+  }
+  .site-loader__corner-meta--top-left,
+  .site-loader__corner-meta--bottom-left {
+    left: 40px;
+  }
+  .site-loader__corner-meta--top-right,
+  .site-loader__corner-meta--bottom-right {
+    right: 40px;
+  }
+}
+
+@media (max-width: 440px) {
+  .site-loader__corner-meta {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+  }
+  .site-loader__corner-meta--top-left,
+  .site-loader__corner-meta--bottom-left {
+    left: 32px;
+  }
+  .site-loader__corner-meta--top-right,
+  .site-loader__corner-meta--bottom-right {
+    right: 32px;
+  }
+}
+
+@keyframes loaderPulse {
+  50% {
+    transform: scale(1.12);
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .site-loader,
+  .site-loader__meter-fill {
+    transition: none;
+  }
+
+  .site-loader__glow {
+    animation: none;
+  }
+}
+
+.site-loader__start {
+  margin-top: 2.5rem;
+  padding: 0.9rem 1.1rem;
+  color: #e0f2fe;
+  background: rgba(14, 116, 144, 0.16);
+  border: 1px solid rgba(125, 211, 252, 0.65);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  cursor: pointer;
+  animation: startButtonIn 0.35s ease-out both;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.site-loader__start span {
+  margin-left: 1.4rem;
+  font-size: 1rem;
+}
+
+.site-loader__start:hover,
+.site-loader__start:focus-visible {
+  outline: none;
+  color: white;
+  background: rgba(14, 116, 144, 0.36);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  transform: translateY(-2px);
+}
+
+.site-loader__start:disabled {
+  cursor: default;
+}
+
+@keyframes startButtonIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.site-loader__sound {
+  padding: 0;
+  color: #7dd3fc;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.site-loader__sound:hover,
+.site-loader__sound:focus-visible {
+  color: #f0f9ff;
+  outline: none;
+  text-shadow: 0 0 12px rgba(125, 211, 252, 0.7);
+}
+
+/* ─── Cinematic Glitch Transition FX (Hollywood / Cyberpunk Grade) ───── */
+.site-loader--glitching {
+  animation: glitchCinemaShake 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94) both !important;
+  filter: contrast(1.4) brightness(1.25) saturate(1.3);
+  pointer-events: none;
+}
+
+.site-loader--glitching .site-loader__content,
+.site-loader--glitching .site-loader__disclaimer-content {
+  animation: glitchTextCinematic 0.85s steps(2, end) both;
+}
+
+.site-loader--glitching .site-loader__title,
+.site-loader--glitching .site-loader__disclaimer-title {
+  text-shadow: -6px 0 #ff0055, 6px 0 #00f3ff, 0 -3px #ffe600, 0 0 30px rgba(0, 243, 255, 0.85);
+  animation: glitchRgbCinematic 0.85s steps(2, start) both;
+}
+
+.site-loader--glitching .site-loader__headphone-mark {
+  filter: drop-shadow(-6px 0 #ff0055) drop-shadow(6px 0 #00f3ff) drop-shadow(0 0 20px rgba(0, 243, 255, 0.8));
+  animation: glitchCinemaShake 0.85s steps(2, start) both;
+}
+
+.site-loader--glitching .site-loader__eyebrow,
+.site-loader--glitching .site-loader__footer {
+  color: #00f3ff !important;
+  text-shadow: -3px 0 #ff0055, 3px 0 #00f3ff, 0 0 12px #00f3ff;
+}
+
+/* Glitch Full-Frame Overlay Container */
+.site-loader__glitch-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 1. CRT Scanlines with Vertical Raster Roll */
+.site-loader__glitch-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.75) 0px,
+    rgba(0, 0, 0, 0.75) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  animation: scanlineRoll 0.85s linear infinite;
+}
+
+/* 2. High-Frequency Analog Static Noise */
+.site-loader__glitch-noise {
+  position: absolute;
+  inset: -20px;
+  background-image: 
+    radial-gradient(rgba(0, 243, 255, 0.2) 15%, transparent 16%),
+    radial-gradient(rgba(255, 0, 85, 0.2) 15%, transparent 16%),
+    radial-gradient(rgba(255, 255, 255, 0.3) 15%, transparent 16%);
+  background-size: 3px 3px, 4px 4px, 2px 2px;
+  mix-blend-mode: screen;
+  animation: noiseJitter 0.08s steps(2) infinite;
+  opacity: 0.6;
+}
+
+/* 3. Multi-Band Horizontal Slices (Cyan, Magenta & Amber) */
+.site-loader__glitch-slice {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.site-loader__glitch-slice--1 {
+  background: rgba(0, 243, 255, 0.15);
+  mix-blend-mode: screen;
+  animation: glitchSliceCinema1 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.site-loader__glitch-slice--2 {
+  background: rgba(255, 0, 85, 0.15);
+  mix-blend-mode: screen;
+  animation: glitchSliceCinema2 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+.site-loader__glitch-slice--3 {
+  background: rgba(255, 230, 0, 0.12);
+  mix-blend-mode: screen;
+  animation: glitchSliceCinema3 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+
+/* 4. Broken Digital Tracking Bars (VHS / CRT Signal Breakdown) */
+.site-loader__glitch-bars {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 243, 255, 0.4) 20%,
+    rgba(255, 255, 255, 0.8) 22%,
+    rgba(255, 0, 85, 0.4) 24%,
+    transparent 26%,
+    transparent 65%,
+    rgba(0, 243, 255, 0.3) 72%,
+    transparent 76%
+  );
+  mix-blend-mode: color-dodge;
+  animation: trackingBars 0.85s ease-in-out both;
+}
+
+/* 5. Inverted Strobe Exposure (Hyper-stylized Negative Pulse) */
+.site-loader__glitch-invert {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  mix-blend-mode: difference;
+  opacity: 0;
+  animation: strobeInvert 0.85s steps(1) both;
+}
+
+/* 6. Anamorphic Lens Flare Flash */
+.site-loader__glitch-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 100% 20% at 50% 50%,
+    rgba(255, 255, 255, 0.95),
+    rgba(0, 243, 255, 0.8) 35%,
+    rgba(255, 0, 85, 0.4) 65%,
+    transparent 85%
+  );
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: anamorphicFlash 0.85s ease-out both;
+}
+
+/* ─── Cinematic Keyframes ─────────────────────────────────────────────── */
+
+@keyframes glitchCinemaShake {
+  0% { transform: translate(0, 0) skew(0deg); }
+  10% { transform: translate(-8px, 4px) skewX(3deg); }
+  20% { transform: translate(10px, -5px) skewX(-3deg) scaleY(1.02); }
+  30% { transform: translate(-6px, -3px) skewX(2deg); }
+  42% { transform: translate(8px, 4px) skewX(-1.5deg) scaleX(0.99); }
+  55% { transform: translate(-10px, -2px) skewX(2.5deg); }
+  68% { transform: translate(6px, 3px) skewX(-1deg); }
+  80% { transform: translate(-3px, 1px) skewX(0.5deg); }
+  92% { transform: translate(2px, -1px); }
+  100% { transform: translate(0, 0) skew(0deg); }
+}
+
+@keyframes glitchTextCinematic {
+  0% { transform: none; clip-path: none; }
+  12% {
+    transform: translate(-7px, 2px);
+    clip-path: inset(12% 0 58% 0);
+  }
+  24% {
+    transform: translate(9px, -3px);
+    clip-path: inset(45% 0 15% 0);
+  }
+  38% {
+    transform: translate(-5px, 3px);
+    clip-path: inset(25% 0 35% 0);
+  }
+  52% {
+    transform: translate(6px, -2px);
+    clip-path: inset(65% 0 8% 0);
+  }
+  68% {
+    transform: translate(-3px, 1px);
+    clip-path: inset(5% 0 75% 0);
+  }
+  82% {
+    transform: translate(2px, -1px);
+    clip-path: inset(80% 0 2% 0);
+  }
+  100% { transform: none; clip-path: none; }
+}
+
+@keyframes glitchRgbCinematic {
+  0% { text-shadow: -3px 0 #ff0055, 3px 0 #00f3ff; }
+  15% { text-shadow: 7px 0 #ff0055, -7px 0 #00f3ff, 0 -3px #ffe600; }
+  30% { text-shadow: -8px 0 #00f3ff, 8px 0 #ff0055, 0 3px #ffe600; }
+  45% { text-shadow: 5px 0 #ff0055, -5px 0 #00f3ff; }
+  60% { text-shadow: -6px 0 #00f3ff, 6px 0 #ff0055, 0 0 20px #00f3ff; }
+  75% { text-shadow: 3px 0 #ff0055, -3px 0 #00f3ff; }
+  90% { text-shadow: -1px 0 #ff0055, 1px 0 #00f3ff; }
+  100% { text-shadow: none; }
+}
+
+@keyframes glitchSliceCinema1 {
+  0% {
+    clip-path: inset(15% 0 55% 0);
+    transform: translateX(-24px);
+    opacity: 0.95;
+  }
+  20% {
+    clip-path: inset(48% 0 20% 0);
+    transform: translateX(28px);
+    opacity: 0.85;
+  }
+  42% {
+    clip-path: inset(8% 0 70% 0);
+    transform: translateX(-16px);
+    opacity: 0.9;
+  }
+  65% {
+    clip-path: inset(68% 0 12% 0);
+    transform: translateX(12px);
+    opacity: 0.7;
+  }
+  85% {
+    clip-path: inset(30% 0 45% 0);
+    transform: translateX(-4px);
+    opacity: 0.4;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@keyframes glitchSliceCinema2 {
+  0% {
+    clip-path: inset(40% 0 30% 0);
+    transform: translateX(22px);
+    opacity: 0.9;
+  }
+  25% {
+    clip-path: inset(5% 0 78% 0);
+    transform: translateX(-26px);
+    opacity: 0.95;
+  }
+  50% {
+    clip-path: inset(60% 0 18% 0);
+    transform: translateX(18px);
+    opacity: 0.75;
+  }
+  75% {
+    clip-path: inset(22% 0 50% 0);
+    transform: translateX(-8px);
+    opacity: 0.5;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@keyframes glitchSliceCinema3 {
+  0% {
+    clip-path: inset(70% 0 5% 0);
+    transform: translateX(-18px) skewX(-2deg);
+    opacity: 0.8;
+  }
+  30% {
+    clip-path: inset(28% 0 52% 0);
+    transform: translateX(20px) skewX(2deg);
+    opacity: 0.85;
+  }
+  60% {
+    clip-path: inset(80% 0 2% 0);
+    transform: translateX(-12px);
+    opacity: 0.6;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@keyframes scanlineRoll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+@keyframes noiseJitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  50% { transform: translate(2px, -3px); }
+  75% { transform: translate(-2px, -1px); }
+  100% { transform: translate(3px, 1px); }
+}
+
+@keyframes trackingBars {
+  0% { transform: translateY(-100%); opacity: 0; }
+  15% { opacity: 0.9; }
+  50% { transform: translateY(50%); opacity: 0.7; }
+  85% { opacity: 0.4; }
+  100% { transform: translateY(120%); opacity: 0; }
+}
+
+@keyframes strobeInvert {
+  0% { opacity: 0; }
+  14% { opacity: 0.85; }
+  18% { opacity: 0; }
+  38% { opacity: 0.95; }
+  44% { opacity: 0; }
+  65% { opacity: 0.7; }
+  70% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes anamorphicFlash {
+  0% { opacity: 0; transform: scaleY(0.2); }
+  12% { opacity: 0.95; transform: scaleY(1.2); }
+  28% { opacity: 0.4; transform: scaleY(0.9); }
+  45% { opacity: 0.85; transform: scaleY(1.4); }
+  70% { opacity: 0.3; transform: scaleY(0.7); }
+  100% { opacity: 0; transform: scaleY(0.2); }
+}
+
+/* Pre-loader headphone prompt with Retro CRT Television Turn-On */
+.site-loader--disclaimer {
+  background: radial-gradient(circle at 50% 42%, #0b1a22 0%, #050608 48%);
+  overflow: hidden;
+}
+
+/* 1. CRT Curved Screen Glass Vignette & Barrel Depth (Zero repaints) */
+.site-loader__tv-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 60%,
+    rgba(3, 7, 18, 0.25) 78%,
+    rgba(2, 6, 15, 0.65) 92%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.85);
+  transform: translateZ(0);
+}
+
+/* 2. Authentic Phosphor CRT Raster Scanlines (Static, hardware composite) */
+.site-loader__tv-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.35) 0px,
+    rgba(0, 0, 0, 0.35) 1.5px,
+    transparent 1.5px,
+    transparent 3px
+  );
+  opacity: 0.22;
+  transform: translateZ(0);
+}
+
+/* 3. Horizontal Cathode Ray Center Beam (Hardware-Accelerated Scale/Opacity) */
+.site-loader__tv-beam {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #ffffff;
+  box-shadow:
+    0 0 8px 1px #ffffff,
+    0 0 20px 4px #7dd3fc,
+    0 0 50px 8px #0284c7,
+    0 0 100px 16px rgba(56, 189, 248, 0.85);
+  z-index: 55;
+  pointer-events: none;
+  transform: translateY(-50%) scaleX(0);
+  will-change: transform, opacity;
+  animation: tvBeamIgnition 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tvBeamIgnition {
+  0% {
+    transform: translateY(-50%) scaleX(0);
+    opacity: 0;
+  }
+  6% {
+    transform: translateY(-50%) scaleX(0.04);
+    opacity: 1;
+  }
+  24% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 1;
+  }
+  45% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* 4. Phosphor Bloom Flash (Pure Opacity, No CPU Filters) */
+.site-loader__tv-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 45% at 50% 50%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(125, 211, 252, 0.55) 35%,
+    rgba(14, 165, 233, 0.22) 65%,
+    transparent 85%
+  );
+  opacity: 0;
+  mix-blend-mode: screen;
+  will-change: opacity;
+  animation: tvFlashPulse 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tvFlashPulse {
+  0%, 15% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* 5. The CRT Screen Opening Aperture (100% GPU Composite, No Lag, No Cropping) */
+.site-loader__tv-screen {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  padding: 1.5rem 0;
+  will-change: clip-path, opacity;
+  animation: tvScreenAperture 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tvScreenAperture {
+  0% {
+    clip-path: inset(50% 0 50% 0);
+    opacity: 0;
+  }
+  12% {
+    clip-path: inset(calc(50% - 1.5px) 0 calc(50% - 1.5px) 0);
+    opacity: 1;
+  }
+  24% {
+    clip-path: inset(calc(50% - 3px) 0 calc(50% - 3px) 0);
+    opacity: 1;
+  }
+  70% {
+    clip-path: inset(-80px -40px -80px -40px);
+    opacity: 1;
+  }
+  100% {
+    clip-path: none;
+    opacity: 1;
+  }
+}
+
+/* Corner HUD synchronization on TV power-on */
+.site-loader--disclaimer .site-loader__corner {
+  animation: tvCornerLock 0.95s ease-out forwards;
+}
+
+@keyframes tvCornerLock {
+  0%, 55% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.site-loader__disclaimer-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 980px);
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: visible;
+  padding: 0 0.75rem;
+}
+
+.site-loader__headphone-mark {
+  display: grid;
+  width: 6.25rem;
+  height: 6.25rem;
+  margin: 0 auto 2rem auto;
+  place-items: center;
+  color: #bae6fd;
+  border: 1px solid rgba(125, 211, 252, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 0 0 12px rgba(56, 189, 248, 0.035), 0 0 45px rgba(56, 189, 248, 0.22);
+  animation: headphonePulse 2.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.site-loader__headphone-mark svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.site-loader__disclaimer-title {
+  margin: 0.75rem 0 1.15rem;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.45rem, 7.2vw, 4.85rem);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.site-loader__disclaimer-copy {
+  max-width: 360px;
+  white-space: normal;
+  text-wrap: balance;
+  margin: 0 auto;
+  color: #94a3b8;
+  font-size: clamp(0.75rem, 3.5vw, 0.95rem);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.site-loader__continue {
+  margin-top: 1.75rem;
+  padding: 0.85rem 1.6rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  color: #e0f2fe;
+  background: rgba(14, 116, 144, 0.16);
+  border: 1px solid rgba(125, 211, 252, 0.65);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  touch-action: manipulation;
+}
+
+.site-loader__continue span {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.site-loader__continue:hover,
+.site-loader__continue:focus-visible {
+  outline: none;
+  color: white;
+  background: rgba(14, 116, 144, 0.36);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  transform: translateY(-2px);
+}
+
+.site-loader__continue:hover span {
+  transform: translateX(3px);
+}
+
+@media (max-height: 640px) {
+  .site-loader__headphone-mark {
+    width: 3.75rem;
+    height: 3.75rem;
+    margin: 0 auto 0.75rem auto;
+  }
+  .site-loader__headphone-mark svg {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .site-loader__disclaimer-title {
+    margin: 0.4rem 0 0.6rem;
+    font-size: clamp(1.25rem, 5.5vw, 2.5rem);
+  }
+  .site-loader__continue {
+    margin-top: 1rem;
+  }
+}
+
+@keyframes headphonePulse {
+  50% {
+    box-shadow: 0 0 0 20px rgba(56, 189, 248, 0.015), 0 0 60px rgba(56, 189, 248, 0.3);
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-loader__tv-beam,
+  .site-loader__tv-flash {
+    display: none;
+  }
+
+  .site-loader__tv-screen {
+    animation: none;
+    clip-path: none;
+    opacity: 1;
+  }
+
+  .site-loader--disclaimer .site-loader__corner {
+    animation: none;
+    opacity: 1;
+  }
+
+  .site-loader__disclaimer-content,
+  .site-loader__headphone-mark {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CINEMATIC FILM BURN EFFECT ON LOOP (Strictly Clipped Inside Text)
+   ───────────────────────────────────────────────────────────────────────── */
+
+@keyframes filmBurnSweep {
+  0% {
+    background-position: 0% 50%;
+    filter: brightness(1) contrast(1.05);
+  }
+
+  22% {
+    background-position: 50% 25%;
+    filter: brightness(1.2) contrast(1.15);
+  }
+
+  45% {
+    background-position: 100% 65%;
+    filter: brightness(1.35) contrast(1.22);
+  }
+
+  55% {
+    background-position: 85% 85%;
+    filter: brightness(1.4) contrast(1.25);
+  }
+
+  75% {
+    background-position: 35% 75%;
+    filter: brightness(1.2) contrast(1.15);
+  }
+
+  100% {
+    background-position: 0% 50%;
+    filter: brightness(1) contrast(1.05);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HERO NAME RETRO CRT TELEVISION TEXT OVERLAY (Strictly Clipped Inside Text - Ultra Subtle)
+   ───────────────────────────────────────────────────────────────────────── */
+
+.hero-name-tv,
+.retro-tv-text {
+  position: relative;
+  display: inline;
+  background-image:
+    /* Layer 1: Ultra-delicate CRT Horizontal Raster Scanlines */
+    repeating-linear-gradient(
+      0deg,
+      rgba(5, 6, 8, 0.22) 0px,
+      rgba(5, 6, 8, 0.22) 1.2px,
+      transparent 1.2px,
+      transparent 4px
+    ),
+    /* Layer 2: Seamless Infinite Dual-Cycle White & Ice-Cyan Phosphor Wave */
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f8fafc 18%,
+      #bae6fd 25%,
+      #f8fafc 32%,
+      #ffffff 50%,
+      #f8fafc 68%,
+      #bae6fd 75%,
+      #f8fafc 82%,
+      #ffffff 100%
+    );
+  background-size: 100% 4px, 100% 200%;
+  background-position: 0 0, 0 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* Ultra-subtle CRT phosphor aura */
+  filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.14));
+  animation: heroTvCathodeSweep 6s linear infinite;
+  transition: filter 0.3s ease;
+  user-select: none;
+  cursor: default;
+  pointer-events: auto;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.hero-name-tv:hover,
+.retro-tv-text:hover {
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.32)) drop-shadow(0 0 24px rgba(56, 189, 248, 0.16));
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   RETRO CRT TELEVISION TEXT OVERLAY - SIGNATURE CYAN & SKY-BLUE GRADIENT
+   Preserves the electric cyan-to-sky gradient with CRT scanlines & cathode sweep
+   ───────────────────────────────────────────────────────────────────────── */
+
+.retro-tv-cyan {
+  position: relative;
+  display: inline;
+  background-image:
+    /* Layer 1: Ultra-delicate CRT Horizontal Raster Scanlines */
+    repeating-linear-gradient(
+      0deg,
+      rgba(5, 6, 8, 0.16) 0px,
+      rgba(5, 6, 8, 0.16) 1.2px,
+      transparent 1.2px,
+      transparent 4px
+    ),
+    /* Layer 2: Seamless Infinite Top-to-Bottom Cathode Phosphor Wave */
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.65) 0%,
+      rgba(186, 230, 253, 0.3) 18%,
+      transparent 32%,
+      transparent 68%,
+      rgba(186, 230, 253, 0.3) 82%,
+      rgba(255, 255, 255, 0.65) 100%
+    ),
+    /* Layer 3: Rich Signature Cyan via Sky to Blue Horizontal Gradient */
+    linear-gradient(
+      90deg,
+      #22d3ee 0%,
+      #7dd3fc 45%,
+      #3b82f6 100%
+    );
+  background-size: 100% 4px, 100% 200%, 100% 100%;
+  background-position: 0 0, 0 100%, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* Radiant Cyan CRT phosphor aura */
+  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.4));
+  animation: retroTvCyanSweep 6s linear infinite;
+  transition: filter 0.3s ease;
+  user-select: none;
+  cursor: default;
+  pointer-events: auto;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.retro-tv-cyan:hover {
+  filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.75)) drop-shadow(0 0 32px rgba(56, 189, 248, 0.4));
+}
+
+/* Mathematically Seamless Infinite Cathode Sweep — Top to Bottom */
+@keyframes heroTvCathodeSweep {
+  0% {
+    background-position: 0 0, 0 100%;
+  }
+  100% {
+    background-position: 0 0, 0 0%;
+  }
+}
+
+@keyframes retroTvCyanSweep {
+  0% {
+    background-position: 0 0, 0 100%, 0 0;
+  }
+  100% {
+    background-position: 0 0, 0 0%, 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-name-tv,
+  .retro-tv-text,
+  .retro-tv-cyan {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ASSASSIN'S CREED ANIMUS POINT-CLOUD & CONNECTING STRINGS VOID
+   ───────────────────────────────────────────────────────────────────────── */
+
+.animus-plexus-void {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.animus-plexus-void--fixed {
+  position: fixed !important;
+  z-index: 0 !important;
+}
+
+.film-burn-container {
+  position: relative;
+  display: inline-block;
+}
+
+.film-burn-glow-layer {
+  position: absolute;
+  inset: 0;
+  color: #fbbf24;
+  pointer-events: none;
+  user-select: none;
+  filter: blur(8px);
+  opacity: 0.28;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.55),
+    0 0 20px rgba(251, 191, 36, 0.45),
+    0 0 35px rgba(249, 115, 22, 0.28);
+  z-index: 1;
+}
+
+.film-burn-text {
+  background: linear-gradient(115deg,
+      #ffffff 0%,
+      #fef08a 12%,
+      #fbbf24 24%,
+      #f97316 38%,
+      #ffffff 50%,
+      #ef4444 62%,
+      #f59e0b 76%,
+      #fde047 88%,
+      #ffffff 100%);
+  background-size: 280% 280%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: filmBurnSweep 4.8s ease-in-out infinite;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+}
+
+/* Cinematic Viewfinder Camera Focus Reticle */
+@keyframes cameraAfSeeking {
+  0% {
+    transform: scale(0.88);
+    opacity: 0.45;
+  }
+  24% {
+    transform: scale(1.24);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+  }
+  44% {
+    transform: scale(0.92);
+    opacity: 0.55;
+    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.2));
+  }
+  64% {
+    transform: scale(1.12);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.35));
+  }
+  84% {
+    transform: scale(0.96);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(0.88);
+    opacity: 0.45;
+  }
+}
+
+.camera-focus-seeking {
+  animation: cameraAfSeeking 2.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+/* Client Collaborations Marquee */
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-infinite {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 28s linear infinite;
+}
+
+.animate-marquee-infinite:hover {
+  animation-play-state: paused;
+}
+
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+/* Live Audio Equalizer Bars */
+@keyframes eqBar1 {
+  0%, 100% { height: 25%; }
+  50% { height: 95%; }
+}
+@keyframes eqBar2 {
+  0%, 100% { height: 85%; }
+  50% { height: 35%; }
+}
+@keyframes eqBar3 {
+  0%, 100% { height: 40%; }
+  50% { height: 100%; }
+}
+@keyframes eqBar4 {
+  0%, 100% { height: 90%; }
+  50% { height: 20%; }
+}
+
+.animate-eq-bar-1 {
+  animation: eqBar1 0.75s ease-in-out infinite;
+}
+.animate-eq-bar-2 {
+  animation: eqBar2 0.6s ease-in-out infinite 0.15s;
+}
+.animate-eq-bar-3 {
+  animation: eqBar3 0.85s ease-in-out infinite 0.1s;
+}
+.animate-eq-bar-4 {
+  animation: eqBar4 0.65s ease-in-out infinite 0.25s;
+}
+
+/* ─── 35mm Celluloid Film Border Transition ────────────────────────────── */
+.film-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+  animation: filmOverlayFade 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes filmOverlayFade {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Cinematic Letterbox Gate Blades */
+.film-gate-blade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: #050608;
+  z-index: 4;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.film-gate-blade--top {
+  top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  animation: gateBladeTop 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.film-gate-blade--bottom {
+  bottom: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: gateBladeBottom 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes gateBladeTop {
+  0% { transform: translateY(-100%); }
+  25% { transform: translateY(0); }
+  75% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes gateBladeBottom {
+  0% { transform: translateY(100%); }
+  25% { transform: translateY(0); }
+  75% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* 35mm Film Strip Perforation Margins */
+.film-strip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 72px;
+  background: #06070a;
+  z-index: 3;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
+}
+
+.film-strip--left {
+  left: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  animation: filmStripSlideLeft 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.film-strip--right {
+  right: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  animation: filmStripSlideRight 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes filmStripSlideLeft {
+  0% { transform: translateX(-100%); }
+  20% { transform: translateX(0); }
+  78% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes filmStripSlideRight {
+  0% { transform: translateX(100%); }
+  20% { transform: translateX(0); }
+  78% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+/* Rolling Sprocket Track */
+.film-strip__track {
+  display: flex;
+  flex-direction: column;
+  animation: filmSprocketRoll 1.05s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes filmSprocketRoll {
+  0% { transform: translateY(-240px); }
+  55% { transform: translateY(0); }
+  68% { transform: translateY(-6px); }
+  80% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+.film-strip__cell {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+/* 35mm Rectangular Sprocket Perforation Hole */
+.film-strip__hole {
+  width: 24px;
+  height: 16px;
+  background: #020203;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.95), 0 0 10px rgba(245, 158, 11, 0.15);
+  flex-shrink: 0;
+}
+
+/* Kodak Edge Code Typography */
+.film-strip__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  transform: rotate(-90deg);
+  transform-origin: center right;
+  white-space: nowrap;
+}
+
+.film-strip__label {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(245, 158, 11, 0.85);
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+.film-strip__code {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 6.5px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Center Film Frame Aperture */
+.film-aperture-frame {
+  position: absolute;
+  top: 48px;
+  bottom: 48px;
+  left: 72px;
+  right: 72px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
+  animation: apertureBreath 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes apertureBreath {
+  0% { transform: scale(0.96); opacity: 0; }
+  25% { transform: scale(1); opacity: 1; }
+  75% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.04); opacity: 0; }
+}
+
+.film-aperture-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(245, 158, 11, 0.75);
+  border-style: solid;
+}
+
+.film-aperture-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.film-aperture-corner--tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.film-aperture-corner--bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.film-aperture-corner--br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+/* Golden Celluloid Halation & Light Leak */
+.film-light-leak {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: radial-gradient(
+    ellipse 130% 90% at 20% 50%,
+    rgba(251, 146, 60, 0.45) 0%,
+    rgba(245, 158, 11, 0.25) 35%,
+    rgba(220, 38, 38, 0.12) 65%,
+    transparent 85%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: filmLeakPulse 1.05s ease-out forwards;
+}
+
+@keyframes filmLeakPulse {
+  0% { opacity: 0; transform: scale(1.1) translateX(-10%); }
+  20% { opacity: 1; transform: scale(1) translateX(0); }
+  70% { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(1.05) translateX(5%); }
+}
+
+/* Tungsten Projector Shutter Flash */
+.film-shutter-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: rgba(255, 248, 230, 0.35);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: shutterFlash 0.5s ease-out forwards;
+}
+
+@keyframes shutterFlash {
+  0% { opacity: 0; }
+  15% { opacity: 0.85; }
+  40% { opacity: 0.2; }
+  60% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+/* 35mm Celluloid Frame Separator Bar (Movement Transition) */
+.film-frame-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: #040507;
+  border-top: 2px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.98);
+  z-index: 7;
+  pointer-events: none;
+  animation: filmFrameLineAdvance 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes filmFrameLineAdvance {
+  0% {
+    top: -70px;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    top: calc(100% + 20px);
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% + 70px);
+    opacity: 0;
+  }
+}
+
+/* Secondary Frame Ghosting for Analog Projector Shutter Motion */
+.film-frame-ghost {
+  position: absolute;
+  left: 72px;
+  right: 72px;
+  top: 48px;
+  bottom: 48px;
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 3;
+  animation: filmGhostMotion 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes filmGhostMotion {
+  0% {
+    transform: translateY(-80px) scale(0.97);
+    opacity: 0;
+  }
+  30% {
+    transform: translateY(0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translateY(6px) scale(1.01);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0) scale(1.05);
+    opacity: 0;
+  }
+}
+
+/* Kinetic Film Movement on Screen Content (Pull-Down & Settle) */
+.site-loader--film-rolling.site-loader--disclaimer .site-loader__disclaimer-content {
+  animation: filmContentPullExit 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes filmContentPullExit {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  50% {
+    transform: translateY(45px) scale(0.98);
+    opacity: 0.75;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateY(130px) scale(0.93);
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+.site-loader--film-rolling:not(.site-loader--disclaimer) .site-loader__content {
+  animation: filmContentPullEnter 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes filmContentPullEnter {
+  0% {
+    transform: translateY(-120px) scale(0.93);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  45% {
+    transform: translateY(12px) scale(1.01);
+    opacity: 0.95;
+    filter: blur(1px);
+  }
+  70% {
+    transform: translateY(-4px) scale(0.995);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@media (max-width: 768px) {
+  .film-strip {
+    width: 48px;
+  }
+  .film-strip__hole {
+    width: 18px;
+    height: 12px;
+  }
+  .film-gate-blade {
+    height: 32px;
+  }
+  .film-aperture-frame {
+    top: 32px;
+    bottom: 32px;
+    left: 48px;
+    right: 48px;
+  }
+}
+
+/* ─── 35mm Celluloid Film Burn Transition (Loading Screen -> Site) ──────── */
+.film-burn-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+  animation: filmBurnMaster 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes filmBurnMaster {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  75% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+.film-burn-svg-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* White-Hot Core Flash */
+.film-burn__core-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 48% 46%,
+    rgba(255, 254, 245, 0.95) 0%,
+    rgba(254, 215, 170, 0.8) 25%,
+    rgba(251, 146, 60, 0.45) 55%,
+    transparent 80%
+  );
+  mix-blend-mode: screen;
+  animation: coreBurnFlash 0.8s ease-out forwards;
+}
+
+@keyframes coreBurnFlash {
+  0% { opacity: 0; transform: scale(0.6); }
+  22% { opacity: 1; transform: scale(1.15); }
+  55% { opacity: 0.6; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* Burning Emulsion Blobs (Organic Celluloid Char) */
+.film-burn__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: url(#filmBurnDisplace);
+  mix-blend-mode: screen;
+}
+
+.film-burn__blob--primary {
+  width: 140vw;
+  height: 140vh;
+  top: -20vh;
+  left: -20vw;
+  background: radial-gradient(
+    ellipse at 35% 42%,
+    rgba(255, 125, 20, 0.92) 0%,
+    rgba(245, 158, 11, 0.75) 35%,
+    rgba(225, 29, 72, 0.35) 65%,
+    transparent 85%
+  );
+  animation: burnBlobPrimary 1.35s ease-out forwards;
+}
+
+@keyframes burnBlobPrimary {
+  0% { transform: scale(0.7) rotate(0deg); opacity: 0; }
+  25% { transform: scale(1.05) rotate(4deg); opacity: 1; }
+  70% { transform: scale(1.2) rotate(8deg); opacity: 0.85; }
+  100% { transform: scale(1.35) rotate(12deg); opacity: 0; }
+}
+
+.film-burn__blob--secondary {
+  width: 110vw;
+  height: 110vh;
+  bottom: -15vh;
+  right: -15vw;
+  background: radial-gradient(
+    ellipse at 65% 58%,
+    rgba(244, 63, 94, 0.85) 0%,
+    rgba(220, 38, 38, 0.6) 35%,
+    rgba(180, 83, 9, 0.3) 65%,
+    transparent 80%
+  );
+  animation: burnBlobSecondary 1.3s ease-out forwards;
+}
+
+@keyframes burnBlobSecondary {
+  0% { transform: scale(0.6) rotate(0deg); opacity: 0; }
+  25% { transform: scale(1.1) rotate(-6deg); opacity: 0.95; }
+  65% { transform: scale(1.25) rotate(-10deg); opacity: 0.75; }
+  100% { transform: scale(1.4) rotate(-14deg); opacity: 0; }
+}
+
+.film-burn__blob--edge {
+  width: 90vw;
+  height: 90vh;
+  bottom: -30vh;
+  left: 10vw;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 190, 60, 0.8) 0%,
+    rgba(234, 88, 12, 0.5) 45%,
+    transparent 75%
+  );
+  animation: burnBlobEdge 1.25s ease-out forwards;
+}
+
+@keyframes burnBlobEdge {
+  0% { transform: scale(0.5); opacity: 0; }
+  30% { transform: scale(1.15); opacity: 0.9; }
+  70% { transform: scale(1.3); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Light Leak Sweep */
+.film-burn__leak-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(251, 146, 60, 0.35) 20%,
+    rgba(255, 250, 230, 0.85) 48%,
+    rgba(244, 63, 94, 0.35) 75%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  animation: burnLeakSweep 1.05s ease-out forwards;
+}
+
+@keyframes burnLeakSweep {
+  0% { transform: translateX(-100%) scaleY(0.9); opacity: 0; }
+  30% { transform: translateX(0) scaleY(1.05); opacity: 1; }
+  65% { transform: translateX(40%) scaleY(1.1); opacity: 0.7; }
+  100% { transform: translateX(100%) scaleY(1.15); opacity: 0; }
+}
+
+/* Ember Ambient Halation */
+.film-burn__ember-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(251, 146, 60, 0.35) 0%,
+    rgba(225, 29, 72, 0.15) 45%,
+    transparent 75%
+  );
+  mix-blend-mode: color-dodge;
+  animation: burnEmberGlow 1.4s ease-out forwards;
+}
+
+@keyframes burnEmberGlow {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  75% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+/* Smooth Cinematic Dissolve on Outgoing Loading Screen */
+.site-loader--leaving {
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Cinematic Pre-Drop Tension Build (1.10s vacuum pull, 100% GPU composited) */
+.site-loader--charging-drop {
+  animation: preDropSuction 1.1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes preDropSuction {
+  0% {
+    transform: scale(1);
+  }
+  70% {
+    transform: scale(0.995);
+  }
+  90% {
+    transform: scale(0.988);
+  }
+  100% {
+    transform: scale(0.982);
+  }
+}
+
+.site-loader__start--drop {
+  background: rgba(56, 189, 248, 0.3) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.85), inset 0 0 15px rgba(56, 189, 248, 0.5) !important;
+  letter-spacing: 0.22em !important;
+  animation: buttonDropPulse 0.28s ease-in-out infinite alternate !important;
+  cursor: wait !important;
+}
+
+@keyframes buttonDropPulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 0 45px rgba(56, 189, 248, 1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CINEMATIC THEATER ARCHIVE MODAL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes theaterVaultFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.theater-modal-fadeIn {
+  animation: theaterVaultFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RETRO CRT TELEVISION PORTRAIT EFFECT (About Me Section)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.crt-tv-container {
+  position: relative;
+  isolation: isolate;
+}
+
+/* 1. CRT Curved Glass Tube Vignette & Deep Barrel Curve */
+.crt-tv-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 52%,
+    rgba(3, 7, 18, 0.35) 75%,
+    rgba(2, 6, 15, 0.72) 90%,
+    rgba(0, 0, 0, 0.96) 100%
+  );
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 16px rgba(56, 189, 248, 0.2);
+  transition: box-shadow 0.6s ease;
+}
+
+.group:hover .crt-tv-vignette {
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 24px rgba(56, 189, 248, 0.35);
+}
+
+/* 2. Phosphor Raster Scanlines */
+.crt-tv-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.42) 0px,
+    rgba(0, 0, 0, 0.42) 1.5px,
+    transparent 1.5px,
+    transparent 3px
+  );
+  opacity: 0.38;
+  mix-blend-mode: multiply;
+  transition: opacity 0.5s ease;
+}
+
+.group:hover .crt-tv-scanlines {
+  opacity: 0.24;
+}
+
+/* 3. Rolling Cathode Refresh Scanline Beam */
+.crt-tv-roll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(56, 189, 248, 0.06) 40%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(56, 189, 248, 0.06) 60%,
+    transparent 100%
+  );
+  opacity: 0.75;
+  animation: crtRollScan 5.5s linear infinite;
+}
+
+@keyframes crtRollScan {
+  0% {
+    top: -25%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* 4. Phosphor Glare / Curved Glass Diagonal Specular Glint */
+.crt-tv-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: linear-gradient(
+    128deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.03) 22%,
+    transparent 45%
+  );
+}
+
+/* 5. Subtle CRT Screen Breathing / Micro-Flicker */
+.crt-tv-screen {
+  animation: crtMicroFlicker 0.18s infinite;
+}
+
+@keyframes crtMicroFlicker {
+  0% { opacity: 0.992; }
+  50% { opacity: 1; }
+  100% { opacity: 0.988; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-tv-roll,
+  .crt-tv-screen {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CINEMATIC NLE TIMELINE SUITE (PREMIERE / DAVINCI RESOLVE THEME)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.nle-timeline-console {
+  background: radial-gradient(circle at 50% 0%, rgba(15, 23, 42, 0.6) 0%, rgba(2, 6, 23, 0.95) 100%), #020617;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Ruler frame tick marks */
+.nle-ruler {
+  background-color: #0b0f19;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 0,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 1px,
+    transparent 10px
+  ),
+  repeating-linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.25) 0,
+    rgba(56, 189, 248, 0.25) 1px,
+    transparent 1px,
+    transparent 50px
+  );
+  background-size: 100% 8px, 100% 16px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+}
+
+/* Red / Cyan CTI Laser Playhead */
+.nle-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444, 0 0 20px rgba(239, 68, 68, 0.5);
+  pointer-events: none;
+  z-index: 30;
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.nle-playhead-cap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 16px;
+  background: #ef4444;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 65%, 50% 100%, 0% 65%);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+/* NLE Sequence Track Lane */
+.nle-track-lane {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0%, rgba(0, 0, 0, 0.4) 100%), #060911;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Clip Blocks */
+.nle-clip {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 6px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nle-clip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.9;
+}
+
+.nle-clip:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+}
+
+.nle-clip--active {
+  ring-width: 2px;
+  box-shadow: 0 0 22px currentColor;
+  filter: brightness(1.25);
+  z-index: 10;
+}
+
+/* Waveform texture on audio tracks */
+.nle-audio-waveform {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.07) 0px,
+    rgba(255, 255, 255, 0.07) 2px,
+    transparent 2px,
+    transparent 6px
+  );
+}
+
+/* Filmstrip tick texture on video tracks */
+.nle-video-filmstrip {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 12px,
+    transparent 12px,
+    transparent 16px
+  );
+}
+
+/* ─── NLE Program Preview Monitor Screen ────────────────────────────── */
+.nle-screen-frame {
+  position: relative;
+  background: radial-gradient(circle at 50% 30%, rgba(15, 23, 42, 0.7) 0%, #030712 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 50px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .nle-screen-frame {
+    border-radius: 20px;
+  }
+}
+
+/* Diagonal glass glare on the screen */
+.nle-screen-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    130deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.015) 24%,
+    transparent 48%
+  );
+  z-index: 5;
+}
+
+/* Subtle broadcast scanline texture inside the monitor */
+.nle-screen-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.22) 0px,
+    rgba(0, 0, 0, 0.22) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.55;
+  z-index: 4;
+}
+
+/* 90% Action Safe / 80% Title Safe corner crosshairs */
+.nle-screen-bracket {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(56, 189, 248, 0.45);
+  pointer-events: none;
+  z-index: 6;
+}
+@media (min-width: 640px) {
+  .nle-screen-bracket {
+    width: 14px;
+    height: 14px;
+  }
+}
+.nle-screen-bracket--tl { top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid; }
+.nle-screen-bracket--tr { top: 8px; right: 8px; border-top: 2px solid; border-right: 2px solid; }
+.nle-screen-bracket--bl { bottom: 8px; left: 8px; border-bottom: 2px solid; border-left: 2px solid; }
+.nle-screen-bracket--br { bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid; }
+@media (min-width: 640px) {
+  .nle-screen-bracket--tl { top: 12px; left: 12px; }
+  .nle-screen-bracket--tr { top: 12px; right: 12px; }
+  .nle-screen-bracket--bl { bottom: 12px; left: 12px; }
+  .nle-screen-bracket--br { bottom: 12px; right: 12px; }
+}
+
+/* ─── Living Cinematic Footage Motion (Ken Burns Slow Breathing Drift) ──── */
+@keyframes cinematicDrift {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.07) translate(-1%, -0.6%);
+  }
+  100% {
+    transform: scale(1.02) translate(0.8%, 0.4%);
+  }
+}
+
+.footage-living-drift {
+  animation: cinematicDrift 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* ─── Instant Shutter / Optical Cut Flash (Simulates Video Edit Transitions) ── */
+@keyframes editCutFlash {
+  0% {
+    opacity: 0.9;
+    background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(56,189,248,0.6) 50%, transparent 100%);
+  }
+  40% {
+    opacity: 0.4;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    opacity: 0;
+    background: transparent;
+  }
+}
+
+.edit-shutter-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+  animation: editCutFlash 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── Authentic 35mm Celluloid Film Grain Texture ───────────────────── */
+.footage-film-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  z-index: 10;
+}
+
+/* ─── Interactive Colorist LUT Profiles ────────────────────────────── */
+.lut-raw-log {
+  filter: contrast(0.72) brightness(1.15) saturate(0.35) sepia(0.06);
+  transition: filter 0.4s ease-out;
+}
+
+.lut-graded-rec709 {
+  filter: contrast(1.12) brightness(1.02) saturate(1.22);
+  transition: filter 0.4s ease-out;
+}
+
+/* ─── Rule of Thirds & Framing Guides ──────────────────────────────── */
+.footage-safe-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 33.333% 33.333%;
+  z-index: 12;
+}
+
+/* ─── Live Dynamic Picture-in-Picture (PIP) B-Roll Window ─────────── */
+.nle-pip-window {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 88px;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  border: 1.5px solid rgba(56, 189, 248, 0.65);
+  background: #000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 14px rgba(56, 189, 248, 0.3);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 25;
+}
+@media (min-width: 640px) {
+  .nle-pip-window {
+    bottom: 16px;
+    right: 16px;
+    width: 155px;
+    border-radius: 8px;
+  }
+}
+.nle-pip-window:hover {
+  transform: scale(1.06);
+  border-color: rgba(56, 189, 248, 1);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.95), 0 0 25px rgba(56, 189, 248, 0.55);
+}
+
+/* ─── Animated Beat Audio Waveform Track ───────────────────────────── */
+@keyframes waveBounce {
+  0%, 100% { height: 18%; }
+  50% { height: 96%; }
+}
+.audio-wave-bar {
+  animation: waveBounce 0.8s ease-in-out infinite;
+}
+
+/* ─── Universal Scrollbar Hiding Utilities ───────────────────────── */
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
