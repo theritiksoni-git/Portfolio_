@@ -138,13 +138,23 @@ class SoundEngine {
 
     // Golden Hour interactive audio tracks (/audio/golden hour/gh1.wav ... gh6.wav)
     this._goldenHourUrls = [
-      '/audio/golden hour/gh1.wav',
-      '/audio/golden hour/gh2.wav',
-      '/audio/golden hour/gh3.wav',
-      '/audio/golden hour/gh4.wav',
-      '/audio/golden hour/gh5.wav',
-      '/audio/golden hour/gh6.wav',
+      encodeURI('/audio/golden hour/gh1.wav'),
+      encodeURI('/audio/golden hour/gh2.wav'),
+      encodeURI('/audio/golden hour/gh3.wav'),
+      encodeURI('/audio/golden hour/gh4.wav'),
+      encodeURI('/audio/golden hour/gh5.wav'),
+      encodeURI('/audio/golden hour/gh6.wav'),
     ];
+    this._goldenHourAudio = [];
+    if (typeof window !== 'undefined') {
+      try {
+        this._goldenHourAudio = this._goldenHourUrls.map((url) => {
+          const a = new Audio(url);
+          a.preload = 'none';
+          return a;
+        });
+      } catch (e) {}
+    }
     this._goldenHourBuffers = [];
     this._lastGhIndex = -1;
     this._lastGhTime = 0;
@@ -710,12 +720,21 @@ class SoundEngine {
     if (this._goldenHourBuffers[nextIdx]) {
       playBuffer(this._goldenHourBuffers[nextIdx]);
     } else {
+      try {
+        if (this._goldenHourAudio && this._goldenHourAudio[nextIdx]) {
+          const ghAudio = this._goldenHourAudio[nextIdx];
+          ghAudio.currentTime = 0;
+          ghAudio.volume = 0.28;
+          const p = ghAudio.play();
+          if (p !== undefined) p.catch(() => {});
+        }
+      } catch (e) {}
+
       fetch(this._goldenHourUrls[nextIdx])
         .then((r) => r.arrayBuffer())
         .then((ab) => this.ctx.decodeAudioData(ab))
         .then((decoded) => {
           this._goldenHourBuffers[nextIdx] = decoded;
-          playBuffer(decoded);
         })
         .catch(() => {});
     }
@@ -1656,21 +1675,21 @@ class SoundEngine {
       this.playGoldenHour(e.clientX);
     }, { passive: true });
 
-    // Video Play / Pause auto-ducking
+    // Video Play / Pause auto-ducking (ONLY for portfolio video reels, never audio)
     document.addEventListener('play', (e) => {
-      if (e.target && (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO')) {
+      if (e.target && e.target.tagName === 'VIDEO') {
         this.fadeOutMusic(0.5);
       }
     }, true);
 
     document.addEventListener('pause', (e) => {
-      if (e.target && (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO')) {
+      if (e.target && e.target.tagName === 'VIDEO') {
         this.fadeInMusic(0.8);
       }
     }, true);
 
     document.addEventListener('ended', (e) => {
-      if (e.target && (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO')) {
+      if (e.target && e.target.tagName === 'VIDEO') {
         this.fadeInMusic(0.8);
       }
     }, true);
