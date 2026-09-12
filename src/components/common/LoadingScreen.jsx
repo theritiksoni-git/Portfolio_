@@ -190,6 +190,7 @@ export default function LoadingScreen({ onComplete, onEnableSound, onStartSiteTr
     sound.isMuted = false;
     sound.playFuturisticButtonClick(clientX);
     sound.playGlitch(clientX);
+    sound.preloadGoldenHour().catch(() => {});
     setIsGlitching(true);
 
     // Advance to loading screen at 700ms when the visual glitch concludes

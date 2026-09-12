@@ -42,9 +42,9 @@ class SoundEngine {
     };
 
     this._soundtrackUrls = {
-      melancholy: encodeURI('/audio/story loop/melancholy-maj-a.wav'),
-      horizon: encodeURI('/audio/drone & texture/horizon-maj-a.wav'),
-      reckoning: encodeURI('/audio/story loop/Reckoning - MIN A.wav'),
+      melancholy: '/audio/story-loop/melancholy-maj-a.wav',
+      horizon: '/audio/drone-texture/horizon-maj-a.wav',
+      reckoning: '/audio/story-loop/reckoning-min-a.wav',
     };
 
     this._soundtrackVolumes = {
@@ -136,25 +136,15 @@ class SoundEngine {
     // Noise buffer for camera swoops
     this._noiseBuffer = null;
 
-    // Golden Hour interactive audio tracks (/audio/golden hour/gh1.wav ... gh6.wav)
+    // Golden Hour interactive audio tracks (/audio/golden-hour/gh1.wav ... gh6.wav)
     this._goldenHourUrls = [
-      encodeURI('/audio/golden hour/gh1.wav'),
-      encodeURI('/audio/golden hour/gh2.wav'),
-      encodeURI('/audio/golden hour/gh3.wav'),
-      encodeURI('/audio/golden hour/gh4.wav'),
-      encodeURI('/audio/golden hour/gh5.wav'),
-      encodeURI('/audio/golden hour/gh6.wav'),
+      '/audio/golden-hour/gh1.wav',
+      '/audio/golden-hour/gh2.wav',
+      '/audio/golden-hour/gh3.wav',
+      '/audio/golden-hour/gh4.wav',
+      '/audio/golden-hour/gh5.wav',
+      '/audio/golden-hour/gh6.wav',
     ];
-    this._goldenHourAudio = [];
-    if (typeof window !== 'undefined') {
-      try {
-        this._goldenHourAudio = this._goldenHourUrls.map((url) => {
-          const a = new Audio(url);
-          a.preload = 'none';
-          return a;
-        });
-      } catch (e) {}
-    }
     this._goldenHourBuffers = [];
     this._lastGhIndex = -1;
     this._lastGhTime = 0;
@@ -167,17 +157,11 @@ class SoundEngine {
     this._lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
     this._listenersAttached = false;
 
-    // Load initial preference
-    try {
-      const stored = localStorage.getItem('ritik_cinematic_audio_enabled');
-      if (stored !== null) {
-        this.isMuted = stored !== 'true';
-      } else {
-        this.isMuted = false;
-      }
-    } catch (e) {
-      this.isMuted = false;
-    }
+    // Audio preferences
+    this.isMuted = false;
+    this.isSoundtrackPlaying = false;
+    this._isPreloadingGh = false;
+    this._ghLoading = {};
 
     this.playGearScroll = this.playGearScroll.bind(this);
     this.stopGearScroll = this.stopGearScroll.bind(this);
@@ -319,7 +303,9 @@ class SoundEngine {
   }
 
   async preloadGoldenHour() {
-    if (!this.ctx) return;
+    this.initContext();
+    if (!this.ctx || this._isPreloadingGh) return;
+    this._isPreloadingGh = true;
     const promises = this._goldenHourUrls.map(async (url, idx) => {
       if (this._goldenHourBuffers[idx]) return this._goldenHourBuffers[idx];
       try {
@@ -335,6 +321,34 @@ class SoundEngine {
     await Promise.all(promises);
   }
 
+  _playGhBuffer(buffer, clientX) {
+    if (!this.ctx || !buffer) return;
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+    try {
+      const src = this.ctx.createBufferSource();
+      src.buffer = buffer;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+
+      if (clientX !== undefined && this.ctx.createStereoPanner) {
+        const panner = this.ctx.createStereoPanner();
+        const norm = (clientX / (window.innerWidth || 1)) * 2 - 1;
+        panner.pan.value = Math.max(-0.75, Math.min(0.75, norm));
+        src.connect(gain);
+        gain.connect(panner);
+        panner.connect(this.sfxBus || this.masterGain || this.ctx.destination);
+      } else {
+        src.connect(gain);
+        gain.connect(this.sfxBus || this.masterGain || this.ctx.destination);
+      }
+
+      src.start(0);
+    } catch (e) {}
+  }
+
   // ── 2. The Movie Score Progressive Chunk Streaming ──────────────────────────
 
   _getStreamingElement(trackName) {
@@ -343,90 +357,28 @@ class SoundEngine {
       this._streamingElements = {};
     }
     if (!this._streamingElements[trackName] && this._soundtrackUrls[trackName]) {
-      const audio = new Audio();
-      audio.src = this._soundtrackUrls[trackName];
+      const audio = new Audio(this._soundtrackUrls[trackName]);
       audio.loop = true;
-      audio.preload = 'auto'; // Triggers progressive HTTP range chunk streaming
-      audio.crossOrigin = 'anonymous';
+      audio.preload = 'auto';
       this._streamingElements[trackName] = audio;
     }
     return this._streamingElements[trackName];
   }
 
-  _connectStreamingElementToWebAudio(trackName, audio) {
-    if (!this.ctx || !audio) return null;
-    if (!this._mediaElementSources) {
-      this._mediaElementSources = {};
-    }
-    if (this._mediaElementSources[trackName]) {
-      return this._mediaElementSources[trackName];
-    }
-    try {
-      const src = this.ctx.createMediaElementSource(audio);
-      const gain = this.ctx.createGain();
-      const targetVol = this._soundtrackVolumes[trackName] || 0.18;
-      gain.gain.value = targetVol;
-
-      const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-      if (panner) {
-        src.connect(gain);
-        gain.connect(panner);
-        panner.connect(this.musicBus || this.masterGain);
-        this._soundtrackPanners[trackName] = panner;
-      } else {
-        src.connect(gain);
-        gain.connect(this.musicBus || this.masterGain);
-      }
-
-      this._mediaElementSources[trackName] = src;
-      this._soundtrackGains[trackName] = gain;
-      return src;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  async playTrack(trackName) {
-    this.initContext();
+  playTrack(trackName) {
     if (!this._soundtrackUrls[trackName]) return;
 
-    this.isMuted = false;
     this.isSoundtrackPlaying = true;
     try {
-      localStorage.setItem('ritik_cinematic_audio_enabled', 'true');
+      localStorage.setItem('ritik_cinematic_soundtrack_enabled', 'true');
     } catch (e) {}
 
     const audio = this._getStreamingElement(trackName);
     if (!audio) return;
 
     const targetVol = this._soundtrackVolumes[trackName] || 0.18;
+    audio.volume = targetVol;
 
-    if (this.ctx) {
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume().catch(() => {});
-      }
-      this._connectStreamingElementToWebAudio(trackName, audio);
-
-      const t = this.ctx.currentTime;
-      if (this.musicBus) {
-        this.musicBus.gain.cancelScheduledValues(t);
-        this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, t);
-        this.musicBus.gain.linearRampToValueAtTime(1.0, t + 0.4);
-      }
-
-      const gain = this._soundtrackGains[trackName];
-      if (gain) {
-        gain.gain.cancelScheduledValues(t);
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.linearRampToValueAtTime(targetVol, t + 0.7);
-      } else {
-        audio.volume = targetVol;
-      }
-    } else {
-      audio.volume = targetVol;
-    }
-
-    // Immediate playback starts on first chunk without waiting for full download!
     try {
       const playPromise = audio.play();
       if (playPromise !== undefined) {
@@ -438,24 +390,10 @@ class SoundEngine {
   stopTrack(trackName) {
     const audio = this._streamingElements && this._streamingElements[trackName];
     if (audio) {
-      if (this.ctx && this._soundtrackGains && this._soundtrackGains[trackName]) {
-        const t = this.ctx.currentTime;
-        const gain = this._soundtrackGains[trackName];
-        gain.gain.cancelScheduledValues(t);
-        gain.gain.setValueAtTime(gain.gain.value, t);
-        gain.gain.linearRampToValueAtTime(0.0001, t + 0.3);
-        setTimeout(() => {
-          try {
-            audio.pause();
-            audio.currentTime = 0;
-          } catch (e) {}
-        }, 320);
-      } else {
-        try {
-          audio.pause();
-          audio.currentTime = 0;
-        } catch (e) {}
-      }
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch (e) {}
     }
 
     if (trackName === 'reckoning' && this._reckoningAudio) {
@@ -472,10 +410,9 @@ class SoundEngine {
   }
 
   stopSoundtrack() {
-    this.isMuted = true;
     this.isSoundtrackPlaying = false;
     try {
-      localStorage.setItem('ritik_cinematic_audio_enabled', 'false');
+      localStorage.setItem('ritik_cinematic_soundtrack_enabled', 'false');
     } catch (e) {}
 
     if (this.ctx && this.musicBus) {
@@ -503,7 +440,7 @@ class SoundEngine {
   }
 
   toggleSoundtrack() {
-    if (this.isSoundtrackPlaying && !this.isMuted) {
+    if (this.isSoundtrackPlaying) {
       this.stopSoundtrack();
       return false;
     } else {
@@ -647,26 +584,6 @@ class SoundEngine {
     this._lastGhTime = now;
 
     this.initContext();
-    if (!this.ctx) return;
-
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {});
-    }
-
-    const t = this.ctx.currentTime;
-
-    if (this._currentGhGain && this._currentGhSource) {
-      try {
-        const prevGain = this._currentGhGain;
-        const prevSource = this._currentGhSource;
-        const curVal = prevGain.gain.value;
-        prevGain.gain.setValueAtTime(Math.max(0.0001, curVal), t);
-        prevGain.gain.linearRampToValueAtTime(0.0001, t + 0.04);
-        prevSource.stop(t + 0.045);
-      } catch (err) {}
-      this._currentGhGain = null;
-      this._currentGhSource = null;
-    }
 
     const total = this._goldenHourUrls.length;
     let nextIdx = Math.floor(Math.random() * total);
@@ -675,68 +592,40 @@ class SoundEngine {
     }
     this._lastGhIndex = nextIdx;
 
-    const playBuffer = (buffer) => {
-      if (!buffer || !this.ctx) return;
-      const curTime = this.ctx.currentTime;
-      const source = this.ctx.createBufferSource();
-      source.buffer = buffer;
+    if (!this._isPreloadingGh) {
+      this.preloadGoldenHour().catch(() => {});
+    }
 
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.0001, curTime);
-      gain.gain.linearRampToValueAtTime(0.168, curTime + 0.015);
+    // 1. Instant zero-latency playback via decoded Web Audio buffer if ready
+    if (this.ctx && this._goldenHourBuffers && this._goldenHourBuffers[nextIdx]) {
+      this._playGhBuffer(this._goldenHourBuffers[nextIdx], clientX);
+      return;
+    }
 
-      this._currentGhSource = source;
-      this._currentGhGain = gain;
-
-      source.onended = () => {
-        if (this._currentGhSource === source) {
-          this._currentGhSource = null;
-          this._currentGhGain = null;
-        }
-      };
-
-      if (clientX !== undefined && this.ctx.createStereoPanner) {
-        const panner = this.ctx.createStereoPanner();
-        const norm = (clientX / (window.innerWidth || 1)) * 2 - 1;
-        panner.pan.value = Math.max(-1, Math.min(1, norm)) * 0.4;
-        source.connect(gain);
-        gain.connect(panner);
-        panner.connect(this.sfxBus || this.masterGain);
-      } else {
-        source.connect(gain);
-        gain.connect(this.sfxBus || this.masterGain);
+    // 2. Immediate playback via HTML5 Audio element
+    try {
+      const chime = new Audio(this._goldenHourUrls[nextIdx]);
+      chime.volume = 0.35;
+      const p = chime.play();
+      if (p !== undefined) {
+        p.catch(() => {});
       }
+    } catch (e) {}
 
-      if (this._reverb) {
-        const revSend = this.ctx.createGain();
-        revSend.gain.setValueAtTime(0.30, curTime);
-        gain.connect(revSend);
-        revSend.connect(this._reverb);
-      }
-
-      source.start(curTime);
-    };
-
-    if (this._goldenHourBuffers[nextIdx]) {
-      playBuffer(this._goldenHourBuffers[nextIdx]);
-    } else {
-      try {
-        if (this._goldenHourAudio && this._goldenHourAudio[nextIdx]) {
-          const ghAudio = this._goldenHourAudio[nextIdx];
-          ghAudio.currentTime = 0;
-          ghAudio.volume = 0.28;
-          const p = ghAudio.play();
-          if (p !== undefined) p.catch(() => {});
-        }
-      } catch (e) {}
-
+    // 3. Load & decode this buffer asynchronously so subsequent clicks are zero-latency
+    if (this.ctx && !this._goldenHourBuffers[nextIdx] && (!this._ghLoading || !this._ghLoading[nextIdx])) {
+      if (!this._ghLoading) this._ghLoading = {};
+      this._ghLoading[nextIdx] = true;
       fetch(this._goldenHourUrls[nextIdx])
         .then((r) => r.arrayBuffer())
         .then((ab) => this.ctx.decodeAudioData(ab))
         .then((decoded) => {
           this._goldenHourBuffers[nextIdx] = decoded;
+          this._ghLoading[nextIdx] = false;
         })
-        .catch(() => {});
+        .catch(() => {
+          this._ghLoading[nextIdx] = false;
+        });
     }
   }
 
@@ -1658,6 +1547,9 @@ class SoundEngine {
     // Mouse movement listener for continuous 3D spatial stereo panning
     let rafId = null;
     const onMouseMove = (e) => {
+      if (!this._isPreloadingGh) {
+        this.preloadGoldenHour().catch(() => {});
+      }
       if (rafId) return;
       rafId = window.requestAnimationFrame(() => {
         rafId = null;
@@ -1666,12 +1558,10 @@ class SoundEngine {
     };
     window.addEventListener('mousemove', onMouseMove, { passive: true });
 
-
-
     // Global Golden Hour Pointerdown Interaction
     window.addEventListener('pointerdown', (e) => {
       if (e.target && (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO')) return;
-      if (e.target && e.target.closest && e.target.closest('.site-loader')) return;
+      if (e.target && e.target.closest && (e.target.closest('.site-loader') || e.target.closest('button[aria-label*="background audio"]'))) return;
       this.playGoldenHour(e.clientX);
     }, { passive: true });
 
