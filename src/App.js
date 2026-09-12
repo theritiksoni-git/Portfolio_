@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 
 // 3D & HUD Persistent Shell Components
 import CinematicCanvas from './components/3d/CinematicCanvas';
@@ -249,6 +250,7 @@ function App() {
           isBackgroundSoundOn={isBackgroundSoundOn}
           onToggleBackgroundSound={toggleBackgroundSound}
         />
+        <Analytics />
       </Router>
       {isLoading && (
         <LoadingScreen
