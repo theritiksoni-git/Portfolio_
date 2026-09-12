@@ -54,7 +54,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               <span className="font-medium tracking-widest uppercase">DIRECTOR</span>
             </div>
 
-            <span className="text-zinc-600 font-mono text-xs select-none">//</span>
+            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
             {/* Discipline 2: Video Editor */}
             <div className="inline-flex items-center gap-1.5">
@@ -62,7 +62,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               <span className="font-medium tracking-widest uppercase">VIDEO EDITOR</span>
             </div>
 
-            <span className="text-zinc-600 font-mono text-xs select-none">//</span>
+            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
             {/* Discipline 3: Social Media Manager */}
             <div className="inline-flex items-center gap-1.5">
