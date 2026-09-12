@@ -53,6 +53,18 @@ class SoundEngine {
       reckoning: 0.18,
     };
 
+    // Progressive Chunked Audio Streaming Elements & Web Audio Nodes
+    this._streamingElements = {
+      melancholy: null,
+      horizon: null,
+      reckoning: null,
+    };
+    this._mediaElementSources = {
+      melancholy: null,
+      horizon: null,
+      reckoning: null,
+    };
+
     // Futuristic Cyber Glitch SFX (/audio/sfx/futuristic-glitch.wav)
     this._glitchUrl = '/audio/sfx/futuristic-glitch.wav?v=3';
     this._glitchBuffer = null;
@@ -207,9 +219,7 @@ class SoundEngine {
       // Generate procedural organic noise buffer for camera swoops
       this._noiseBuffer = this._buildPinkNoiseBuffer(2.0);
 
-      // Preload soundtrack, Golden Hour clips & attach listeners
-      this.preloadSoundtracks();
-      this.preloadGoldenHour();
+      // Attach lifecycle listeners (tracks stream progressively in chunks on-demand)
       this._attachLifecycleListeners();
     }
 
@@ -315,15 +325,60 @@ class SoundEngine {
     await Promise.all(promises);
   }
 
-  // ── 2. The Movie Score Playback ───────────────────────────────────────────
+  // ── 2. The Movie Score Progressive Chunk Streaming ──────────────────────────
+
+  _getStreamingElement(trackName) {
+    if (typeof window === 'undefined') return null;
+    if (!this._streamingElements) {
+      this._streamingElements = {};
+    }
+    if (!this._streamingElements[trackName] && this._soundtrackUrls[trackName]) {
+      const audio = new Audio();
+      audio.src = this._soundtrackUrls[trackName];
+      audio.loop = true;
+      audio.preload = 'auto'; // Triggers progressive HTTP range chunk streaming
+      audio.crossOrigin = 'anonymous';
+      this._streamingElements[trackName] = audio;
+    }
+    return this._streamingElements[trackName];
+  }
+
+  _connectStreamingElementToWebAudio(trackName, audio) {
+    if (!this.ctx || !audio) return null;
+    if (!this._mediaElementSources) {
+      this._mediaElementSources = {};
+    }
+    if (this._mediaElementSources[trackName]) {
+      return this._mediaElementSources[trackName];
+    }
+    try {
+      const src = this.ctx.createMediaElementSource(audio);
+      const gain = this.ctx.createGain();
+      const targetVol = this._soundtrackVolumes[trackName] || 0.18;
+      gain.gain.value = targetVol;
+
+      const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      if (panner) {
+        src.connect(gain);
+        gain.connect(panner);
+        panner.connect(this.musicBus || this.masterGain);
+        this._soundtrackPanners[trackName] = panner;
+      } else {
+        src.connect(gain);
+        gain.connect(this.musicBus || this.masterGain);
+      }
+
+      this._mediaElementSources[trackName] = src;
+      this._soundtrackGains[trackName] = gain;
+      return src;
+    } catch (e) {
+      return null;
+    }
+  }
 
   async playTrack(trackName) {
     this.initContext();
-    if (!this.ctx) return;
-
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume().catch(() => {});
-    }
+    if (!this._soundtrackUrls[trackName]) return;
 
     this.isMuted = false;
     this.isSoundtrackPlaying = true;
@@ -331,181 +386,79 @@ class SoundEngine {
       localStorage.setItem('ritik_cinematic_audio_enabled', 'true');
     } catch (e) {}
 
-    const t = this.ctx.currentTime;
+    const audio = this._getStreamingElement(trackName);
+    if (!audio) return;
 
-    // For reckoning: add a smooth, small fade-in (0.7s) to swell into the glitch and loading meter
-    if (trackName === 'reckoning') {
+    const targetVol = this._soundtrackVolumes[trackName] || 0.18;
+
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      this._connectStreamingElementToWebAudio(trackName, audio);
+
+      const t = this.ctx.currentTime;
       if (this.musicBus) {
         this.musicBus.gain.cancelScheduledValues(t);
-        this.musicBus.gain.setValueAtTime(1.0, t);
+        this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, t);
+        this.musicBus.gain.linearRampToValueAtTime(1.0, t + 0.4);
       }
 
-      const startBuffer = (buffer) => {
-        if (!this.ctx || !buffer || this._soundtrackSources.reckoning) return;
-        const curTime = this.ctx.currentTime;
-        const src = this.ctx.createBufferSource();
-        src.buffer = buffer;
-        src.loop = true;
-
-        const gain = this.ctx.createGain();
-        // Smooth small fade-in (0.7s)
-        const targetVol = this._soundtrackVolumes.reckoning;
-        gain.gain.setValueAtTime(0.0001, curTime);
-        gain.gain.linearRampToValueAtTime(targetVol, curTime + 0.7);
-
-        const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-        if (panner) {
-          src.connect(gain);
-          gain.connect(panner);
-          panner.connect(this.musicBus);
-        } else {
-          src.connect(gain);
-          gain.connect(this.musicBus);
-        }
-
-        src.start(curTime);
-        this._soundtrackSources.reckoning = src;
-        this._soundtrackGains.reckoning = gain;
-        this._soundtrackPanners.reckoning = panner;
-      };
-
-      if (this._soundtrackBuffers.reckoning) {
-        startBuffer(this._soundtrackBuffers.reckoning);
+      const gain = this._soundtrackGains[trackName];
+      if (gain) {
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.linearRampToValueAtTime(targetVol, t + 0.7);
       } else {
-        // Fallback HTML5 audio playback with smooth small fade-in
-        try {
-          if (this._reckoningAudio) {
-            this._reckoningAudio.currentTime = 0;
-            this._reckoningAudio.volume = 0.0;
-            const p = this._reckoningAudio.play();
-            if (p !== undefined) p.catch(() => {});
-            const targetVol = this._soundtrackVolumes.reckoning;
-            const fadeStart = Date.now();
-            const fadeDuration = 700;
-            const fadeInterval = setInterval(() => {
-              const elapsed = Date.now() - fadeStart;
-              const fraction = Math.min(1, elapsed / fadeDuration);
-              if (this._reckoningAudio) {
-                this._reckoningAudio.volume = fraction * targetVol;
-              }
-              if (fraction >= 1) clearInterval(fadeInterval);
-            }, 30);
-          }
-        } catch (err) {}
-
-        fetch(this._soundtrackUrls.reckoning)
-          .then((res) => res.arrayBuffer())
-          .then((ab) => this.ctx.decodeAudioData(ab))
-          .then((decoded) => {
-            this._soundtrackBuffers.reckoning = decoded;
-            if (this.isSoundtrackPlaying && !this._soundtrackSources.reckoning) {
-              if (this._reckoningAudio) {
-                try { this._reckoningAudio.pause(); } catch (e) {}
-              }
-              startBuffer(decoded);
-            }
-          })
-          .catch(() => {});
+        audio.volume = targetVol;
       }
-      return;
+    } else {
+      audio.volume = targetVol;
     }
 
-    await this.loadSingleTrack(trackName);
-    if (!this.ctx || !this.isSoundtrackPlaying) return;
-
-    // Smoothly unmute music bus for other tracks
-    if (this.musicBus) {
-      this.musicBus.gain.cancelScheduledValues(t);
-      this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, t);
-      this.musicBus.gain.linearRampToValueAtTime(1.0, t + 0.6);
-    }
-
-    if (trackName === 'melancholy') {
-      if (this._soundtrackBuffers.melancholy && !this._soundtrackSources.melancholy) {
-        const src = this.ctx.createBufferSource();
-        src.buffer = this._soundtrackBuffers.melancholy;
-        src.loop = true;
-
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.linearRampToValueAtTime(this._soundtrackVolumes.melancholy, t + 1.2);
-
-        const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-        if (panner) {
-          src.connect(gain);
-          gain.connect(panner);
-          panner.connect(this.musicBus);
-        } else {
-          src.connect(gain);
-          gain.connect(this.musicBus);
-        }
-
-        src.start(t);
-        this._soundtrackSources.melancholy = src;
-        this._soundtrackGains.melancholy = gain;
-        this._soundtrackPanners.melancholy = panner;
+    // Immediate playback starts on first chunk without waiting for full download!
+    try {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
       }
-    } else if (trackName === 'horizon') {
-      if (this._soundtrackBuffers.horizon && !this._soundtrackSources.horizon) {
-        const src = this.ctx.createBufferSource();
-        src.buffer = this._soundtrackBuffers.horizon;
-        src.loop = true;
-
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.linearRampToValueAtTime(this._soundtrackVolumes.horizon, t + 1.5);
-
-        const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-        if (panner) {
-          src.connect(gain);
-          gain.connect(panner);
-          panner.connect(this.musicBus);
-        } else {
-          src.connect(gain);
-          gain.connect(this.musicBus);
-        }
-
-        src.start(t);
-        this._soundtrackSources.horizon = src;
-        this._soundtrackGains.horizon = gain;
-        this._soundtrackPanners.horizon = panner;
-      }
-    }
+    } catch (e) {}
   }
 
   stopTrack(trackName) {
+    const audio = this._streamingElements && this._streamingElements[trackName];
+    if (audio) {
+      if (this.ctx && this._soundtrackGains && this._soundtrackGains[trackName]) {
+        const t = this.ctx.currentTime;
+        const gain = this._soundtrackGains[trackName];
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(gain.gain.value, t);
+        gain.gain.linearRampToValueAtTime(0.0001, t + 0.3);
+        setTimeout(() => {
+          try {
+            audio.pause();
+            audio.currentTime = 0;
+          } catch (e) {}
+        }, 320);
+      } else {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
     if (trackName === 'reckoning' && this._reckoningAudio) {
       try {
         this._reckoningAudio.pause();
         this._reckoningAudio.currentTime = 0;
       } catch (e) {}
     }
-
-    if (this._soundtrackSources[trackName]) {
-      const src = this._soundtrackSources[trackName];
-      const gain = this._soundtrackGains[trackName];
-      if (this.ctx && gain) {
-        const t = this.ctx.currentTime;
-        gain.gain.cancelScheduledValues(t);
-        gain.gain.setValueAtTime(gain.gain.value, t);
-        gain.gain.linearRampToValueAtTime(0.0001, t + 0.25);
-        setTimeout(() => {
-          try { src.stop(); } catch (e) {}
-          try { src.disconnect(); } catch (e) {}
-        }, 280);
-      } else {
-        try { src.stop(); } catch (e) {}
-        try { src.disconnect(); } catch (e) {}
-      }
-      this._soundtrackSources[trackName] = null;
-      this._soundtrackGains[trackName] = null;
-      this._soundtrackPanners[trackName] = null;
-    }
   }
 
   async startSoundtrack() {
-    await this.playTrack('melancholy');
-    await this.playTrack('horizon');
+    this.playTrack('melancholy');
+    this.playTrack('horizon');
   }
 
   stopSoundtrack() {
@@ -515,31 +468,28 @@ class SoundEngine {
       localStorage.setItem('ritik_cinematic_audio_enabled', 'false');
     } catch (e) {}
 
-    if (!this.ctx) return;
-    const t = this.ctx.currentTime;
-
-    if (this.musicBus) {
+    if (this.ctx && this.musicBus) {
+      const t = this.ctx.currentTime;
       this.musicBus.gain.cancelScheduledValues(t);
       this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, t);
-      this.musicBus.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+      this.musicBus.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+    }
+
+    if (this._streamingElements) {
+      Object.keys(this._streamingElements).forEach((key) => {
+        const audio = this._streamingElements[key];
+        if (audio) {
+          try {
+            audio.pause();
+            audio.currentTime = 0;
+          } catch (e) {}
+        }
+      });
     }
 
     if (this._reckoningAudio) {
       try { this._reckoningAudio.pause(); } catch (e) {}
     }
-
-    setTimeout(() => {
-      if (this.isSoundtrackPlaying) return;
-      ['melancholy', 'horizon', 'reckoning'].forEach((key) => {
-        if (this._soundtrackSources[key]) {
-          try { this._soundtrackSources[key].stop(); } catch (e) {}
-          try { this._soundtrackSources[key].disconnect(); } catch (e) {}
-          this._soundtrackSources[key] = null;
-          this._soundtrackGains[key] = null;
-          this._soundtrackPanners[key] = null;
-        }
-      });
-    }, 550);
   }
 
   toggleSoundtrack() {
@@ -555,33 +505,50 @@ class SoundEngine {
   // ── 3. Video Auto-Ducking ───────────────────────────────────────────────────
 
   fadeOutMusic(duration = 0.5) {
-    if (!this.ctx) return;
     this.isPausedForVideo = true;
-    if (this._reckoningAudio) {
-      this._reckoningAudio.volume = 0;
-    }
-    const t = this.ctx.currentTime;
-    if (this.musicBus) {
+    if (this.ctx && this.musicBus) {
+      const t = this.ctx.currentTime;
       this.musicBus.gain.cancelScheduledValues(t);
       this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, t);
       this.musicBus.gain.linearRampToValueAtTime(0.0001, t + duration);
     }
+    if (this._streamingElements) {
+      Object.keys(this._streamingElements).forEach((key) => {
+        const audio = this._streamingElements[key];
+        if (audio && !this._mediaElementSources?.[key]) {
+          audio.volume = 0;
+        }
+      });
+    }
+    if (this._reckoningAudio) {
+      this._reckoningAudio.volume = 0;
+    }
   }
 
   fadeInMusic(duration = 0.8) {
-    if (!this.ctx || this.isMuted) return;
+    if (this.isMuted) return;
     this.isPausedForVideo = false;
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {});
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      if (this.musicBus) {
+        const t = this.ctx.currentTime;
+        this.musicBus.gain.cancelScheduledValues(t);
+        this.musicBus.gain.setValueAtTime(Math.max(0.0001, this.musicBus.gain.value), t);
+        this.musicBus.gain.linearRampToValueAtTime(1.0, t + duration);
+      }
+    }
+    if (this._streamingElements) {
+      Object.keys(this._streamingElements).forEach((key) => {
+        const audio = this._streamingElements[key];
+        if (audio && !this._mediaElementSources?.[key]) {
+          audio.volume = this._soundtrackVolumes[key] || 0.18;
+        }
+      });
     }
     if (this._reckoningAudio) {
       this._reckoningAudio.volume = this._soundtrackVolumes.reckoning;
-    }
-    const t = this.ctx.currentTime;
-    if (this.musicBus) {
-      this.musicBus.gain.cancelScheduledValues(t);
-      this.musicBus.gain.setValueAtTime(Math.max(0.0001, this.musicBus.gain.value), t);
-      this.musicBus.gain.linearRampToValueAtTime(1.0, t + duration);
     }
   }
 
