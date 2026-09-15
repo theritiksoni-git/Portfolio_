@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // 3D & HUD Persistent Shell Components
 import CinematicCanvas from './components/3d/CinematicCanvas';
@@ -53,12 +54,30 @@ const RouteLoadingFallback = () => (
  */
 function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   const location = useLocation();
+  const navigate = useNavigate();
   usePageMetadata();
   const [selectedProject, setSelectedProject] = useState(null);
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isTheaterArchiveOpen, setIsTheaterArchiveOpen] = useState(false);
   const [isLetterbox, setIsLetterbox] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Redirect to hero page ('/') on initial site visit or browser reload
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    const scrollToHero = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    };
+    scrollToHero();
+    requestAnimationFrame(scrollToHero);
+
+    if (location.pathname !== '/' && !location.pathname.startsWith('/admin')) {
+      navigate('/', { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     soundEngine.enableEffects();
@@ -226,6 +245,7 @@ function App() {
 
   const handleComplete = useCallback(() => {
     setIsLoading(false);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, []);
 
   const handleStartSiteTransition = useCallback(() => {
@@ -251,6 +271,7 @@ function App() {
           onToggleBackgroundSound={toggleBackgroundSound}
         />
         <Analytics />
+        <SpeedInsights />
       </Router>
       {isLoading && (
         <LoadingScreen

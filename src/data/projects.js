@@ -74,6 +74,7 @@ export const PROJECTS = [
       deliveryFormat: '4K H.264 High Profile'
     }
   },
+  /* Temporarily removed per request:
   {
     id: 'adentech-mtw-btit-event',
     title: 'Adentech MTW & BTIT Keynote & Exhibition Film',
@@ -104,6 +105,7 @@ export const PROJECTS = [
       deliveryFormat: 'ProRes Master (2.58 GB)'
     }
   },
+  */
 
   // ==================== 2. RED BULL ====================
   {
