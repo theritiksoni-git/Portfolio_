@@ -24,8 +24,8 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Always visible at the top of the page
-      if (currentScrollY <= 30) {
+      // Keep navbar visible at the very top of the page
+      if (currentScrollY <= 15) {
         setIsVisible(true);
         setScrolled(false);
         lastScrollY.current = currentScrollY;
@@ -36,13 +36,13 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) 
 
       const delta = currentScrollY - lastScrollY.current;
 
-      // Filter micro-movements to avoid jitter
-      if (Math.abs(delta) > 5) {
+      // Threshold to prevent micro-jitter
+      if (Math.abs(delta) > 6) {
         if (delta > 0) {
-          // Scrolling down -> visible
+          // Scrolling DOWN -> Slide down into view
           setIsVisible(true);
         } else {
-          // Scrolling up -> hide
+          // Scrolling UP -> Slide upwards and disappear off-screen
           setIsVisible(false);
         }
         lastScrollY.current = currentScrollY;
@@ -53,21 +53,28 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Ensure navbar is visible when navigating between pages
+  useEffect(() => {
+    setIsVisible(true);
+    lastScrollY.current = window.scrollY;
+  }, [location.pathname]);
+
   const handleNavClick = (path) => {
     sound.playLensClick();
     navigate(path);
     setMobileMenuOpen(false);
+    setIsVisible(true);
   };
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,padding,background-color] ${
+        className={`fixed top-0 left-0 right-0 z-50 transform transition-transform duration-350 ease-in-out will-change-transform ${
           isVisible || mobileMenuOpen
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-full opacity-0 pointer-events-none'
+            ? 'translate-y-0'
+            : '-translate-y-full shadow-none pointer-events-none'
         } ${
-          scrolled ? 'py-3 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'py-5 bg-transparent'
+          scrolled ? 'py-3 bg-black/85 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'py-5 bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
