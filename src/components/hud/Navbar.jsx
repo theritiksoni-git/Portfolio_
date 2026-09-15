@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { VolumeX, FileText, Menu, X, Disc } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
@@ -15,13 +15,40 @@ const NAV_ITEMS = [
 const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      const currentScrollY = window.scrollY;
+
+      // Always visible at the top of the page
+      if (currentScrollY <= 30) {
+        setIsVisible(true);
+        setScrolled(false);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      setScrolled(true);
+
+      const delta = currentScrollY - lastScrollY.current;
+
+      // Filter micro-movements to avoid jitter
+      if (Math.abs(delta) > 5) {
+        if (delta > 0) {
+          // Scrolling down -> visible
+          setIsVisible(true);
+        } else {
+          // Scrolling up -> hide
+          setIsVisible(false);
+        }
+        lastScrollY.current = currentScrollY;
+      }
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -35,7 +62,11 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[padding,background-color] ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,padding,background-color] ${
+          isVisible || mobileMenuOpen
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-full opacity-0 pointer-events-none'
+        } ${
           scrolled ? 'py-3 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'py-5 bg-transparent'
         }`}
       >
