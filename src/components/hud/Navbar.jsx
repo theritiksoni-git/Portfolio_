@@ -12,58 +12,62 @@ const NAV_ITEMS = [
   { path: '/contact', label: 'CONTACT', code: '06' },
 ];
 
-const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) => {
+const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound, isVisible: propVisible }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [internalVisible, setInternalVisible] = useState(true);
   const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isVisible = propVisible !== undefined ? propVisible : internalVisible;
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 40);
 
-      // Keep navbar visible at the very top of the page
-      if (currentScrollY <= 15) {
-        setIsVisible(true);
-        setScrolled(false);
-        lastScrollY.current = currentScrollY;
-        return;
-      }
-
-      setScrolled(true);
-
-      const delta = currentScrollY - lastScrollY.current;
-
-      // Detect scroll direction
-      if (Math.abs(delta) > 6) {
-        if (delta > 0) {
-          // Scrolling DOWN -> Slide upwards and disappear
-          setIsVisible(false);
-        } else {
-          // Scrolling UP -> Slide down into view
-          setIsVisible(true);
+      if (propVisible === undefined) {
+        // Keep navbar visible at the very top of the page
+        if (currentScrollY <= 15) {
+          setInternalVisible(true);
+          lastScrollY.current = currentScrollY;
+          return;
         }
-        lastScrollY.current = currentScrollY;
+
+        const delta = currentScrollY - lastScrollY.current;
+
+        // Detect scroll direction
+        if (Math.abs(delta) > 6) {
+          if (delta > 0) {
+            // Scrolling DOWN -> Slide upwards and disappear
+            setInternalVisible(false);
+          } else {
+            // Scrolling UP -> Slide down into view
+            setInternalVisible(true);
+          }
+          lastScrollY.current = currentScrollY;
+        }
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [propVisible]);
 
   // Ensure navbar is visible when navigating between pages
   useEffect(() => {
-    setIsVisible(true);
-    lastScrollY.current = window.scrollY;
-  }, [location.pathname]);
+    if (propVisible === undefined) {
+      setInternalVisible(true);
+      lastScrollY.current = window.scrollY;
+    }
+  }, [location.pathname, propVisible]);
 
   const handleNavClick = (path) => {
     sound.playLensClick();
     navigate(path);
     setMobileMenuOpen(false);
-    setIsVisible(true);
+    setInternalVisible(true);
   };
 
   return (

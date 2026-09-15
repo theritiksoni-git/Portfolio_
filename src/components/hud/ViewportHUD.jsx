@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Film } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 
-const ViewportHUD = ({ activeSection, isLetterbox, onToggleLetterbox }) => {
+const ViewportHUD = ({ activeSection, isLetterbox, onToggleLetterbox, isNavbarVisible = true }) => {
   const [timecode, setTimecode] = useState('00:00:00:00');
 
   useEffect(() => {
@@ -41,7 +41,13 @@ const ViewportHUD = ({ activeSection, isLetterbox, onToggleLetterbox }) => {
       >
 
         {/* Top Viewfinder Metadata */}
-        <div className="flex items-center justify-between text-[10px] font-mono tracking-widest text-zinc-500">
+        <div
+          className={`flex items-center justify-between text-[10px] font-mono tracking-widest text-zinc-500 transform transition-transform duration-350 ease-in-out will-change-transform ${
+            isNavbarVisible
+              ? 'translate-y-0'
+              : '-translate-y-16 sm:-translate-y-20'
+          }`}
+        >
 
           {/* REC Status & Camera Sensor Meta */}
           <div className="flex items-center gap-3">

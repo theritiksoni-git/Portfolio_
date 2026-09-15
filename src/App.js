@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -61,6 +61,42 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   const [isTheaterArchiveOpen, setIsTheaterArchiveOpen] = useState(false);
   const [isLetterbox, setIsLetterbox] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+  const lastNavScrollY = useRef(0);
+
+  // Synchronized scroll direction handler for both Navbar and ViewportHUD
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY <= 15) {
+        setIsNavbarVisible(true);
+        lastNavScrollY.current = currentScrollY;
+        return;
+      }
+
+      const delta = currentScrollY - lastNavScrollY.current;
+
+      if (Math.abs(delta) > 6) {
+        if (delta > 0) {
+          // Scrolling DOWN -> Slide navbar upwards / move HUD top bar to top
+          setIsNavbarVisible(false);
+        } else {
+          // Scrolling UP -> Slide navbar down / restore HUD top bar
+          setIsNavbarVisible(true);
+        }
+        lastNavScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsNavbarVisible(true);
+    lastNavScrollY.current = window.scrollY;
+  }, [location.pathname]);
 
   // Redirect to hero page ('/') on initial site visit or browser reload
   useEffect(() => {
@@ -132,6 +168,7 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
             activeSection={activeScene}
             isLetterbox={isLetterbox}
             onToggleLetterbox={() => setIsLetterbox(!isLetterbox)}
+            isNavbarVisible={isNavbarVisible}
           />
         )}
 
@@ -140,6 +177,7 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
           onOpenResume={() => setIsResumeOpen(true)}
           isBackgroundSoundOn={isBackgroundSoundOn}
           onToggleBackgroundSound={onToggleBackgroundSound}
+          isVisible={isNavbarVisible}
         />
 
         {/* Dynamic Route Pages with Code-Splitting Suspense */}
