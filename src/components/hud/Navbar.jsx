@@ -36,14 +36,14 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound }) 
 
       const delta = currentScrollY - lastScrollY.current;
 
-      // Threshold to prevent micro-jitter
+      // Detect scroll direction
       if (Math.abs(delta) > 6) {
         if (delta > 0) {
-          // Scrolling DOWN -> Slide down into view
-          setIsVisible(true);
-        } else {
-          // Scrolling UP -> Slide upwards and disappear off-screen
+          // Scrolling DOWN -> Slide upwards and disappear
           setIsVisible(false);
+        } else {
+          // Scrolling UP -> Slide down into view
+          setIsVisible(true);
         }
         lastScrollY.current = currentScrollY;
       }
