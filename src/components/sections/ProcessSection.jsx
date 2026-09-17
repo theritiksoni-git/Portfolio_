@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Lightbulb,
   BookOpen,
@@ -392,22 +392,129 @@ const render3DWidget = (stepIndex, accent) => {
 const ProcessSection = () => {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
+  const containerRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const scrubberTrackRef = useRef(null);
+  const buttonRefs = useRef([]);
+
+  const [scrubberGeometry, setScrubberGeometry] = useState({
+    trackLeft: 0,
+    trackWidth: 0,
+    progressWidth: 0,
+    activeLeft: 0,
+    activeWidth: 0,
+    milestones: []
+  });
+
   const activeStep = PROCESS_STEPS[activeStepIndex];
   const StepIcon = activeStep.icon;
+
+  // Accurately compute the geometry of the track and snap coordinates
+  const updateGeometry = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const firstBtn = buttonRefs.current[0];
+    const lastBtn = buttonRefs.current[PROCESS_STEPS.length - 1];
+    const activeBtn = buttonRefs.current[activeStepIndex];
+    if (!firstBtn || !lastBtn || !activeBtn) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const firstRect = firstBtn.getBoundingClientRect();
+    const lastRect = lastBtn.getBoundingClientRect();
+    const activeRect = activeBtn.getBoundingClientRect();
+
+    // The track spans exactly from the left edge of the first button to the right edge of the last button
+    const trackLeft = Math.max(0, firstRect.left - containerRect.left);
+    const trackWidth = Math.max(0, lastRect.right - firstRect.left);
+
+    // The progress line fills from the start up to the active button's right edge
+    const progressWidth = Math.max(0, Math.min(activeRect.right - firstRect.left, trackWidth));
+
+    // The active button's specific span for targeted highlight
+    const activeLeft = Math.max(0, activeRect.left - firstRect.left);
+    const activeWidth = Math.max(0, activeRect.width);
+
+    // Milestone center points for tick marks
+    const milestones = buttonRefs.current.map((btn) => {
+      if (!btn) return 0;
+      const r = btn.getBoundingClientRect();
+      return r.left + r.width / 2 - firstRect.left;
+    });
+
+    setScrubberGeometry({
+      trackLeft,
+      trackWidth,
+      progressWidth,
+      activeLeft,
+      activeWidth,
+      milestones
+    });
+  }, [activeStepIndex]);
+
+  useEffect(() => {
+    updateGeometry();
+    const timer = setTimeout(updateGeometry, 320);
+
+    const handleResize = () => updateGeometry();
+    window.addEventListener('resize', handleResize);
+
+    let ro;
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      ro = new ResizeObserver(() => {
+        updateGeometry();
+      });
+      ro.observe(containerRef.current);
+      buttonRefs.current.forEach((btn) => {
+        if (btn) ro.observe(btn);
+      });
+    }
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+      if (ro) ro.disconnect();
+    };
+  }, [updateGeometry]);
 
   const handleStepSelect = (idx) => {
     sound.playLensClick();
     setActiveStepIndex(idx);
+
+    // Auto center button on horizontal scroll on smaller screens
+    const btn = buttonRefs.current[idx];
+    if (btn && typeof btn.scrollIntoView === 'function') {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
   };
 
   const handlePrev = () => {
-    sound.playLensClick();
-    setActiveStepIndex((prev) => (prev > 0 ? prev - 1 : PROCESS_STEPS.length - 1));
+    const nextIdx = activeStepIndex > 0 ? activeStepIndex - 1 : PROCESS_STEPS.length - 1;
+    handleStepSelect(nextIdx);
   };
 
   const handleNext = () => {
-    sound.playLensClick();
-    setActiveStepIndex((prev) => (prev < PROCESS_STEPS.length - 1 ? prev + 1 : 0));
+    const nextIdx = activeStepIndex < PROCESS_STEPS.length - 1 ? activeStepIndex + 1 : 0;
+    handleStepSelect(nextIdx);
+  };
+
+  const handleTrackClick = (e) => {
+    if (!scrubberTrackRef.current) return;
+    const rect = scrubberTrackRef.current.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+
+    if (scrubberGeometry.milestones.length > 0) {
+      let closestIdx = 0;
+      let minDiff = Infinity;
+      scrubberGeometry.milestones.forEach((mX, idx) => {
+        const diff = Math.abs(clickX - mX);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      });
+      handleStepSelect(closestIdx);
+    }
   };
 
   return (
@@ -449,70 +556,128 @@ const ProcessSection = () => {
 
       {/* Horizontal Interactive Timeline Scrubber */}
       <div className="mb-8">
-        <div className="flex items-center justify-between gap-1.5 sm:gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none w-full">
-          {PROCESS_STEPS.map((step, idx) => {
-            const Icon = step.icon;
-            const isActive = activeStepIndex === idx;
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto pb-2 scrollbar-none w-full"
+        >
+          <div ref={containerRef} className="min-w-max lg:min-w-0 w-full relative">
+            {/* Step Pills Row */}
+            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+              {PROCESS_STEPS.map((step, idx) => {
+                const Icon = step.icon;
+                const isActive = activeStepIndex === idx;
 
-            return (
-              <React.Fragment key={step.step}>
-                <button
-                  type="button"
-                  onClick={() => handleStepSelect(idx)}
-                  data-cursor="SELECT"
-                  className={`flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2.5 rounded-xl sm:rounded-2xl border font-mono text-xs transition-all duration-300 min-w-[125px] sm:min-w-[140px] lg:min-w-0 lg:flex-1 focus:outline-none cursor-pointer ${
-                    isActive
-                      ? 'bg-zinc-900 border text-white shadow-lg ring-1 scale-105 z-10'
-                      : 'bg-zinc-950/80 border-white/10 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 hover:border-white/25'
-                  }`}
-                  style={{
-                    borderColor: isActive ? step.accent : undefined,
-                    boxShadow: isActive ? `0 0 15px rgba(${step.accentRgb}, 0.3)` : undefined
-                  }}
-                >
-                  <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform"
-                    style={{ backgroundColor: `${step.accent}25` }}
-                  >
-                    <Icon className="w-3 h-3" style={{ color: step.accent }} />
-                  </div>
-                  <span className="text-[10px] text-zinc-500 font-semibold">{step.step}</span>
-                  <span className="font-bold tracking-wider truncate">{step.title}</span>
-                </button>
-
-                {/* Connecting Step Progression Arrow */}
-                {idx < PROCESS_STEPS.length - 1 && (
-                  <div className="flex items-center justify-center shrink-0 px-0.5 sm:px-1">
-                    <ArrowRight
-                      className={`w-3.5 h-3.5 transition-all duration-300 ${
-                        activeStepIndex > idx
-                          ? 'drop-shadow-[0_0_6px_rgba(56,189,248,0.7)]'
-                          : activeStepIndex === idx
-                          ? 'animate-pulse'
-                          : 'text-zinc-700'
+                return (
+                  <React.Fragment key={step.step}>
+                    <button
+                      ref={(el) => (buttonRefs.current[idx] = el)}
+                      type="button"
+                      onClick={() => handleStepSelect(idx)}
+                      data-cursor="SELECT"
+                      className={`flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2.5 rounded-xl sm:rounded-2xl border font-mono text-xs transition-all duration-300 min-w-[125px] sm:min-w-[140px] lg:min-w-0 lg:flex-1 focus:outline-none cursor-pointer ${
+                        isActive
+                          ? 'bg-zinc-900 border text-white shadow-lg ring-1 scale-105 z-10'
+                          : 'bg-zinc-950/80 border-white/10 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 hover:border-white/25'
                       }`}
                       style={{
-                        color:
-                          activeStepIndex > idx
-                            ? PROCESS_STEPS[idx].accent
-                            : activeStepIndex === idx
-                            ? activeStep.accent
-                            : undefined
+                        borderColor: isActive ? step.accent : undefined,
+                        boxShadow: isActive ? `0 0 15px rgba(${step.accentRgb}, 0.3)` : undefined
                       }}
-                    />
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
+                    >
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform"
+                        style={{ backgroundColor: `${step.accent}25` }}
+                      >
+                        <Icon className="w-3 h-3" style={{ color: step.accent }} />
+                      </div>
+                      <span className="text-[10px] text-zinc-500 font-semibold">{step.step}</span>
+                      <span className="font-bold tracking-wider truncate">{step.title}</span>
+                    </button>
 
-        {/* Dynamic Timeline Scrubber Progress Line */}
-        <div className="hidden lg:block relative w-full h-1 bg-zinc-900 rounded-full mt-3 overflow-hidden">
-          <div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-cyan-400 transition-all duration-500 rounded-full shadow-[0_0_8px_rgba(56,189,248,0.8)]"
-            style={{ width: `${((activeStepIndex + 1) / PROCESS_STEPS.length) * 100}%` }}
-          />
+                    {/* Connecting Step Progression Arrow */}
+                    {idx < PROCESS_STEPS.length - 1 && (
+                      <div className="flex items-center justify-center shrink-0 px-0.5 sm:px-1">
+                        <ArrowRight
+                          className={`w-3.5 h-3.5 transition-all duration-300 ${
+                            activeStepIndex > idx
+                              ? 'drop-shadow-[0_0_6px_rgba(56,189,248,0.7)]'
+                              : activeStepIndex === idx
+                              ? 'animate-pulse'
+                              : 'text-zinc-700'
+                          }`}
+                          style={{
+                            color:
+                              activeStepIndex > idx
+                                ? PROCESS_STEPS[idx].accent
+                                : activeStepIndex === idx
+                                ? activeStep.accent
+                                : undefined
+                          }}
+                        />
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            {/* Dynamic Timeline Scrubber Progress Track - Cleanly Snapped to Steps */}
+            <div
+              ref={scrubberTrackRef}
+              onClick={handleTrackClick}
+              title="Click timeline to jump to phase"
+              className="relative h-1.5 bg-zinc-900/90 rounded-full mt-3.5 overflow-hidden border border-white/10 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]"
+              style={{
+                marginLeft: scrubberGeometry.trackLeft > 0 ? `${scrubberGeometry.trackLeft}px` : 0,
+                width: scrubberGeometry.trackWidth > 0 ? `${scrubberGeometry.trackWidth}px` : '100%'
+              }}
+            >
+              {/* Subtle Milestone Tick Marks Under Each Step Center */}
+              {scrubberGeometry.milestones.map((xPos, idx) => (
+                <div
+                  key={idx}
+                  className={`absolute top-0 bottom-0 w-[1px] transition-colors duration-300 z-10 ${
+                    idx <= activeStepIndex ? 'bg-white/40' : 'bg-white/10'
+                  }`}
+                  style={{ left: `${xPos}px` }}
+                />
+              ))}
+
+              {/* Seamless Cumulative Progress Fill up to Active Step */}
+              <div
+                className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width:
+                    scrubberGeometry.progressWidth > 0
+                      ? `${scrubberGeometry.progressWidth}px`
+                      : `${((activeStepIndex + 1) / PROCESS_STEPS.length) * 100}%`,
+                  background: `linear-gradient(90deg, #38bdf8 0%, ${activeStep.accent} 100%)`,
+                  boxShadow: `0 0 10px rgba(${activeStep.accentRgb}, 0.5)`
+                }}
+              />
+
+              {/* Active Step Specific Under-Pill Glow */}
+              {scrubberGeometry.activeWidth > 0 && (
+                <div
+                  className="absolute top-0 h-full rounded-full transition-all duration-500 ease-out pointer-events-none"
+                  style={{
+                    left: `${scrubberGeometry.activeLeft}px`,
+                    width: `${scrubberGeometry.activeWidth}px`,
+                    backgroundColor: activeStep.accent,
+                    boxShadow: `0 0 12px 2px ${activeStep.accent}`
+                  }}
+                />
+              )}
+
+              {/* Playhead Marker at current snap boundary */}
+              {scrubberGeometry.progressWidth > 0 && (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white border border-zinc-950 shadow-[0_0_8px_#ffffff] transition-all duration-500 ease-out z-20 pointer-events-none"
+                  style={{ left: `${scrubberGeometry.progressWidth}px` }}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
