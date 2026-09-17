@@ -170,12 +170,12 @@ const Story3DWidget = ({ accent }) => (
     {/* Back Layer Frame */}
     <div
       className="absolute w-44 sm:w-52 aspect-[16/9] rounded-xl bg-zinc-950/80 border border-white/10 shadow-xl"
-      style={{ transform: 'translate3d(-25px, -20px, -40px) rotateY(-10deg)', opacity: 0.4 }}
+      style={{ transform: 'translate3d(-20px, -10px, -40px) rotateY(-10deg)', opacity: 0.4 }}
     />
     {/* Mid Layer Frame */}
     <div
       className="absolute w-48 sm:w-56 aspect-[16/9] rounded-xl bg-zinc-950/90 border border-indigo-500/30 p-2 shadow-xl"
-      style={{ transform: 'translate3d(18px, -8px, -20px) rotateY(6deg)', opacity: 0.7 }}
+      style={{ transform: 'translate3d(16px, -4px, -20px) rotateY(6deg)', opacity: 0.7 }}
     />
     {/* Front 2.39:1 Anamorphic Frame */}
     <div
@@ -459,10 +459,12 @@ const ProcessSection = () => {
     sound.playLensClick();
     setActiveStepIndex(idx);
 
-    // Auto center button on horizontal scroll on smaller screens
+    // Only scroll the horizontal timeline container on overflow, NEVER the main window
+    const container = scrollContainerRef.current;
     const btn = buttonRefs.current[idx];
-    if (btn && typeof btn.scrollIntoView === 'function') {
-      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    if (container && btn && container.scrollWidth > container.clientWidth) {
+      const scrollLeft = btn.offsetLeft - (container.clientWidth - btn.offsetWidth) / 2;
+      container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
     }
   };
 
@@ -533,7 +535,7 @@ const ProcessSection = () => {
       <div className="mb-8">
         <div
           ref={scrollContainerRef}
-          className="overflow-x-auto pb-2 scrollbar-none w-full"
+          className="overflow-x-auto pt-3 pb-3 -mt-2 scrollbar-none w-full"
         >
           <div ref={containerRef} className="min-w-max lg:min-w-0 w-full relative">
             {/* Step Pills Row */}
@@ -627,8 +629,7 @@ const ProcessSection = () => {
       {/* ── SEAMLESS OPTIMIZED CONSOLE CARD ── */}
       <div className="relative w-full">
         <div
-          key={activeStep.step}
-          className="relative rounded-3xl bg-zinc-950 p-6 sm:p-8 lg:p-10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.9)] border border-white/10 overflow-hidden animate-fadeIn"
+          className="relative rounded-3xl bg-zinc-950 p-6 sm:p-8 lg:p-10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.9)] border border-white/10 overflow-hidden"
         >
           {/* Ambient Diagram Side Glow (Vibrant Intensity) */}
           <div
@@ -673,7 +674,10 @@ const ProcessSection = () => {
           </div>
 
           {/* ── CENTER GRID: STORY OVERVIEW (LEFT) + SEAMLESS 3D HOLOGRAPHIC VIEW (RIGHT) ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-20">
+          <div
+            key={activeStep.step}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-20 animate-process-fade"
+          >
             
             {/* Left Column: Stage Identity, Narrative & Benchmarks (7 Cols) */}
             <div className="lg:col-span-7 space-y-5">
@@ -751,7 +755,7 @@ const ProcessSection = () => {
             </div>
 
             {/* Right Column: Seamless 3D Holographic Projection Stage (5 Cols) */}
-            <div className="lg:col-span-5 relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl bg-zinc-950/80 border border-white/5 backdrop-blur-sm min-h-[300px] sm:min-h-[340px] overflow-hidden">
+            <div className="lg:col-span-5 relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl bg-zinc-950/80 border border-white/5 backdrop-blur-sm min-h-[330px] sm:min-h-[360px] overflow-hidden">
               
               {/* Stage Backlight Glow */}
               <div
