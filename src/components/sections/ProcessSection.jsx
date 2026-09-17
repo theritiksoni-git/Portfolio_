@@ -400,16 +400,13 @@ const ProcessSection = () => {
   const [scrubberGeometry, setScrubberGeometry] = useState({
     trackLeft: 0,
     trackWidth: 0,
-    progressWidth: 0,
-    activeLeft: 0,
-    activeWidth: 0,
-    milestones: []
+    progressWidth: 0
   });
 
   const activeStep = PROCESS_STEPS[activeStepIndex];
   const StepIcon = activeStep.icon;
 
-  // Accurately compute the geometry of the track and snap coordinates
+  // Accurately compute the geometry of the track and snap coordinates using layout offsets
   const updateGeometry = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -419,42 +416,23 @@ const ProcessSection = () => {
     const activeBtn = buttonRefs.current[activeStepIndex];
     if (!firstBtn || !lastBtn || !activeBtn) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const firstRect = firstBtn.getBoundingClientRect();
-    const lastRect = lastBtn.getBoundingClientRect();
-    const activeRect = activeBtn.getBoundingClientRect();
+    // Pure layout offsets relative to container (100% exact, no transform distortion)
+    const trackLeft = firstBtn.offsetLeft;
+    const trackWidth = (lastBtn.offsetLeft + lastBtn.offsetWidth) - trackLeft;
 
-    // The track spans exactly from the left edge of the first button to the right edge of the last button
-    const trackLeft = Math.max(0, firstRect.left - containerRect.left);
-    const trackWidth = Math.max(0, lastRect.right - firstRect.left);
-
-    // The progress line fills from the start up to the active button's right edge
-    const progressWidth = Math.max(0, Math.min(activeRect.right - firstRect.left, trackWidth));
-
-    // The active button's specific span for targeted highlight
-    const activeLeft = Math.max(0, activeRect.left - firstRect.left);
-    const activeWidth = Math.max(0, activeRect.width);
-
-    // Milestone center points for tick marks
-    const milestones = buttonRefs.current.map((btn) => {
-      if (!btn) return 0;
-      const r = btn.getBoundingClientRect();
-      return r.left + r.width / 2 - firstRect.left;
-    });
+    // Progress ends precisely at the active button's right edge
+    const progressWidth = (activeBtn.offsetLeft + activeBtn.offsetWidth) - trackLeft;
 
     setScrubberGeometry({
       trackLeft,
       trackWidth,
-      progressWidth,
-      activeLeft,
-      activeWidth,
-      milestones
+      progressWidth: Math.min(progressWidth, trackWidth)
     });
   }, [activeStepIndex]);
 
   useEffect(() => {
     updateGeometry();
-    const timer = setTimeout(updateGeometry, 320);
+    const timer = setTimeout(updateGeometry, 300);
 
     const handleResize = () => updateGeometry();
     window.addEventListener('resize', handleResize);
@@ -503,18 +481,15 @@ const ProcessSection = () => {
     const rect = scrubberTrackRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
 
-    if (scrubberGeometry.milestones.length > 0) {
-      let closestIdx = 0;
-      let minDiff = Infinity;
-      scrubberGeometry.milestones.forEach((mX, idx) => {
-        const diff = Math.abs(clickX - mX);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closestIdx = idx;
-        }
-      });
-      handleStepSelect(closestIdx);
+    let targetIdx = PROCESS_STEPS.length - 1;
+    for (let i = 0; i < PROCESS_STEPS.length; i++) {
+      const btn = buttonRefs.current[i];
+      if (btn && clickX <= (btn.offsetLeft + btn.offsetWidth)) {
+        targetIdx = i;
+        break;
+      }
     }
+    handleStepSelect(targetIdx);
   };
 
   return (
@@ -576,7 +551,7 @@ const ProcessSection = () => {
                       data-cursor="SELECT"
                       className={`flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2.5 rounded-xl sm:rounded-2xl border font-mono text-xs transition-all duration-300 min-w-[125px] sm:min-w-[140px] lg:min-w-0 lg:flex-1 focus:outline-none cursor-pointer ${
                         isActive
-                          ? 'bg-zinc-900 border text-white shadow-lg ring-1 scale-105 z-10'
+                          ? 'bg-zinc-900 border text-white shadow-lg ring-1 z-10'
                           : 'bg-zinc-950/80 border-white/10 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 hover:border-white/25'
                       }`}
                       style={{
@@ -626,23 +601,12 @@ const ProcessSection = () => {
               ref={scrubberTrackRef}
               onClick={handleTrackClick}
               title="Click timeline to jump to phase"
-              className="relative h-1.5 bg-zinc-900/90 rounded-full mt-3.5 overflow-hidden border border-white/10 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]"
+              className="relative h-1 bg-zinc-900 rounded-full mt-3 overflow-hidden border border-white/10 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]"
               style={{
                 marginLeft: scrubberGeometry.trackLeft > 0 ? `${scrubberGeometry.trackLeft}px` : 0,
                 width: scrubberGeometry.trackWidth > 0 ? `${scrubberGeometry.trackWidth}px` : '100%'
               }}
             >
-              {/* Subtle Milestone Tick Marks Under Each Step Center */}
-              {scrubberGeometry.milestones.map((xPos, idx) => (
-                <div
-                  key={idx}
-                  className={`absolute top-0 bottom-0 w-[1px] transition-colors duration-300 z-10 ${
-                    idx <= activeStepIndex ? 'bg-white/40' : 'bg-white/10'
-                  }`}
-                  style={{ left: `${xPos}px` }}
-                />
-              ))}
-
               {/* Seamless Cumulative Progress Fill up to Active Step */}
               <div
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
@@ -655,27 +619,6 @@ const ProcessSection = () => {
                   boxShadow: `0 0 10px rgba(${activeStep.accentRgb}, 0.5)`
                 }}
               />
-
-              {/* Active Step Specific Under-Pill Glow */}
-              {scrubberGeometry.activeWidth > 0 && (
-                <div
-                  className="absolute top-0 h-full rounded-full transition-all duration-500 ease-out pointer-events-none"
-                  style={{
-                    left: `${scrubberGeometry.activeLeft}px`,
-                    width: `${scrubberGeometry.activeWidth}px`,
-                    backgroundColor: activeStep.accent,
-                    boxShadow: `0 0 12px 2px ${activeStep.accent}`
-                  }}
-                />
-              )}
-
-              {/* Playhead Marker at current snap boundary */}
-              {scrubberGeometry.progressWidth > 0 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white border border-zinc-950 shadow-[0_0_8px_#ffffff] transition-all duration-500 ease-out z-20 pointer-events-none"
-                  style={{ left: `${scrubberGeometry.progressWidth}px` }}
-                />
-              )}
             </div>
           </div>
         </div>
