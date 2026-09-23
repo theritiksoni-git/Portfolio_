@@ -141,24 +141,28 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound, is
               onClick={onToggleBackgroundSound}
               onMouseEnter={() => sound.playHover()}
               data-cursor={isBackgroundSoundOn ? 'MUTE' : 'AUDIO'}
-              title={isBackgroundSoundOn ? 'Mute background audio' : 'Play background audio'}
-              className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 focus:outline-none ${
+              className={`flex items-center justify-center gap-2 w-[108px] shrink-0 py-1.5 rounded-full text-xs font-mono border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-102 focus:outline-none ${
                 isBackgroundSoundOn
                   ? 'border-cyan-500/40 bg-cyan-950/30 text-cyan-300 shadow-[0_0_10px_rgba(56,189,248,0.2)]'
                   : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
               }`}
               aria-label={isBackgroundSoundOn ? 'Turn background audio off' : 'Turn background audio on'}
             >
-              {isBackgroundSoundOn ? (
-                <div className="flex items-end gap-[2px] h-3.5 w-3.5 py-0.5 justify-center">
-                  <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-1" />
-                  <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-2" />
-                  <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-3" />
-                  <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-4" />
-                </div>
-              ) : (
-                <VolumeX className="w-3.5 h-3.5 text-zinc-400 transition-colors" />
-              )}
+              <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
+                {isBackgroundSoundOn ? (
+                  <div className="flex items-end gap-[2px] h-3.5 w-3.5 py-0.5 justify-center">
+                    <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-1" />
+                    <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-2" />
+                    <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-3" />
+                    <span className="w-[2px] bg-cyan-400 rounded-full animate-eq-bar-4" />
+                  </div>
+                ) : (
+                  <VolumeX className="w-3.5 h-3.5 text-zinc-500" />
+                )}
+              </div>
+              <span className="text-[10px] tracking-wider w-[62px] text-left shrink-0 select-none">
+                {isBackgroundSoundOn ? 'AUDIO ON' : 'AUDIO OFF'}
+              </span>
             </button>
 
             {/* Resume Button - Styled like Hero Explore Selected Work */}
