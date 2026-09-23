@@ -550,6 +550,10 @@ class AdminStore {
 
   // --- Leads CRUD ---
   addLead(lead) {
+    if (!this.cache) this.init();
+    if (!this.cache.leads || !Array.isArray(this.cache.leads)) {
+      this.cache.leads = [];
+    }
     const newLead = {
       ...lead,
       id: `lead-${Date.now()}`,

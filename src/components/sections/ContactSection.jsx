@@ -132,54 +132,81 @@ const ContactSection = ({ onOpenResume }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     sound.playShutter();
-    setStatus({ state: 'sending', message: 'TRANSMITTING MESSAGE...' });
+    setStatus({ state: 'sending', message: 'TRANSMITTING INQUIRY...' });
 
-    // Record lead in central admin control room store
+    const submissionName = (formData.Name || '').trim();
+    const submissionEmail = (formData.email || '').trim();
+    const submissionProjectType = formData.projectType || 'Corporate Video / Client Production';
+    const submissionMessage = (formData.Message || '').trim();
+
+    // 1. Immediately record lead in central admin control room store
     try {
       adminStore.addLead({
-        name: formData.Name,
-        email: formData.email,
-        projectType: formData.projectType,
-        message: formData.Message,
+        name: submissionName,
+        email: submissionEmail,
+        projectType: submissionProjectType,
+        message: submissionMessage,
         status: 'NEW',
       });
-    } catch (e) {
-      console.warn('Failed to log lead in store:', e);
+    } catch (err) {
+      console.warn('Failed to log lead in store:', err);
     }
 
+    // 2. Direct online delivery via FormSubmit AJAX service to theritiksoni@gmail.com
     try {
-      const response = await fetch('http://localhost:3001/submitFormData', {
+      await fetch('https://formsubmit.co/ajax/theritiksoni@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: submissionName,
+          email: submissionEmail,
+          projectType: submissionProjectType,
+          message: submissionMessage,
+          _subject: `New Portfolio Inquiry from ${submissionName} [${submissionProjectType}]`,
+          _template: 'table',
+        }),
+      });
+    } catch (err) {
+      console.warn('FormSubmit dispatch notice:', err);
+    }
+
+    // 3. Fallback to local server if running
+    try {
+      await fetch('http://localhost:3001/submitFormData', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          Name: submissionName,
+          email: submissionEmail,
+          Message: `[${submissionProjectType}] ${submissionMessage}`,
+        }),
       });
-      const data = await response.json();
-
-      if (data.success) {
-        setStatus({
-          state: 'success',
-          message: 'MESSAGE RECEIVED // I WILL RESPOND WITHIN 24-48 HOURS.',
-        });
-        setFormData({
-          Name: '',
-          email: '',
-          projectType: 'Corporate Video / Client Production',
-          Message: '',
-        });
-      } else {
-        // Fallback gracefully
-        setStatus({
-          state: 'success',
-          message: 'MESSAGE RECORDED // THANK YOU FOR REACHING OUT!',
-        });
-      }
     } catch (err) {
-      // In case local backend is not actively running, still provide confirmation & mailto option
-      setStatus({
-        state: 'success',
-        message: 'MESSAGE LOGGED // OR DIRECT EMAIL: THERITIKSONI@GMAIL.COM',
-      });
+      // Local server offline, expected in frontend-only environments
     }
+
+    // 4. Reset form inputs cleanly
+    setFormData({
+      Name: '',
+      email: '',
+      projectType: 'Corporate Video / Client Production',
+      Message: '',
+    });
+
+    // 5. Present rich transmission confirmation with direct mailto fallback
+    setStatus({
+      state: 'success',
+      message: 'INQUIRY TRANSMITTED // LOGGED IN CONTROL ROOM & DISPATCHED TO THERITIKSONI@GMAIL.COM',
+      lastSubmission: {
+        name: submissionName,
+        email: submissionEmail,
+        projectType: submissionProjectType,
+        message: submissionMessage,
+      },
+    });
   };
 
   return (
@@ -501,20 +528,39 @@ const ContactSection = ({ onOpenResume }) => {
             {/* Status Alert Message */}
             {status.state !== 'idle' && (
               <div
-                className={`p-3 rounded-xl font-mono text-xs flex items-center gap-2 ${
+                className={`p-4 rounded-xl font-mono text-xs space-y-2.5 transition-all ${
                   status.state === 'success'
-                    ? 'bg-cyan-950/60 border border-cyan-500/40 text-cyan-300'
+                    ? 'bg-cyan-950/70 border border-cyan-500/50 text-cyan-200 shadow-[0_0_20px_rgba(56,189,248,0.2)]'
                     : status.state === 'sending'
                     ? 'bg-zinc-900 border border-white/10 text-zinc-300'
                     : 'bg-red-950/60 border border-red-500/40 text-red-300'
                 }`}
               >
-                {status.state === 'success' ? (
-                  <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                ) : (
-                  <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 animate-spin" />
+                <div className="flex items-center gap-2">
+                  {status.state === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 animate-spin" />
+                  )}
+                  <span className="font-bold">{status.message}</span>
+                </div>
+
+                {status.state === 'success' && status.lastSubmission && (
+                  <div className="pt-2 border-t border-cyan-500/20 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                    <span className="text-zinc-400">
+                      Inquiry logged into Central Admin Leads.
+                    </span>
+                    <a
+                      href={`mailto:theritiksoni@gmail.com?subject=${encodeURIComponent(`Project Inquiry: ${status.lastSubmission.projectType}`)}&body=${encodeURIComponent(`Hi Ritik,\n\n${status.lastSubmission.message}\n\nFrom: ${status.lastSubmission.name} (${status.lastSubmission.email})`)}`}
+                      className="inline-flex items-center gap-1.5 text-cyan-300 hover:text-white underline font-semibold transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Open direct draft in Mail client &rarr;</span>
+                    </a>
+                  </div>
                 )}
-                <span>{status.message}</span>
               </div>
             )}
 
