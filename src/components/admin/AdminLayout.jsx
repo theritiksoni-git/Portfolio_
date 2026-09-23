@@ -152,9 +152,16 @@ export default function AdminLayout({ onLogout }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#050608] text-zinc-100 flex flex-col font-sans select-none relative z-20">
-      {/* Top Tactical HUD Header */}
-      <header className="h-16 px-4 sm:px-6 bg-zinc-950/90 border-b border-white/10 backdrop-blur-xl flex items-center justify-between sticky top-0 z-40">
+    <div className="min-h-screen bg-[#050608] text-zinc-100 flex flex-col font-sans select-none relative z-20 overflow-x-hidden">
+      {/* 35mm Celluloid Film Grain Overlay (Matching Website Theme) */}
+      <div className="film-grain" />
+
+      {/* Atmospheric Soft Radiance Lighting */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-cyan-500/8 rounded-full blur-[180px] pointer-events-none z-0" />
+      <div className="fixed bottom-10 right-10 w-[500px] h-[300px] bg-sky-500/6 rounded-full blur-[140px] pointer-events-none z-0" />
+
+      {/* Top Tactical HUD Header (Matching Website Navbar) */}
+      <header className="h-16 px-4 sm:px-6 lg:px-8 bg-black/85 border-b border-white/10 backdrop-blur-xl flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -299,7 +306,7 @@ export default function AdminLayout({ onLogout }) {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-mono text-xs hover:border-cyan-500/40 transition-all"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-950/90 hover:bg-zinc-900 border border-white/20 hover:border-cyan-400 hover:text-cyan-300 text-zinc-300 font-mono text-xs transition-all duration-300 backdrop-blur-md shadow-sm"
           >
             <span>Live Site</span>
             <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
@@ -332,10 +339,10 @@ export default function AdminLayout({ onLogout }) {
       </header>
 
       {/* Main Workspace Body */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Tactical Sidebar */}
         <aside
-          className={`fixed md:static inset-y-16 left-0 z-30 w-64 bg-zinc-950/95 md:bg-zinc-950/60 border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-out backdrop-blur-xl ${
+          className={`fixed md:static inset-y-16 left-0 z-30 w-64 bg-black/90 md:bg-zinc-950/70 border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-out backdrop-blur-2xl ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           }`}
         >
