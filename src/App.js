@@ -15,6 +15,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import CinematicFooter from './components/hud/CinematicFooter';
 import soundEngine from './utils/SoundEngine';
 import usePageMetadata from './utils/usePageMetadata';
+import adminStore from './services/adminStore';
 
 // Immediate Landing Page for Instant First Paint
 import HomePage from './pages/HomePage';
@@ -52,7 +53,7 @@ const RouteLoadingFallback = () => (
  * Houses the 3D WebGL background canvas, ambient plexus void, HUD viewfinder,
  * persistent floating navbar, and global project/resume modals.
  */
-function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
+function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound, onAdminDetected }) {
   const location = useLocation();
   const navigate = useNavigate();
   usePageMetadata();
@@ -109,11 +110,18 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
     scrollToHero();
     requestAnimationFrame(scrollToHero);
 
-    if (location.pathname !== '/' && !location.pathname.startsWith('/admin')) {
+    if (location.pathname !== '/' && !location.pathname.startsWith('/admin') && !adminStore.isAuthenticated()) {
       navigate('/', { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Proactively detect admin session or admin route to dismiss loaders
+  useEffect(() => {
+    if (location.pathname.startsWith('/admin') || adminStore.isAuthenticated()) {
+      if (onAdminDetected) onAdminDetected();
+    }
+  }, [location.pathname, onAdminDetected]);
 
   useEffect(() => {
     soundEngine.enableEffects();
@@ -275,8 +283,59 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname || '';
+      return adminStore.isAuthenticated() || pathname.startsWith('/admin');
+    }
+    return false;
+  });
+
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname || '';
+      // If logged in as admin or visiting admin, bypass headphone disclaimer & loading screen entirely
+      if (adminStore.isAuthenticated() || pathname.startsWith('/admin')) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   const [isBackgroundSoundOn, setIsBackgroundSoundOn] = useState(false);
+
+  useEffect(() => {
+    const checkAdminState = () => {
+      const isAuth = adminStore.isAuthenticated();
+      const isAdminPath = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+      if (isAuth || isAdminPath) {
+        setIsAdminLoggedIn(true);
+        setIsLoading(false);
+      } else {
+        setIsAdminLoggedIn(false);
+      }
+    };
+
+    checkAdminState();
+
+    const handleAuthChange = (e) => {
+      if (e.detail?.authenticated) {
+        setIsAdminLoggedIn(true);
+        setIsLoading(false);
+      } else {
+        checkAdminState();
+      }
+    };
+
+    window.addEventListener('control-room-auth-changed', handleAuthChange);
+    window.addEventListener('storage', checkAdminState);
+    window.addEventListener('popstate', checkAdminState);
+    return () => {
+      window.removeEventListener('control-room-auth-changed', handleAuthChange);
+      window.removeEventListener('storage', checkAdminState);
+      window.removeEventListener('popstate', checkAdminState);
+    };
+  }, []);
 
   useEffect(() => {
     soundEngine.initContext();
@@ -286,8 +345,10 @@ function App() {
   }, []);
 
   const startReckoningTrack = () => {
-    soundEngine.playTrack('reckoning');
-    setIsBackgroundSoundOn(true);
+    if (!isAdminLoggedIn) {
+      soundEngine.playTrack('reckoning');
+      setIsBackgroundSoundOn(true);
+    }
   };
 
   const handleComplete = useCallback(() => {
@@ -296,11 +357,13 @@ function App() {
   }, []);
 
   const handleStartSiteTransition = useCallback(() => {
-    soundEngine.stopTrack('reckoning');
-    soundEngine.playTrack('melancholy');
-    soundEngine.playTrack('horizon');
-    setIsBackgroundSoundOn(true);
-  }, []);
+    if (!isAdminLoggedIn) {
+      soundEngine.stopTrack('reckoning');
+      soundEngine.playTrack('melancholy');
+      soundEngine.playTrack('horizon');
+      setIsBackgroundSoundOn(true);
+    }
+  }, [isAdminLoggedIn]);
 
   const toggleBackgroundSound = () => {
     const newState = soundEngine.toggleSoundtrack();
@@ -316,11 +379,15 @@ function App() {
         <ExperienceShell
           isBackgroundSoundOn={isBackgroundSoundOn}
           onToggleBackgroundSound={toggleBackgroundSound}
+          onAdminDetected={() => {
+            setIsAdminLoggedIn(true);
+            setIsLoading(false);
+          }}
         />
         <Analytics />
         <SpeedInsights />
       </Router>
-      {isLoading && (
+      {!isAdminLoggedIn && isLoading && (
         <LoadingScreen
           onComplete={handleComplete}
           onEnableSound={startReckoningTrack}

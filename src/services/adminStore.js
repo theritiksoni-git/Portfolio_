@@ -988,6 +988,9 @@ class AdminStore {
       }
       sessionStorage.setItem(AUTH_KEY, 'true');
       this.setCurrentUser(authenticatedUser);
+      window.dispatchEvent(new CustomEvent('control-room-auth-changed', { 
+        detail: { authenticated: true, user: authenticatedUser } 
+      }));
       return true;
     }
 
@@ -1001,6 +1004,9 @@ class AdminStore {
       sessionStorage.removeItem(CURRENT_USER_KEY);
       localStorage.removeItem(CURRENT_USER_KEY);
       window.dispatchEvent(new CustomEvent('control-room-user-changed', { detail: null }));
+      window.dispatchEvent(new CustomEvent('control-room-auth-changed', { 
+        detail: { authenticated: false, user: null } 
+      }));
     } catch {}
   }
 }
