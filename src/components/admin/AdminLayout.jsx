@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import adminStore from '../../services/adminStore';
-import sound from '../../utils/SoundEngine';
 
 // Module Components
 import OverviewModule from './modules/OverviewModule';
@@ -117,7 +116,6 @@ export default function AdminLayout({ onLogout }) {
   }, [currentUser, activeModule]);
 
   const handleSelectModule = (id, params = {}) => {
-    sound.playClick();
     if (!adminStore.isModuleAllowed(id)) {
       alert('Access Restricted: You do not possess the required capability permission for this module.');
       return;
@@ -128,13 +126,11 @@ export default function AdminLayout({ onLogout }) {
   };
 
   const handleSwitchUser = (userId) => {
-    sound.playLensClick();
     adminStore.switchUser(userId);
     setProfileDropdownOpen(false);
   };
 
   const handleLogout = () => {
-    sound.playClick();
     adminStore.logout();
     if (onLogout) onLogout();
     else navigate('/admin');
@@ -212,7 +208,6 @@ export default function AdminLayout({ onLogout }) {
           <div className="relative">
             <button
               onClick={() => {
-                sound.playClick();
                 setProfileDropdownOpen(!profileDropdownOpen);
               }}
               className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-white/10 hover:border-cyan-500/40 transition-all text-xs font-mono"

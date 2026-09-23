@@ -171,6 +171,14 @@ class SoundEngine {
     this.playCinematicScroll = this.playGearScroll;
   }
 
+  _isAdminPage() {
+    if (typeof window !== 'undefined' && window.location) {
+      const p = window.location.pathname || '';
+      return p.startsWith('/admin');
+    }
+    return false;
+  }
+
   // ── 1. Master Context & Hollywood Signal Flow ───────────────────────────────
 
   initContext() {
@@ -366,6 +374,7 @@ class SoundEngine {
   }
 
   playTrack(trackName) {
+    if (this._isAdminPage()) return;
     if (!this._soundtrackUrls[trackName]) return;
 
     this.isSoundtrackPlaying = true;
@@ -405,6 +414,7 @@ class SoundEngine {
   }
 
   async startSoundtrack() {
+    if (this._isAdminPage()) return;
     this.playTrack('melancholy');
     this.playTrack('horizon');
   }
@@ -510,7 +520,7 @@ class SoundEngine {
    * Simulates the camera racking focus: an acoustic lowpass filter opens up with a warm harmonic overtone.
    */
   playHover(clientX) {
-    if (this.isMuted) return;
+    if (this.isMuted || this._isAdminPage()) return;
     const now = Date.now();
     if (now - this._lastHoverTime < 110) return;
     this._lastHoverTime = now;
@@ -578,7 +588,7 @@ class SoundEngine {
    * Warm, lush acoustic musical notes triggered on interactive clicks.
    */
   playGoldenHour(clientX) {
-    if (this.isMuted) return;
+    if (this.isMuted || this._isAdminPage()) return;
     const now = Date.now();
     if (now - this._lastGhTime < 40) return;
     this._lastGhTime = now;
@@ -651,6 +661,7 @@ class SoundEngine {
    * 6. Canyon Hall Reverb Bloom: 1.6s convolution decay tail creating massive cinematic theater space.
    */
   playGlitch(clientX) {
+    if (this.isMuted || this._isAdminPage()) return;
     this.isMuted = false;
     this.initContext();
     if (this.ctx && this.ctx.state === 'suspended') {
@@ -777,6 +788,7 @@ class SoundEngine {
    * resonant plasma flux, and harmonic "SYSTEM READY" confirmation chime at 100%.
    */
   playFuturisticLoading() {
+    if (this.isMuted || this._isAdminPage()) return;
     this.initContext();
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -867,6 +879,7 @@ class SoundEngine {
    * building tension alongside the Reckoning soundtrack until the drop.
    */
   playEpicRiser() {
+    if (this.isMuted || this._isAdminPage()) return;
     this.initContext();
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -953,6 +966,7 @@ class SoundEngine {
    * 1.1s pre-drop atmospheric suction build + earth-shaking sub-bass trailer braam impact at t = 1.10s.
    */
   playCinematicBeatDrop() {
+    if (this.isMuted || this._isAdminPage()) return;
     this.initContext();
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
@@ -1003,7 +1017,7 @@ class SoundEngine {
    * Completely free of clicks, bass thuds, and static noise ("tiss tiss").
    */
   playTvPowerOn() {
-    if (this.isMuted) return;
+    if (this.isMuted || this._isAdminPage()) return;
     this.initContext();
     if (!this.ctx) return;
     if (this.ctx.state === 'suspended') {
@@ -1057,7 +1071,7 @@ class SoundEngine {
    * Subtle 35ms crystalline telemetry micro-chirp.
    */
   playFuturisticButtonHover(clientX) {
-    if (this.isMuted) return;
+    if (this.isMuted || this._isAdminPage()) return;
     const now = Date.now();
     if (now - this._lastHoverTime < 70) return;
     this._lastHoverTime = now;
@@ -1111,7 +1125,7 @@ class SoundEngine {
    * High-voltage micro-spark transient + magnetic sub-thud + 880Hz confirmation harmonic.
    */
   playFuturisticButtonClick(clientX) {
-    if (this.isMuted) return;
+    if (this.isMuted || this._isAdminPage()) return;
 
     // 1. Direct HTML5 Audio playback for guaranteed instant zero-latency response on click
     try {
@@ -1547,6 +1561,7 @@ class SoundEngine {
     // Mouse movement listener for continuous 3D spatial stereo panning
     let rafId = null;
     const onMouseMove = (e) => {
+      if (this._isAdminPage()) return;
       if (!this._isPreloadingGh) {
         this.preloadGoldenHour().catch(() => {});
       }
@@ -1560,6 +1575,7 @@ class SoundEngine {
 
     // Global Golden Hour Pointerdown Interaction
     window.addEventListener('pointerdown', (e) => {
+      if (this._isAdminPage()) return;
       if (e.target && (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO')) return;
       if (e.target && e.target.closest && (e.target.closest('.site-loader') || e.target.closest('button[aria-label*="background audio"]'))) return;
       this.playGoldenHour(e.clientX);

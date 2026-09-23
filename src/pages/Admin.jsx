@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import adminStore from '../services/adminStore';
 import AdminLayout from '../components/admin/AdminLayout';
-import sound from '../utils/SoundEngine';
 import { 
   Key, 
   LogIn, 
@@ -46,14 +45,12 @@ export default function Admin() {
 
   const handleLogin = (e) => {
     if (e) e.preventDefault();
-    sound.playClick();
     setIsSubmitting(true);
     setError('');
 
     setTimeout(() => {
       const ok = adminStore.login(passcode.trim(), rememberMe);
       if (ok) {
-        sound.playLensClick();
         setIsAuthenticated(true);
       } else {
         setError('ACCESS DENIED // Invalid credentials. Please enter your private Studio PIN or registered email.');
@@ -82,7 +79,6 @@ export default function Admin() {
           {/* Brand Mark with Spinning Disc */}
           <Link
             to="/"
-            onMouseEnter={() => sound.playHover()}
             className="flex items-center gap-3 group focus:outline-none transition-transform duration-300 hover:scale-102"
           >
             <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-cyan-500/30 flex items-center justify-center group-hover:border-cyan-400 group-hover:shadow-[0_0_15px_rgba(56,189,248,0.35)] transition-all duration-300">
@@ -114,7 +110,6 @@ export default function Admin() {
           {/* Return to Public Portfolio */}
           <Link
             to="/"
-            onMouseEnter={() => sound.playHover()}
             className="group h-9 px-4 rounded-full bg-zinc-950/90 text-white font-mono font-bold text-xs tracking-wider uppercase border border-white/20 hover:border-cyan-400 hover:text-cyan-300 hover:bg-zinc-900/90 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:scale-102 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1.5 backdrop-blur-md"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -175,10 +170,7 @@ export default function Admin() {
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    sound.playClick();
-                    setShowPin(!showPin);
-                  }}
+                  onClick={() => setShowPin(!showPin)}
                   className="p-2 text-zinc-500 hover:text-cyan-400 absolute right-2.5 top-1/2 -translate-y-1/2 transition-colors focus:outline-none"
                   title={showPin ? "Hide PIN" : "Show PIN"}
                 >
@@ -214,7 +206,6 @@ export default function Admin() {
             <button
               type="submit"
               disabled={isSubmitting}
-              onMouseEnter={() => sound.playHover()}
               className="group relative w-full h-12 rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-300 hover:from-cyan-300 hover:to-sky-200 text-black font-mono font-bold text-xs sm:text-sm tracking-wider uppercase border border-transparent shadow-[0_0_25px_rgba(56,189,248,0.4)] hover:shadow-[0_0_35px_rgba(56,189,248,0.7)] hover:scale-101 active:scale-[0.99] transition-all duration-300 focus:outline-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 overflow-hidden"
             >
               <LogIn className="w-4 h-4 text-black group-hover:translate-x-0.5 transition-transform" />

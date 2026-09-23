@@ -96,6 +96,9 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   useEffect(() => {
     setIsNavbarVisible(true);
     lastNavScrollY.current = window.scrollY;
+    if (location.pathname.startsWith('/admin')) {
+      soundEngine.stopSoundtrack();
+    }
   }, [location.pathname]);
 
   // Redirect to hero page ('/') on initial site visit or browser reload
