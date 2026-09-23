@@ -218,7 +218,7 @@ export default function AdminLayout({ onLogout }) {
               className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-white/10 hover:border-cyan-500/40 transition-all text-xs font-mono"
             >
               <img
-                src={currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
+                src={currentUser?.avatar || '/img/ritik-portrait.webp'}
                 alt={currentUser?.name || 'User'}
                 className="w-5 h-5 rounded-lg object-cover border border-white/20"
               />

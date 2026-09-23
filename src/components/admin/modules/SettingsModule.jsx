@@ -16,7 +16,7 @@ import sound from '../../../utils/SoundEngine';
 
 export default function SettingsModule() {
   const [settings, setSettings] = useState(adminStore.getModule('settings'));
-  const [passcode, setPasscode] = useState(settings.adminPasscode || 'admin');
+  const [passcode, setPasscode] = useState(settings.adminPasscode || '2026');
   const [showSettingsPin, setShowSettingsPin] = useState(false);
   const [notice, setNotice] = useState(null);
 
@@ -24,7 +24,7 @@ export default function SettingsModule() {
     const handleUpdate = () => {
       const s = adminStore.getModule('settings');
       setSettings(s);
-      setPasscode(s.adminPasscode || 'admin');
+      if (s.adminPasscode) setPasscode(s.adminPasscode);
     };
     window.addEventListener('control-room-updated', handleUpdate);
     return () => window.removeEventListener('control-room-updated', handleUpdate);
@@ -33,11 +33,12 @@ export default function SettingsModule() {
   const handleSaveSettings = (e) => {
     e.preventDefault();
     sound.playClick();
-    adminStore.updateSettings({
-      ...settings,
-      adminPasscode: passcode,
-    });
-    setNotice({ type: 'success', text: 'System settings saved!' });
+    const updates = { ...settings };
+    if (passcode && passcode.trim()) {
+      updates.adminPasscode = passcode.trim();
+    }
+    adminStore.updateSettings(updates);
+    setNotice({ type: 'success', text: 'System settings & encrypted credentials saved!' });
     setTimeout(() => setNotice(null), 2500);
   };
 
@@ -214,7 +215,7 @@ export default function SettingsModule() {
                 </div>
               </div>
               <div className="text-[10px] text-zinc-500 font-mono">
-                Encrypted master access credential. Used to authenticate into this creative control room.
+                Encrypted master access credential (SHA-256 hashed). Used to authenticate into this creative control room.
               </div>
             </div>
 

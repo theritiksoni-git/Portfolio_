@@ -138,34 +138,40 @@ export default function OverviewModule({ onSelectModule }) {
             </div>
 
             <div className="space-y-3">
-              {leads.slice(0, 3).map((lead) => (
-                <div
-                  key={lead.id}
-                  onClick={() => onSelectModule('leads', { leadId: lead.id })}
-                  className="p-3.5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 hover:border-cyan-500/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-semibold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                      {lead.name}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-mono tracking-wider font-bold ${
-                      lead.status === 'NEW' 
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
-                        : lead.status === 'WON' 
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                        : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    }`}>
-                      {lead.status}
-                    </span>
-                  </div>
-                  <div className="text-xs text-zinc-400 font-mono truncate mb-1">
-                    {lead.company ? `${lead.company} • ` : ''}{lead.projectType}
-                  </div>
-                  <p className="text-xs text-zinc-500 line-clamp-1 italic">
-                    "{lead.message}"
-                  </p>
+              {leads.length === 0 ? (
+                <div className="p-8 rounded-xl bg-zinc-900/40 border border-white/5 text-center text-zinc-500 font-mono text-xs">
+                  NO INBOUND TRANSMISSIONS YET // Genuine client inquiries submitted via the public contact terminal will appear here in real-time.
                 </div>
-              ))}
+              ) : (
+                leads.slice(0, 3).map((lead) => (
+                  <div
+                    key={lead.id}
+                    onClick={() => onSelectModule('leads', { leadId: lead.id })}
+                    className="p-3.5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 hover:border-cyan-500/30 transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-semibold text-sm text-white group-hover:text-cyan-300 transition-colors">
+                        {lead.name}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono tracking-wider font-bold ${
+                        lead.status === 'NEW' 
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
+                          : lead.status === 'WON' 
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                          : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                      }`}>
+                        {lead.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-400 font-mono truncate mb-1">
+                      {lead.company ? `${lead.company} • ` : ''}{lead.projectType}
+                    </div>
+                    <p className="text-xs text-zinc-500 line-clamp-1 italic">
+                      "{lead.message}"
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

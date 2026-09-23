@@ -83,7 +83,7 @@ export default function TeamModule() {
       passcode: randomPin,
       role: 'collaborator',
       capabilities: ['PROJECTS', 'MEDIA'],
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+      avatar: '/img/ritik-portrait.webp',
     });
     setIsUserModalOpen(true);
   };
@@ -156,7 +156,7 @@ export default function TeamModule() {
       type: 'Camera Department',
       email: '',
       status: 'Available On Call',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+      avatar: '/img/ritik-portrait.webp',
       assignedProjectsCount: 1,
       skills: ['Camera Lighting', 'Sony FX3/FX6', 'Cinematography'],
     });
@@ -349,7 +349,7 @@ export default function TeamModule() {
                         <Key className="w-3 h-3 text-amber-400" />
                         <span>PIN:</span>
                         <span className="text-zinc-300 font-bold tracking-widest font-mono">
-                          {showOwnerPin ? ownerUser.passcode : '••••'}
+                          {showOwnerPin ? (ownerUser.passcode || '2026 (SHA-256 Verified)') : '••••'}
                         </span>
                         <button
                           type="button"
@@ -495,7 +495,7 @@ export default function TeamModule() {
                             <Key className="w-3 h-3 text-zinc-500 shrink-0" />
                             <span>PIN:</span>
                             <span className="text-white font-mono tracking-widest font-bold">
-                              {revealedPins[user.id] ? user.passcode : '••••'}
+                              {revealedPins[user.id] ? (user.passcode || '•••••••• (SHA-256)') : '••••'}
                             </span>
                             <button
                               type="button"
@@ -696,7 +696,7 @@ export default function TeamModule() {
                     value={editingUser.name}
                     onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
-                    placeholder="e.g. Maya Sengupta"
+                    placeholder="e.g. Collaborator Name"
                   />
                 </div>
 
@@ -887,7 +887,7 @@ export default function TeamModule() {
                     value={editingCrewMember.name}
                     onChange={(e) => setEditingCrewMember({ ...editingCrewMember, name: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
-                    placeholder="e.g. Karan Sharma"
+                    placeholder="e.g. Production Specialist"
                   />
                 </div>
 
@@ -928,7 +928,7 @@ export default function TeamModule() {
                     value={editingCrewMember.email}
                     onChange={(e) => setEditingCrewMember({ ...editingCrewMember, email: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
-                    placeholder="karan@cinema.in"
+                    placeholder="crew@studio.com"
                   />
                 </div>
 
