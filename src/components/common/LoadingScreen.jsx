@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Headphones } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 import AnimusPlexusVoid from './AnimusPlexusVoid';
-import adminStore from '../../services/adminStore';
 
 // Curated Quotes across Film Editing, Cinematography & Social Media Management (SMM)
 const CINEMATIC_QUOTES = [
@@ -90,11 +89,6 @@ const CINEMATIC_QUOTES = [
 
 /** Cinematic boot sequence: headphone prompt first, followed by loading sequence before entering. */
 export default function LoadingScreen({ onComplete, onEnableSound, onStartSiteTransition }) {
-  const isAdminSession = typeof window !== 'undefined' && (
-    adminStore.isAuthenticated() || 
-    window.location.pathname.startsWith('/admin')
-  );
-
   const [step, setStep] = useState('headphone'); // 'headphone' (first) | 'loading' (second)
   const [progress, setProgress] = useState(0);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -114,29 +108,20 @@ export default function LoadingScreen({ onComplete, onEnableSound, onStartSiteTr
     onStartSiteTransitionRef.current = onStartSiteTransition;
   }, [onComplete, onStartSiteTransition]);
 
-  // If logged in as admin, trigger instant completion without sound effects or visual delays
-  useEffect(() => {
-    if (isAdminSession) {
-      if (onCompleteRef.current) onCompleteRef.current();
-    }
-  }, [isAdminSession]);
-
   const hasStartedLoadingRef = useRef(false);
   const hasFinishedRef = useRef(false);
 
   // Trigger retro CRT television turn-on audio on mount strictly once
   const hasTvTurnedOnRef = useRef(false);
   useEffect(() => {
-    if (isAdminSession) return;
     if (step === 'headphone' && !hasTvTurnedOnRef.current) {
       hasTvTurnedOnRef.current = true;
       sound.playTvPowerOn();
     }
-  }, [step, isAdminSession]);
+  }, [step]);
 
   // Loading progress bar: runs once user advances from the headphone screen
   useEffect(() => {
-    if (isAdminSession) return;
     if (step !== 'loading') return;
     if (hasStartedLoadingRef.current) return;
     hasStartedLoadingRef.current = true;
@@ -194,8 +179,7 @@ export default function LoadingScreen({ onComplete, onEnableSound, onStartSiteTr
       window.clearTimeout(completeTimer);
       sound.stopFuturisticLoading(0.1);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, isAdminSession]);
+  }, [step]);
 
   // Step 1: User clicks START on the Headphone screen -> Triggers Cyber Glitch Transition
   const handleStartFromHeadphones = useCallback((e) => {
@@ -230,11 +214,6 @@ export default function LoadingScreen({ onComplete, onEnableSound, onStartSiteTr
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [step, handleStartFromHeadphones]);
-
-  // If user is authenticated as admin, remove headphone disclaimer & loading screen completely
-  if (isAdminSession) {
-    return null;
-  }
 
   // FIRST PAGE: Headphone Disclaimer
   if (step === 'headphone') {
