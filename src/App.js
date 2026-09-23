@@ -294,8 +294,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(() => {
     if (typeof window !== 'undefined') {
       const pathname = window.location.pathname || '';
-      // If logged in as admin or visiting admin, bypass headphone disclaimer & loading screen entirely
-      if (adminStore.isAuthenticated() || pathname.startsWith('/admin')) {
+      // Only skip loading screen when directly visiting the /admin route
+      if (pathname.startsWith('/admin')) {
         return false;
       }
     }
@@ -310,7 +310,6 @@ function App() {
       const isAdminPath = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
       if (isAuth || isAdminPath) {
         setIsAdminLoggedIn(true);
-        setIsLoading(false);
       } else {
         setIsAdminLoggedIn(false);
       }
@@ -321,7 +320,6 @@ function App() {
     const handleAuthChange = (e) => {
       if (e.detail?.authenticated) {
         setIsAdminLoggedIn(true);
-        setIsLoading(false);
       } else {
         checkAdminState();
       }
@@ -387,7 +385,7 @@ function App() {
         <Analytics />
         <SpeedInsights />
       </Router>
-      {!isAdminLoggedIn && isLoading && (
+      {isLoading && (
         <LoadingScreen
           onComplete={handleComplete}
           onEnableSound={startReckoningTrack}
