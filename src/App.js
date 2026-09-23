@@ -294,8 +294,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(() => {
     if (typeof window !== 'undefined') {
       const pathname = window.location.pathname || '';
-      // Only skip loading screen when directly visiting the /admin route
-      if (pathname.startsWith('/admin')) {
+      // Skip loading screen for admin route or active admin session
+      if (pathname.startsWith('/admin') || adminStore.isAuthenticated()) {
         return false;
       }
     }
@@ -310,6 +310,7 @@ function App() {
       const isAdminPath = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
       if (isAuth || isAdminPath) {
         setIsAdminLoggedIn(true);
+        setIsLoading(false); // Dismiss loading screen the moment admin is detected
       } else {
         setIsAdminLoggedIn(false);
       }
@@ -320,6 +321,7 @@ function App() {
     const handleAuthChange = (e) => {
       if (e.detail?.authenticated) {
         setIsAdminLoggedIn(true);
+        setIsLoading(false); // Admin just logged in — drop the loading screen immediately
       } else {
         checkAdminState();
       }
