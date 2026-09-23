@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Send, RotateCcw, CheckCircle2, Sparkles, MessageSquare, ChevronDown, Check, Film, Video, Tv, Layers, FileText } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
+import adminStore from '../../services/adminStore';
 
 const PROJECT_TYPES = [
   {
@@ -132,6 +133,19 @@ const ContactSection = ({ onOpenResume }) => {
     e.preventDefault();
     sound.playShutter();
     setStatus({ state: 'sending', message: 'TRANSMITTING MESSAGE...' });
+
+    // Record lead in central admin control room store
+    try {
+      adminStore.addLead({
+        name: formData.Name,
+        email: formData.email,
+        projectType: formData.projectType,
+        message: formData.Message,
+        status: 'NEW',
+      });
+    } catch (e) {
+      console.warn('Failed to log lead in store:', e);
+    }
 
     try {
       const response = await fetch('http://localhost:3001/submitFormData', {

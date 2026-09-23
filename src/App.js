@@ -139,12 +139,15 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
     return 'home';
   })();
 
-  // Pause heavy canvas rendering during modal inspection or document viewing
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Pause heavy canvas rendering during modal inspection, document viewing, or admin control room
   const isCanvasPaused = Boolean(
     selectedProject ||
     isResumeOpen ||
     isTheaterArchiveOpen ||
-    location.pathname === '/resume'
+    location.pathname === '/resume' ||
+    isAdminRoute
   );
 
   return (
@@ -154,16 +157,20 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
         <ScrollToTop />
 
         {/* 35mm Celluloid Film Grain Texture */}
-        <div className="film-grain" />
+        {!isAdminRoute && <div className="film-grain" />}
 
-        {/* 3D WebGL Digital Film Environment Canvas (Auto-paused when modal/resume active) */}
-        <CinematicCanvas activeSection={activeScene} isMobile={isMobile} isPaused={isCanvasPaused} />
+        {/* 3D WebGL Digital Film Environment Canvas (Auto-paused when modal/resume/admin active) */}
+        {!isAdminRoute && (
+          <CinematicCanvas activeSection={activeScene} isMobile={isMobile} isPaused={isCanvasPaused} />
+        )}
 
-        {/* Assassin's Creed Animus Point-Cloud Web (Auto-paused when modal/resume active) */}
-        <AnimusPlexusVoid className="animus-plexus-void--fixed" opacity={0.48} isPaused={isCanvasPaused} />
+        {/* Assassin's Creed Animus Point-Cloud Web (Auto-paused when modal/resume/admin active) */}
+        {!isAdminRoute && (
+          <AnimusPlexusVoid className="animus-plexus-void--fixed" opacity={0.48} isPaused={isCanvasPaused} />
+        )}
 
-        {/* Viewfinder Viewport HUD (REC status, SMPTE timecode, Aspect toggle) - Hidden on official resume */}
-        {location.pathname !== '/resume' && !isResumeOpen && (
+        {/* Viewfinder Viewport HUD (REC status, SMPTE timecode, Aspect toggle) - Hidden on official resume and admin */}
+        {!isAdminRoute && location.pathname !== '/resume' && !isResumeOpen && (
           <ViewportHUD
             activeSection={activeScene}
             isLetterbox={isLetterbox}
@@ -172,13 +179,15 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
           />
         )}
 
-        {/* Floating HUD Navbar */}
-        <Navbar
-          onOpenResume={() => setIsResumeOpen(true)}
-          isBackgroundSoundOn={isBackgroundSoundOn}
-          onToggleBackgroundSound={onToggleBackgroundSound}
-          isVisible={isNavbarVisible}
-        />
+        {/* Floating HUD Navbar - Hidden on admin control room */}
+        {!isAdminRoute && (
+          <Navbar
+            onOpenResume={() => setIsResumeOpen(true)}
+            isBackgroundSoundOn={isBackgroundSoundOn}
+            onToggleBackgroundSound={onToggleBackgroundSound}
+            isVisible={isNavbarVisible}
+          />
+        )}
 
         {/* Dynamic Route Pages with Code-Splitting Suspense */}
         <main className="relative z-10">
@@ -229,8 +238,8 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
           </Suspense>
         </main>
 
-        {/* Universal Cinematic Production Footer */}
-        <CinematicFooter onOpenResume={() => setIsResumeOpen(true)} />
+        {/* Universal Cinematic Production Footer - Hidden on admin control room */}
+        {!isAdminRoute && <CinematicFooter onOpenResume={() => setIsResumeOpen(true)} />}
 
         {/* Fullscreen Cinema Theater Modal (Lazy Loaded) */}
         {selectedProject && (
