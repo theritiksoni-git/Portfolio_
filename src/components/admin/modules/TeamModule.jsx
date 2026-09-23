@@ -11,6 +11,7 @@ import {
   Key,
   CheckCircle2,
   Eye,
+  EyeOff,
   Sparkles,
   Clock,
   Film,
@@ -38,6 +39,11 @@ export default function TeamModule() {
   const [adminUsers, setAdminUsers] = useState(adminStore.getAdminUsers());
   const [team, setTeam] = useState(adminStore.getModule('team'));
   const [currentUser, setCurrentUser] = useState(adminStore.getCurrentUser());
+
+  // PIN Privacy States
+  const [showOwnerPin, setShowOwnerPin] = useState(false);
+  const [revealedPins, setRevealedPins] = useState({});
+  const [showModalPin, setShowModalPin] = useState(false);
 
   // Modals
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -339,10 +345,24 @@ export default function TeamModule() {
                         {ownerUser.email}
                       </span>
                       <span>•</span>
-                      <span className="text-zinc-500 flex items-center gap-1">
-                        <Key className="w-3 h-3 text-zinc-400" />
-                        PIN: <span className="text-zinc-300 font-bold">{ownerUser.passcode}</span>
-                      </span>
+                      <div className="flex items-center gap-1.5 text-zinc-400">
+                        <Key className="w-3 h-3 text-amber-400" />
+                        <span>PIN:</span>
+                        <span className="text-zinc-300 font-bold tracking-widest font-mono">
+                          {showOwnerPin ? ownerUser.passcode : '••••'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sound.playClick();
+                            setShowOwnerPin(!showOwnerPin);
+                          }}
+                          className="p-1 rounded hover:bg-zinc-800 text-zinc-500 hover:text-amber-300 transition-colors focus:outline-none"
+                          title={showOwnerPin ? "Hide PIN" : "Reveal PIN"}
+                        >
+                          {showOwnerPin ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -473,7 +493,21 @@ export default function TeamModule() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Key className="w-3 h-3 text-zinc-500 shrink-0" />
-                            <span>PIN: <strong className="text-white">{user.passcode}</strong></span>
+                            <span>PIN:</span>
+                            <span className="text-white font-mono tracking-widest font-bold">
+                              {revealedPins[user.id] ? user.passcode : '••••'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                sound.playClick();
+                                setRevealedPins(prev => ({ ...prev, [user.id]: !prev[user.id] }));
+                              }}
+                              className="p-1 rounded hover:bg-zinc-850 text-zinc-500 hover:text-cyan-300 transition-colors focus:outline-none"
+                              title={revealedPins[user.id] ? "Hide PIN" : "Reveal PIN"}
+                            >
+                              {revealedPins[user.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                            </button>
                           </div>
                         </div>
 
@@ -698,18 +732,29 @@ export default function TeamModule() {
 
                 <div>
                   <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
-                    Access Passcode / PIN
+                    Access Passcode / PIN (Private)
                   </label>
                   <div className="relative">
                     <Key className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
-                      type="text"
+                      type={showModalPin ? "text" : "password"}
                       required
                       value={editingUser.passcode}
                       onChange={(e) => setEditingUser({ ...editingUser, passcode: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono font-bold tracking-wider"
-                      placeholder="e.g. 3344"
+                      className="w-full pl-9 pr-9 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono font-bold tracking-widest"
+                      placeholder="Enter private PIN..."
                     />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sound.playClick();
+                        setShowModalPin(!showModalPin);
+                      }}
+                      className="p-1 text-zinc-500 hover:text-cyan-400 absolute right-3 top-1/2 -translate-y-1/2 transition-colors focus:outline-none"
+                      title={showModalPin ? "Hide PIN" : "Show PIN"}
+                    >
+                      {showModalPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
                 </div>
               </div>

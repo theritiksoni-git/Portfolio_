@@ -15,7 +15,9 @@ import {
   TrendingUp,
   Sparkles,
   ChevronRight,
-  Lock
+  Lock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const TELEMETRY_METRICS = [
@@ -28,6 +30,7 @@ const TELEMETRY_METRICS = [
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(adminStore.isAuthenticated());
   const [passcode, setPasscode] = useState('');
+  const [showPin, setShowPin] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,7 +68,7 @@ export default function Admin() {
         sound.playLensClick();
         setIsAuthenticated(true);
       } else {
-        setError('ACCESS DENIED // Invalid credentials. Enter 2026/admin (Owner), 1111 (Maya), or 2222 (Devansh).');
+        setError('ACCESS DENIED // Invalid credentials. Please enter your private Studio PIN or registered email.');
       }
       setIsSubmitting(false);
     }, 250);
@@ -198,14 +201,14 @@ export default function Admin() {
             <form onSubmit={handleLogin} className="space-y-5 my-auto">
               <div>
                 <label className="block text-zinc-400 font-mono text-xs uppercase tracking-wider mb-2">
-                  Access Passcode // Master PIN // Collaborator Email
+                  Access Passcode // Studio PIN // Collaborator Email
                 </label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
                     <Key className="w-4 h-4 text-cyan-400" />
                   </div>
                   <input
-                    type="text"
+                    type={showPin ? "text" : "password"}
                     required
                     autoFocus
                     value={passcode}
@@ -213,9 +216,20 @@ export default function Admin() {
                       setPasscode(e.target.value);
                       if (error) setError('');
                     }}
-                    placeholder="Enter PIN (e.g. 2026, 1111, 2222)..."
-                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-zinc-900/90 border border-white/15 text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_25px_rgba(56,189,248,0.25)] font-mono text-sm tracking-widest transition-all"
+                    placeholder="Enter private Studio PIN or email..."
+                    className="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-zinc-900/90 border border-white/15 text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_25px_rgba(56,189,248,0.25)] font-mono text-sm tracking-widest transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playClick();
+                      setShowPin(!showPin);
+                    }}
+                    className="p-1.5 text-zinc-500 hover:text-cyan-400 absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors focus:outline-none"
+                    title={showPin ? "Hide PIN" : "Show PIN"}
+                  >
+                    {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -236,8 +250,9 @@ export default function Admin() {
                   />
                   <span>Remember session authentication</span>
                 </label>
-                <span className="text-[11px] text-zinc-500 font-mono">
-                  MASTER PIN: <strong className="text-zinc-300">2026</strong>
+                <span className="text-[11px] text-zinc-500 font-mono flex items-center gap-1.5">
+                  <Lock className="w-3 h-3 text-cyan-400" />
+                  <span>PIN IS PRIVATE & ENCRYPTED</span>
                 </span>
               </div>
 
@@ -311,7 +326,9 @@ export default function Admin() {
                 </div>
 
                 <div className="flex items-center gap-2 font-mono text-xs text-amber-400 group-hover/btn:translate-x-1 transition-transform">
-                  <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">PIN: 2026</span>
+                  <span className="text-[10px] bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30 text-amber-300 font-bold uppercase tracking-wider">
+                    ENTER AS OWNER
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </button>
@@ -344,7 +361,9 @@ export default function Admin() {
                 </div>
 
                 <div className="flex items-center gap-2 font-mono text-xs text-cyan-400 group-hover/btn:translate-x-1 transition-transform">
-                  <span className="text-[10px] bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30">PIN: 1111</span>
+                  <span className="text-[10px] bg-cyan-500/20 px-2.5 py-1 rounded-full border border-cyan-500/30 text-cyan-300 font-bold uppercase tracking-wider">
+                    ENTER AS MAYA
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </button>
@@ -377,7 +396,9 @@ export default function Admin() {
                 </div>
 
                 <div className="flex items-center gap-2 font-mono text-xs text-sky-400 group-hover/btn:translate-x-1 transition-transform">
-                  <span className="text-[10px] bg-sky-500/20 px-2 py-0.5 rounded border border-sky-500/30">PIN: 2222</span>
+                  <span className="text-[10px] bg-sky-500/20 px-2.5 py-1 rounded-full border border-sky-500/30 text-sky-300 font-bold uppercase tracking-wider">
+                    ENTER AS DEVANSH
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </button>

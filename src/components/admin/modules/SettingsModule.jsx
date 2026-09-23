@@ -8,13 +8,16 @@ import {
   Lock, 
   Check, 
   HardDrive,
-  Save
+  Save,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 
 export default function SettingsModule() {
   const [settings, setSettings] = useState(adminStore.getModule('settings'));
   const [passcode, setPasscode] = useState(settings.adminPasscode || 'admin');
+  const [showSettingsPin, setShowSettingsPin] = useState(false);
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
@@ -183,20 +186,35 @@ export default function SettingsModule() {
             {/* Admin Security PIN */}
             <div className="pt-2 border-t border-white/5 space-y-2">
               <label className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider block">
-                Control Room Security PIN / Passcode
+                Control Room Security PIN / Passcode (Private)
               </label>
-              <div className="flex items-center gap-2 max-w-xs">
-                <Lock className="w-4 h-4 text-cyan-400" />
-                <input
-                  type="password"
-                  value={passcode}
-                  onChange={(e) => setPasscode(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono"
-                  placeholder="admin"
-                />
+              <div className="flex items-center gap-2 max-w-sm">
+                <div className="relative w-full">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showSettingsPin ? "text" : "password"}
+                    value={passcode}
+                    onChange={(e) => setPasscode(e.target.value)}
+                    className="w-full pl-9 pr-9 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono font-bold tracking-widest"
+                    placeholder="Enter private PIN..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playClick();
+                      setShowSettingsPin(!showSettingsPin);
+                    }}
+                    className="p-1 text-zinc-500 hover:text-cyan-400 absolute right-3 top-1/2 -translate-y-1/2 transition-colors focus:outline-none"
+                    title={showSettingsPin ? "Hide PIN" : "Show PIN"}
+                  >
+                    {showSettingsPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
               </div>
               <div className="text-[10px] text-zinc-500 font-mono">
-                Default: "admin". Used to authenticate into this creative control room.
+                Encrypted master access credential. Used to authenticate into this creative control room.
               </div>
             </div>
 
