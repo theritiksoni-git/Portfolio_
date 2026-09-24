@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cross-env CI=false react-scripts build",
+    "build": "cross-env CI=false react-scripts build && node scripts/prerender.js",
     "test": "react-scripts test --watchAll=false --passWithNoTests",
     "eject": "react-scripts eject",
     "export:pdf": "node scripts/export-resume-pdf.js"
