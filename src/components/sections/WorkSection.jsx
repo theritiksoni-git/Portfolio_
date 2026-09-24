@@ -1,31 +1,46 @@
 import React, { useState, useMemo } from 'react';
 import { Play, Film, Clock, ArrowUpRight, Search } from 'lucide-react';
-import { PROJECTS, PROJECT_CATEGORIES } from '../../data/projects';
+import { PROJECT_CATEGORIES } from '../../data/projects';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 import { ClientLogoBadge, ToolIcon } from '../common/ProjectCardBadges';
 const DISPLAY_LIMIT = 3; // Display exactly 1 line (3 smaller cards on desktop)
 
 const WorkSection = ({ onSelectProject, onOpenTheaterArchive, showAll = false }) => {
+  const { projects } = usePortfolioData();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredProjectId, setHoveredProjectId] = useState(null);
 
+  const dynamicCategories = useMemo(() => {
+    return PROJECT_CATEGORIES.map((cat) => {
+      let count = 0;
+      if (cat.id === 'all') count = projects.length;
+      else if (cat.id === 'smm') count = projects.filter((p) => p.category === 'smm' || p.category === 'reels').length;
+      else count = projects.filter((p) => p.category === cat.id).length;
+      return {
+        ...cat,
+        countLabel: String(count).padStart(2, '0')
+      };
+    });
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((proj) => {
+    return projects.filter((proj) => {
       const matchesCategory =
         activeCategory === 'all' ||
         proj.category === activeCategory ||
         (activeCategory === 'smm' && (proj.category === 'smm' || proj.category === 'reels'));
       const matchesSearch =
         searchQuery.trim() === '' ||
-        proj.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.synopsis.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.tools.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        (proj.title && proj.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (proj.client && proj.client.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (proj.synopsis && proj.synopsis.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (Array.isArray(proj.tools) && proj.tools.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())));
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [projects, activeCategory, searchQuery]);
 
   const handleCategoryChange = (categoryId) => {
     sound.playLensClick();
@@ -91,7 +106,7 @@ const WorkSection = ({ onSelectProject, onOpenTheaterArchive, showAll = false })
 
       {/* Category Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible py-3.5 -my-2 mb-8 -mx-4 px-4 sm:mx-0 sm:px-1 sm:flex-wrap scrollbar-none no-scrollbar">
-        {PROJECT_CATEGORIES.map((cat) => {
+        {dynamicCategories.map((cat) => {
           const isActive = activeCategory === cat.id;
           return (
             <button
@@ -246,7 +261,7 @@ const WorkSection = ({ onSelectProject, onOpenTheaterArchive, showAll = false })
                 className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-white border border-cyan-500/40 hover:border-cyan-400 font-mono text-xs tracking-widest uppercase transition-all duration-300 shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] group scale-100 hover:scale-[1.02]"
               >
                 <Film className="w-3.5 h-3.5 text-cyan-400" />
-                <span>SHOW MORE // OPEN CINEMATIC THEATER ({PROJECTS.length} TITLES)</span>
+                <span>SHOW MORE // OPEN CINEMATIC THEATER ({projects.length} TITLES)</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
             </div>

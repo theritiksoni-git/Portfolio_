@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import adminStore from '../services/adminStore';
 
 const PAGE_METADATA = {
   '/': {
@@ -34,10 +35,21 @@ const PAGE_METADATA = {
 
 export default function usePageMetadata() {
   const { pathname } = useLocation();
+  const [settings, setSettings] = useState(() => adminStore.getModule('settings'));
+
+  useEffect(() => {
+    const handleUpdate = () => setSettings(adminStore.getModule('settings'));
+    window.addEventListener('control-room-updated', handleUpdate);
+    return () => window.removeEventListener('control-room-updated', handleUpdate);
+  }, []);
 
   useEffect(() => {
     const meta = PAGE_METADATA[pathname] || PAGE_METADATA['/'];
-    document.title = meta.title;
+    let title = meta.title;
+    if (pathname === '/' && settings?.studioTitle) {
+      title = `${settings.studioTitle} | Film Director, Video Editor & SMM Lead`;
+    }
+    document.title = title;
 
     let descEl = document.querySelector('meta[name="description"]');
     if (!descEl) {
@@ -45,6 +57,9 @@ export default function usePageMetadata() {
       descEl.name = 'description';
       document.head.appendChild(descEl);
     }
-    descEl.setAttribute('content', meta.description);
-  }, [pathname]);
+    const description = (pathname === '/' && settings?.metaDescription)
+      ? settings.metaDescription
+      : meta.description;
+    descEl.setAttribute('content', description);
+  }, [pathname, settings]);
 }

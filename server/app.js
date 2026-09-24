@@ -120,39 +120,111 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-app.post("/submitFormData", (req, res) => {
-  const { Name, email, Message, projectType } = req.body;
-  console.log(`[Form Submission Received] Name: ${Name}, Email: ${email}, Message: ${Message}`);
+const path = require("path");
+const fs = require("fs");
+const MESSAGES_FILE = path.join(__dirname, "messages.json");
+const DATA_FILE = path.join(__dirname, "portfolio_data.json");
 
+app.post("/submitFormData", (req, res) => {
+  const { Name, email, Message, projectType, targetEmail } = req.body;
+  const newMsg = {
+    id: `msg-${Date.now()}`,
+    name: Name || "Anonymous",
+    email: email || "unknown@domain.com",
+    projectType: projectType || "General Inquiry",
+    message: Message || "",
+    receivedAt: new Date().toISOString(),
+  };
+
+  console.log(`[Form Submission Received] Name: ${newMsg.name}, Email: ${newMsg.email}, Project: ${newMsg.projectType}`);
+
+  // 1. Persist to messages.json on server disk
+  try {
+    let existing = [];
+    if (fs.existsSync(MESSAGES_FILE)) {
+      existing = JSON.parse(fs.readFileSync(MESSAGES_FILE, "utf-8") || "[]");
+    }
+    existing.unshift(newMsg);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(existing, null, 2), "utf-8");
+  } catch (fsErr) {
+    console.error("Error writing messages.json:", fsErr);
+  }
+
+  // 2. MySQL backup if connected
   if (isDbConnected && connection) {
     const sql = "INSERT INTO messages (name, email, message) VALUES (?, ?, ?)";
-    connection.query(sql, [Name, email, Message], (err, result) => {
-      if (err) {
-        console.error("Error inserting data into the database:", err);
-      } else {
-        console.log("Data inserted into the database");
-      }
+    connection.query(sql, [newMsg.name, newMsg.email, `[${newMsg.projectType}] ${newMsg.message}`], (err) => {
+      if (err) console.error("Error inserting data into MySQL messages:", err);
     });
   }
 
-  if (process.env.EMAIL_USER && !process.env.EMAIL_USER.includes('your-email')) {
+  // 3. Nodemailer dispatch if SMTP configured
+  const recipient = targetEmail || process.env.EMAIL_USER || "theritiksoni@gmail.com";
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
+
+  if (emailUser && !emailUser.includes('your-email') && emailPass && !emailPass.includes('your-app-password')) {
     const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_USER,
-      subject: `New Form Submission: ${Name} [${projectType || 'General'}]`,
-      text: `You have received a new form submission from ${Name} (${email}).\n\nProject Type: ${projectType || 'General'}\n\nMessage: ${Message}`,
+      from: `"${newMsg.name} via Portfolio" <${emailUser}>`,
+      replyTo: newMsg.email,
+      to: recipient,
+      subject: `🎬 New Portfolio Inquiry: ${newMsg.name} [${newMsg.projectType}]`,
+      text: `You have received a new form submission on your portfolio website:\n\nClient Name: ${newMsg.name}\nClient Email: ${newMsg.email}\nProject Type: ${newMsg.projectType}\nReceived: ${new Date().toLocaleString()}\n\nMessage:\n${newMsg.message}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 24px; border: 1px solid #0891b2; border-radius: 12px; background: #09090b; color: #f4f4f5;">
+          <h2 style="color: #38bdf8; margin-top: 0; font-family: sans-serif;">🎬 New Client Inquiry Transmitted</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+            <tr><td style="padding: 8px; color: #a1a1aa; width: 120px; border-bottom: 1px solid #27272a;">Client:</td><td style="padding: 8px; color: #ffffff; font-weight: bold; border-bottom: 1px solid #27272a;">${newMsg.name}</td></tr>
+            <tr><td style="padding: 8px; color: #a1a1aa; border-bottom: 1px solid #27272a;">Email:</td><td style="padding: 8px; border-bottom: 1px solid #27272a;"><a href="mailto:${newMsg.email}" style="color: #38bdf8;">${newMsg.email}</a></td></tr>
+            <tr><td style="padding: 8px; color: #a1a1aa; border-bottom: 1px solid #27272a;">Project Type:</td><td style="padding: 8px; color: #ffffff; border-bottom: 1px solid #27272a;">${newMsg.projectType}</td></tr>
+            <tr><td style="padding: 8px; color: #a1a1aa; border-bottom: 1px solid #27272a;">Timestamp:</td><td style="padding: 8px; color: #71717a; border-bottom: 1px solid #27272a;">${new Date().toLocaleString()}</td></tr>
+          </table>
+          <h3 style="color: #e4e4e7; margin-bottom: 8px; font-size: 14px;">Project Vision & Details:</h3>
+          <div style="background: #18181b; padding: 16px; border-radius: 8px; border: 1px solid #27272a; white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: #e4e4e7;">${newMsg.message}</div>
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #27272a; font-size: 12px; color: #a1a1aa;">
+            Tip: Replying directly to this email will reply straight to <strong>${newMsg.email}</strong>.
+          </div>
+        </div>
+      `,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Error sending email:", error);
+        console.error("Error sending email via Nodemailer:", error);
       } else {
-        console.log("Email sent:", info.response);
+        console.log("Email sent successfully via Nodemailer:", info.response);
       }
     });
   }
 
-  res.json({ success: true, message: "Transmission received successfully" });
+  res.json({ success: true, message: "Transmission received and logged successfully", messageId: newMsg.id });
+});
+
+// Dynamic Portfolio Data Synchronization & Persistence Engine
+
+app.get("/api/portfolio-data", (req, res) => {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, "utf-8");
+      return res.json({ success: true, data: JSON.parse(raw) });
+    }
+    return res.json({ success: true, data: null });
+  } catch (err) {
+    console.error("Error reading portfolio data:", err);
+    res.status(500).json({ error: "Failed to read data" });
+  }
+});
+
+app.post("/api/portfolio-data", (req, res) => {
+  try {
+    const payload = req.body;
+    fs.writeFileSync(DATA_FILE, JSON.stringify(payload, null, 2), "utf-8");
+    console.log("[Portfolio Data] Synced directly from Admin to server disk.");
+    return res.json({ success: true, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error("Error writing portfolio data:", err);
+    res.status(500).json({ error: "Failed to write data" });
+  }
 });
 
 const port = process.env.PORT || 3001;

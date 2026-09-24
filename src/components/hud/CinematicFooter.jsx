@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Disc, ArrowUp, FileText, Mail } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 
 const FOOTER_NAV = [
   { path: '/', label: 'HOME', code: '01' },
@@ -12,46 +13,52 @@ const FOOTER_NAV = [
   { path: '/contact', label: 'CONTACT', code: '06' },
 ];
 
-const SOCIAL_LINKS = [
-  {
-    name: 'LinkedIn',
-    href: 'https://linkedin.com/in/ritiksoni',
-    icon: (
+const renderSocialIcon = (platform = '') => {
+  const p = platform.toLowerCase();
+  if (p.includes('linkedin')) {
+    return (
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2Z" />
       </svg>
-    ),
-  },
-  {
-    name: 'Instagram',
-    href: 'https://instagram.com/ritiksoni',
-    icon: (
+    );
+  }
+  if (p.includes('instagram')) {
+    return (
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
         <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
         <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
       </svg>
-    ),
-  },
-  {
-    name: 'X (Twitter)',
-    href: 'https://twitter.com/ritiksoni',
-    icon: (
+    );
+  }
+  if (p.includes('twitter') || p === 'x') {
+    return (
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
       </svg>
-    ),
-  },
-  {
-    name: 'Email',
-    href: 'mailto:ritiksoni@gmail.com',
-    icon: <Mail className="w-4 h-4" />,
-  },
-];
+    );
+  }
+  if (p.includes('youtube')) {
+    return (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      </svg>
+    );
+  }
+  return <Mail className="w-4 h-4" />;
+};
 
 const CinematicFooter = ({ onOpenResume }) => {
+  const { socialLinks, settings } = usePortfolioData();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const activeSocials = (socialLinks && socialLinks.length > 0 ? socialLinks : [
+    { platform: 'LinkedIn', url: 'https://linkedin.com/in/ritiksoni' },
+    { platform: 'Instagram', url: 'https://instagram.com/theritiksoni' },
+    { platform: 'YouTube', url: 'https://youtube.com' },
+    { platform: 'Email Transmit', url: `mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}` },
+  ]).filter((s) => s.active !== false);
 
   const handleScrollTop = () => {
     sound.playLensClick();
@@ -78,7 +85,7 @@ const CinematicFooter = ({ onOpenResume }) => {
               </div>
               <div>
                 <div className="font-syne font-bold text-base tracking-wider text-white flex items-center gap-1.5">
-                  RITIK SONI
+                  {settings?.studioTitle ? settings.studioTitle.toUpperCase() : 'RITIK SONI'}
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 </div>
                 <div className="text-[10px] tracking-widest text-zinc-400 font-mono">
@@ -157,17 +164,17 @@ const CinematicFooter = ({ onOpenResume }) => {
 
             {/* Social Icons */}
             <div className="flex items-center gap-2 pt-2">
-              {SOCIAL_LINKS.map((s) => (
+              {activeSocials.map((s, idx) => (
                 <a
-                  key={s.name}
-                  href={s.href}
+                  key={s.id || s.platform || s.name || idx}
+                  href={s.url || s.href || `mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={s.name}
+                  aria-label={s.platform || s.name}
                   onMouseEnter={() => sound.playHover()}
                   className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-cyan-300 hover:border-cyan-500/40 hover:scale-105 transition-all duration-300"
                 >
-                  {s.icon}
+                  {renderSocialIcon(s.platform || s.name)}
                 </a>
               ))}
             </div>

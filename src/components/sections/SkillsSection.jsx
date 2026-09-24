@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Cpu, Sliders, Zap, ChevronDown, Sparkles } from 'lucide-react';
 import { CORE_SOFTWARE, PRODUCTION_SKILLS } from '../../data/skills';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 
 const DISCIPLINE_CATEGORIES = [
   { id: 'all', label: 'ALL CAPABILITIES' },
@@ -11,11 +12,14 @@ const DISCIPLINE_CATEGORIES = [
 ];
 
 const SkillsSection = () => {
-  const [activeSoftwareId, setActiveSoftwareId] = useState(CORE_SOFTWARE[0].id);
+  const { skills: liveSkills } = usePortfolioData();
+  const softwareList = liveSkills && liveSkills.length > 0 ? liveSkills : CORE_SOFTWARE;
+
+  const [activeSoftwareId, setActiveSoftwareId] = useState(softwareList[0]?.id || CORE_SOFTWARE[0].id);
   const [activeDisciplineFilter, setActiveDisciplineFilter] = useState('all');
   const [isAllDisciplinesExpanded, setIsAllDisciplinesExpanded] = useState(false);
 
-  const selectedSoftware = CORE_SOFTWARE.find((s) => s.id === activeSoftwareId) || CORE_SOFTWARE[0];
+  const selectedSoftware = softwareList.find((s) => s.id === activeSoftwareId) || softwareList[0] || CORE_SOFTWARE[0];
 
   const filteredDisciplines = useMemo(() => {
     return PRODUCTION_SKILLS.filter((skill) => {
@@ -72,7 +76,7 @@ const SkillsSection = () => {
         
         {/* Workstation Selector Tabs (Responsive Grid) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {CORE_SOFTWARE.map((sw, idx) => {
+          {softwareList.map((sw, idx) => {
             const isActive = activeSoftwareId === sw.id;
 
             return (

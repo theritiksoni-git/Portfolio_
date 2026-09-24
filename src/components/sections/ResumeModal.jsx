@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Mail, Globe, Phone, Check, Copy, Sparkles, Briefcase, Award, GraduationCap, Sun, Moon, Printer, X } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 
 const ResumeModal = ({ isOpen, onClose }) => {
+  const { experience: liveExperiences, settings, availability } = usePortfolioData();
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedAts, setCopiedAts] = useState(false);
   const [showAtsView, setShowAtsView] = useState(false);
@@ -393,12 +395,12 @@ ITM University | Score: 78%`}
                   <h2 id="resume-modal-title" className={`font-syne font-extrabold text-3xl sm:text-4xl tracking-tight uppercase ${
                     isDarkMode ? 'text-white' : 'text-zinc-950'
                   }`}>
-                    RITIK SONI
+                    {settings?.name?.toUpperCase() || 'RITIK SONI'}
                   </h2>
                   <p className={`font-mono text-xs sm:text-sm font-semibold tracking-wider mt-1.5 ${
                     isDarkMode ? 'text-cyan-400' : 'text-sky-700'
                   }`}>
-                    Social Media Executive • Video Production Lead • Digital Strategist
+                    {settings?.title || 'Social Media Executive • Video Production Lead • Digital Strategist'}
                   </p>
                 </div>
 
@@ -408,18 +410,18 @@ ITM University | Score: 78%`}
                   <div className="flex items-center sm:justify-end gap-2 whitespace-nowrap">
                     <Globe className={`w-3.5 h-3.5 flex-shrink-0 ${isDarkMode ? 'text-cyan-400' : 'text-sky-700'}`} />
                     <a
-                      href="https://www.ritiksoni.in"
+                      href={settings?.website ? (settings.website.startsWith('http') ? settings.website : `https://${settings.website}`) : 'https://www.ritiksoni.in'}
                       target="_blank"
                       rel="noreferrer"
                       className="hover:underline font-semibold"
                     >
-                      www.ritiksoni.in
+                      {settings?.website || 'www.ritiksoni.in'}
                     </a>
                   </div>
                   <div className="flex items-center sm:justify-end gap-2 whitespace-nowrap">
                     <Mail className={`w-3.5 h-3.5 flex-shrink-0 ${isDarkMode ? 'text-cyan-400' : 'text-sky-700'}`} />
                     <a
-                      href="mailto:theritiksoni@gmail.com"
+                      href={`mailto:${settings?.email || 'theritiksoni@gmail.com'}`}
                       onClick={(e) => {
                         e.preventDefault();
                         handleCopyEmail();
@@ -427,7 +429,7 @@ ITM University | Score: 78%`}
                       className="hover:underline text-left sm:text-right"
                       title="Click to copy email"
                     >
-                      theritiksoni@gmail.com
+                      {settings?.email || 'theritiksoni@gmail.com'}
                     </a>
                     {copiedEmail && (
                       <span className="text-[10px] text-emerald-500 font-bold no-print">COPIED!</span>
@@ -435,8 +437,8 @@ ITM University | Score: 78%`}
                   </div>
                   <div className="flex items-center sm:justify-end gap-2 whitespace-nowrap">
                     <Phone className={`w-3.5 h-3.5 flex-shrink-0 ${isDarkMode ? 'text-cyan-400' : 'text-sky-700'}`} />
-                    <a href="tel:+917007864962" className="hover:underline">
-                      +91 7007864962
+                    <a href={`tel:${settings?.phone || '+917007864962'}`} className="hover:underline">
+                      {settings?.phone || '+91 7007864962'}
                     </a>
                   </div>
                   <div className="flex items-center sm:justify-end whitespace-nowrap pt-0.5">
@@ -446,7 +448,7 @@ ITM University | Score: 78%`}
                         : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                     }`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Open for Full-Time & Remote
+                      {availability?.status || 'Open for Full-Time & Remote'}
                     </span>
                   </div>
                   <div className={`flex items-center sm:justify-end gap-2 pt-0.5 text-[11px] whitespace-nowrap ${
@@ -551,118 +553,63 @@ ITM University | Score: 78%`}
                   <span>{"WORK EXPERIENCE"}</span>
                 </h2>
 
-                {/* Role 1: Yukio Co-Living */}
-                <div className={`resume-job-block space-y-1.5 border-l-2 pl-4 py-0.5 ${
-                  isDarkMode ? 'border-emerald-400' : 'border-emerald-600'
-                }`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className={`font-syne font-bold text-sm sm:text-base ${
-                      isDarkMode ? 'text-white' : 'text-zinc-950'
-                    }`}>
-                      Content Creator (Contract)
-                    </div>
-                    <div className={`font-mono text-xs font-semibold whitespace-nowrap flex-shrink-0 ${
-                      isDarkMode ? 'text-emerald-400' : 'text-emerald-700'
-                    }`}>
-                      FEB 2026 — MAY 2026
-                    </div>
-                  </div>
-                  <div className={`font-mono text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    Yukio Co-Living
-                  </div>
-                  <ul className={`list-disc list-inside text-xs sm:text-[13px] space-y-1 font-light leading-relaxed ${
-                    isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    <li>Produced <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>engaging short-form videos</strong> using creative storytelling to <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>boost audience retention</strong> and <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>drive resident inquiries</strong>.</li>
-                    <li>Delivered <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>conversion-focused, experience-driven content</strong> aligned with Yukio's brand identity to attract potential residents.</li>
-                    <li>Managed <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>end-to-end content production</strong> — ideation, scripting, filming, and editing — for consistent brand output.</li>
-                  </ul>
-                </div>
+                {/* Dynamic Work Experience */}
+                {liveExperiences && liveExperiences.length > 0 ? (
+                  liveExperiences.map((exp, idx) => {
+                    const points = (exp.highlights && exp.highlights.length > 0)
+                      ? exp.highlights
+                      : ((exp.responsibilities && exp.responsibilities.length > 0)
+                          ? exp.responsibilities
+                          : (exp.points || []));
+                    const period = exp.timelinePosition || exp.period || exp.durationLabel || '';
+                    const badge = exp.badge || exp.employmentType || '';
+                    const colorStyles = [
+                      { borderDark: 'border-emerald-400', borderLight: 'border-emerald-600', textDark: 'text-emerald-400', textLight: 'text-emerald-700' },
+                      { borderDark: 'border-cyan-400', borderLight: 'border-sky-600', textDark: 'text-cyan-400', textLight: 'text-sky-700' },
+                      { borderDark: 'border-purple-400', borderLight: 'border-purple-600', textDark: 'text-purple-300', textLight: 'text-purple-700' },
+                      { borderDark: 'border-amber-400', borderLight: 'border-amber-600', textDark: 'text-amber-300', textLight: 'text-amber-700' },
+                    ];
+                    const theme = colorStyles[idx % colorStyles.length];
 
-                {/* Role 2: Vishwa Vinayak Group */}
-                <div className={`resume-job-block space-y-1.5 border-l-2 pl-4 py-0.5 ${
-                  isDarkMode ? 'border-cyan-400' : 'border-sky-600'
-                }`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className={`font-syne font-bold text-sm sm:text-base ${
-                      isDarkMode ? 'text-white' : 'text-zinc-950'
-                    }`}>
-                      Video Production Executive & Social Media Lead
-                    </div>
-                    <div className={`font-mono text-xs font-semibold whitespace-nowrap flex-shrink-0 ${
-                      isDarkMode ? 'text-cyan-400' : 'text-sky-700'
-                    }`}>
-                      2023 — PRESENT
-                    </div>
+                    return (
+                      <div
+                        key={exp.id || idx}
+                        className={`resume-job-block space-y-1.5 border-l-2 pl-4 py-0.5 ${
+                          isDarkMode ? theme.borderDark : theme.borderLight
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <div className={`font-syne font-bold text-sm sm:text-base ${
+                            isDarkMode ? 'text-white' : 'text-zinc-950'
+                          }`}>
+                            {exp.role}
+                          </div>
+                          <div className={`font-mono text-xs font-semibold whitespace-nowrap flex-shrink-0 uppercase ${
+                            isDarkMode ? theme.textDark : theme.textLight
+                          }`}>
+                            {period}
+                          </div>
+                        </div>
+                        <div className={`font-mono text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                          {exp.company} {badge ? `• ${badge}` : ''}
+                        </div>
+                        {points && points.length > 0 && (
+                          <ul className={`list-disc list-inside text-xs sm:text-[13px] space-y-1 font-light leading-relaxed ${
+                            isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
+                          }`}>
+                            {points.map((pt, pIdx) => (
+                              <li key={pIdx}>{pt}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-xs text-zinc-500 font-mono py-2">
+                    No verified milestones registered yet.
                   </div>
-                  <div className={`font-mono text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    Vishwa Vinayak Group • Full-Time Executive
-                  </div>
-                  <ul className={`list-disc list-inside text-xs sm:text-[13px] space-y-1 font-light leading-relaxed ${
-                    isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    <li>Directing and executing <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>end-to-end video production</strong> and editing workflows for all corporate communications and promotional campaigns.</li>
-                    <li>Managing brand social media channels across <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>Instagram, LinkedIn, and YouTube</strong> with <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>structured editorial calendars</strong>.</li>
-                    <li>Editing multi-format brand showcases, executive keynotes, and <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>viral vertical reels optimized for audience retention</strong>.</li>
-                    <li>Monitoring weekly <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>social analytics, hook drop-off rates, and organic impression growth</strong> to drive brand reach.</li>
-                  </ul>
-                </div>
-
-                {/* Role 3: Instagram Content Creator & Personal Brand Builder */}
-                <div className={`resume-job-block space-y-1.5 border-l-2 pl-4 py-0.5 ${
-                  isDarkMode ? 'border-purple-400' : 'border-purple-600'
-                }`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className={`font-syne font-bold text-sm sm:text-base ${
-                      isDarkMode ? 'text-white' : 'text-zinc-950'
-                    }`}>
-                      Instagram Content Creator & Personal Brand Builder
-                    </div>
-                    <div className={`font-mono text-xs font-semibold whitespace-nowrap flex-shrink-0 ${
-                      isDarkMode ? 'text-purple-300' : 'text-purple-700'
-                    }`}>
-                      2022 — PRESENT
-                    </div>
-                  </div>
-                  <div className={`font-mono text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    Self-Employed / Freelance • Remote
-                  </div>
-                  <ul className={`list-disc list-inside text-xs sm:text-[13px] space-y-1 font-light leading-relaxed ${
-                    isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    <li>Built and scaled a personal brand through <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>high-impact short-form content</strong> on psychology and self-improvement, applying <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>trend adaptation and content psychology</strong> to consistently grow reach and engagement.</li>
-                    <li>Produced <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>scroll-stopping videos</strong> using <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>strong 3-second hooks</strong>, storytelling structures, and <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>audience retention techniques</strong> to maintain a loyal niche audience.</li>
-                    <li>Managed multiple distinct channel brands (<strong className={`font-semibold ${isDarkMode ? 'text-cyan-300' : 'text-sky-700'}`}>@theritiksoni</strong> and <strong className={`font-semibold ${isDarkMode ? 'text-cyan-300' : 'text-sky-700'}`}>@thesameerap</strong>).</li>
-                  </ul>
-                </div>
-
-                {/* Role 4: Commercial Brand Engagements */}
-                <div className={`resume-job-block space-y-1.5 border-l-2 pl-4 py-0.5 ${
-                  isDarkMode ? 'border-amber-400' : 'border-amber-600'
-                }`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className={`font-syne font-bold text-sm sm:text-base ${
-                      isDarkMode ? 'text-white' : 'text-zinc-950'
-                    }`}>
-                      Lead Video Editor & Content Specialist (Selected Client Engagements)
-                    </div>
-                    <div className={`font-mono text-xs font-semibold whitespace-nowrap flex-shrink-0 ${
-                      isDarkMode ? 'text-amber-300' : 'text-amber-700'
-                    }`}>
-                      2022 — PRESENT
-                    </div>
-                  </div>
-                  <div className={`font-mono text-xs ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    Selected Client Projects (Arentech, Reliance, Red Bull)
-                  </div>
-                  <ul className={`list-disc list-inside text-xs sm:text-[13px] space-y-1 font-light leading-relaxed ${
-                    isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
-                  }`}>
-                    <li><strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>Arentech Projects:</strong> Edited <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>corporate tech showcase films</strong> and promotional assets with <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>kinetic typography in After Effects</strong>.</li>
-                    <li><strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>Reliance Related Projects:</strong> Synchronized and cut <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>multi-camera live footage</strong> from corporate conferences and leadership sessions with <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>fast turnaround</strong>.</li>
-                    <li><strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>Red Bull Event Content:</strong> Engineered fast-paced, <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>beat-matched action reels</strong> with <strong className={`font-semibold ${isDarkMode ? 'text-white' : 'text-zinc-950'}`}>custom Foley sound design, risers, and impact effects</strong>.</li>
-                  </ul>
-                </div>
+                )}
               </div>
 
               {/* Key Achievements */}

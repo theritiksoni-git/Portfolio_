@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Play, Clock, Film, Search, ArrowUpRight } from 'lucide-react';
-import { PROJECTS, PROJECT_CATEGORIES } from '../../data/projects';
+import { PROJECT_CATEGORIES } from '../../data/projects';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 import { ClientLogoBadge, ToolIcon } from '../common/ProjectCardBadges';
 
 export default function TheaterArchiveModal({ isOpen, onClose, onSelectProject }) {
+  const { projects } = usePortfolioData();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredProjectId, setHoveredProjectId] = useState(null);
@@ -30,22 +32,35 @@ export default function TheaterArchiveModal({ isOpen, onClose, onSelectProject }
     };
   }, [isOpen, onClose]);
 
+  const dynamicCategories = useMemo(() => {
+    return PROJECT_CATEGORIES.map((cat) => {
+      let count = 0;
+      if (cat.id === 'all') count = projects.length;
+      else if (cat.id === 'smm') count = projects.filter((p) => p.category === 'smm' || p.category === 'reels').length;
+      else count = projects.filter((p) => p.category === cat.id).length;
+      return {
+        ...cat,
+        countLabel: String(count).padStart(2, '0')
+      };
+    });
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((proj) => {
+    return projects.filter((proj) => {
       const matchesCategory =
         activeCategory === 'all' ||
         proj.category === activeCategory ||
         (activeCategory === 'smm' && (proj.category === 'smm' || proj.category === 'reels'));
       const matchesSearch =
         searchQuery.trim() === '' ||
-        proj.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.synopsis.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        proj.tools.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        (proj.title && proj.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (proj.client && proj.client.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (proj.synopsis && proj.synopsis.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (Array.isArray(proj.tools) && proj.tools.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())));
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [projects, activeCategory, searchQuery]);
 
   if (!isOpen) return null;
 
@@ -68,7 +83,7 @@ export default function TheaterArchiveModal({ isOpen, onClose, onSelectProject }
               <span id="theater-archive-title">THEATER ARCHIVE</span>
             </div>
             <span className="font-mono text-xs text-zinc-400">
-              {`${filteredProjects.length} OF ${PROJECTS.length} TITLES`}
+              {`${filteredProjects.length} OF ${projects.length} TITLES`}
             </span>
           </div>
 
@@ -118,7 +133,7 @@ export default function TheaterArchiveModal({ isOpen, onClose, onSelectProject }
 
         {/* Scrollable Category Filter Pills Row (Never causes vertical bloat) */}
         <div className="max-w-7xl mx-auto flex items-center gap-1.5 mt-2.5 pt-2 pb-2 px-1 border-t border-white/5 overflow-x-auto sm:overflow-visible no-scrollbar scrollbar-none scroll-smooth">
-          {PROJECT_CATEGORIES.map((cat) => {
+          {dynamicCategories.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
               <button

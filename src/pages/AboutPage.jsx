@@ -5,9 +5,13 @@ import AboutSection from '../components/sections/AboutSection';
 import ExperienceSection from '../components/sections/ExperienceSection';
 import PhilosophySection from '../components/sections/PhilosophySection';
 import sound from '../utils/SoundEngine';
+import usePortfolioData from '../utils/usePortfolioData';
 
 const AboutPage = () => {
   const navigate = useNavigate();
+  const { settings } = usePortfolioData();
+  const name = settings?.name || 'Ritik Soni';
+  const firstName = name.split(' ')[0].toUpperCase();
 
   return (
     <div className="pt-28 sm:pt-32 pb-20 cinematic-page-enter">
@@ -20,11 +24,11 @@ const AboutPage = () => {
         <h1 className="font-syne text-4xl sm:text-5xl lg:text-6xl font-extrabold uppercase text-white tracking-tight">
           ABOUT{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-200">
-            ME
+            {firstName || 'ME'}
           </span>
         </h1>
         <p className="mt-3 text-sm sm:text-base text-zinc-400 max-w-2xl font-light leading-relaxed">
-          The intersection of cinematic production mastery and audience psychology. Discover Ritik Soni's background, production journey with premier brands, and directorial philosophy.
+          {settings?.bioSummary || `The intersection of cinematic production mastery and audience psychology. Discover ${name}'s background, production journey with premier brands, and directorial philosophy.`}
         </p>
       </div>
 

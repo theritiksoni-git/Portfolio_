@@ -1,6 +1,7 @@
 import React from 'react';
 import { Play, ArrowDown, ChevronRight, Clapperboard, Scissors, TrendingUp } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
+import usePortfolioData from '../../utils/usePortfolioData';
 
 const CLIENTS = [
   { name: 'Red Bull', logo: '/img/client-logos/redbull.png', width: 'w-24 sm:w-28', height: 'h-6 sm:h-7' },
@@ -9,14 +10,25 @@ const CLIENTS = [
   { name: 'Vishwa Vinayak Group', logo: '/img/client-logos/vishwa-vinayak-group.png', width: 'w-28 sm:w-32', height: 'h-6 sm:h-7' },
 ];
 
-const METRICS = [
-  { label: 'MASTER CUTS', val: '100+' },
-  { label: 'ORGANIC REACH', val: '50M+' },
-  { label: 'SMM STRATEGY', val: 'FULL-FUNNEL' },
-  { label: 'POST LEAD', val: 'PREMIERE & AE' },
-];
-
 const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
+  const { clients: liveClients, overview } = usePortfolioData();
+
+  const clientList = liveClients && liveClients.length > 0
+    ? liveClients.map((c) => ({
+        name: c.name,
+        logo: c.logoUrl || c.logo || '/img/client-logos/adentech.png',
+        width: 'w-28 sm:w-32',
+        height: 'h-6 sm:h-7',
+      }))
+    : CLIENTS;
+
+  const metrics = [
+    { label: 'MASTER CUTS', val: overview?.masterCutsCount || '100+' },
+    { label: 'ORGANIC REACH', val: overview?.monthlyImpressions || '50M+' },
+    { label: 'SMM STRATEGY', val: 'FULL-FUNNEL' },
+    { label: 'POST LEAD', val: 'PREMIERE & AE' },
+  ];
+
   return (
     <section
       id="home"
@@ -111,13 +123,13 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
           {/* Quick Credibility Metrics (Clean, Box-Free, Single Line Telemetry) */}
           <div className="mt-8 flex items-center flex-nowrap whitespace-nowrap overflow-x-auto no-scrollbar gap-x-2 sm:gap-x-2.5 pt-6 border-t border-white/10 font-mono text-[9px] sm:text-[10px] w-full select-none cursor-default">
-            {METRICS.map((m, idx) => (
+            {metrics.map((m, idx) => (
               <React.Fragment key={idx}>
                 <div className="inline-flex items-center gap-1.5 shrink-0">
                   <span className="text-cyan-400 font-medium">{m.val}</span>
                   <span className="text-zinc-400 font-normal uppercase">{m.label}</span>
                 </div>
-                {idx < METRICS.length - 1 && (
+                {idx < metrics.length - 1 && (
                   <span className="text-zinc-700 text-[9px] shrink-0 select-none">•</span>
                 )}
               </React.Fragment>
@@ -211,7 +223,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
           <div className="w-full overflow-hidden relative marquee-mask py-1">
             <div className="animate-marquee-infinite flex items-center gap-12 sm:gap-16">
-              {[...CLIENTS, ...CLIENTS, ...CLIENTS].map((client, idx) => (
+              {[...clientList, ...clientList, ...clientList].map((client, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-center opacity-70 filter grayscale brightness-0 invert cursor-default select-none pointer-events-none"

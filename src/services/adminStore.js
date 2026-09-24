@@ -495,15 +495,59 @@ class AdminStore {
       console.warn('Control Room Storage fallback to memory seed:', e);
       this.cache = DEFAULT_SEED_DATA;
     }
+
+    if (typeof window !== 'undefined' && !this._listenersAttached) {
+      this._listenersAttached = true;
+      window.addEventListener('storage', (e) => {
+        if (e.key === STORAGE_KEY && e.newValue) {
+          try {
+            this.cache = JSON.parse(e.newValue);
+            window.dispatchEvent(new CustomEvent('control-room-updated', { detail: this.cache }));
+          } catch (err) {
+            console.error('Storage sync error:', err);
+          }
+        }
+      });
+      this.syncFromBackend();
+    }
   }
 
   saveToStorage() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.cache));
       window.dispatchEvent(new CustomEvent('control-room-updated', { detail: this.cache }));
+      this.syncToBackend();
     } catch (e) {
       console.error('Failed to save to control room storage:', e);
     }
+  }
+
+  async syncToBackend() {
+    try {
+      const backendUrl = this.cache?.settings?.backendApiUrl || 'http://localhost:3001';
+      fetch(`${backendUrl}/api/portfolio-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.cache),
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  async syncFromBackend() {
+    try {
+      const backendUrl = this.cache?.settings?.backendApiUrl || 'http://localhost:3001';
+      const res = await fetch(`${backendUrl}/api/portfolio-data`).catch(() => null);
+      if (res && res.ok) {
+        const json = await res.json();
+        if (json?.success && json?.data) {
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            this.cache = json.data;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(this.cache));
+            window.dispatchEvent(new CustomEvent('control-room-updated', { detail: this.cache }));
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   // Generic Module Accessors

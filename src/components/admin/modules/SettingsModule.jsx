@@ -10,7 +10,8 @@ import {
   HardDrive,
   Save,
   Eye,
-  EyeOff
+  EyeOff,
+  Mail
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 
@@ -19,6 +20,8 @@ export default function SettingsModule() {
   const [passcode, setPasscode] = useState(settings.adminPasscode || '2026');
   const [showSettingsPin, setShowSettingsPin] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState(null);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -29,6 +32,49 @@ export default function SettingsModule() {
     window.addEventListener('control-room-updated', handleUpdate);
     return () => window.removeEventListener('control-room-updated', handleUpdate);
   }, []);
+
+  const handleTestEmail = async () => {
+    sound.playClick();
+    setTestingEmail(true);
+    setEmailTestResult(null);
+    const targetEmail = settings.adminEmail || 'theritiksoni@gmail.com';
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: 'Control Room Test Bot',
+          email: 'system@ritiksoni.in',
+          _subject: '🎬 Verification Test Inquiry for Ritik Soni',
+          _captcha: 'false',
+          _template: 'table',
+          message: `This is a verified test inquiry sent from your Admin Control Room to confirm that inquiries sent through your portfolio contact form arrive directly in your inbox (${targetEmail}).`,
+        }),
+      });
+      const data = await res.json();
+      if (data.success === 'true' || data.success === true) {
+        setEmailTestResult({
+          type: 'success',
+          text: `Test email dispatched to ${targetEmail}! Please check your inbox (and Spam/Promotions folder). If you see an email from FormSubmit.co asking to "Confirm your form", click the green "Activate Form" button once to enable direct delivery.`,
+        });
+      } else {
+        setEmailTestResult({
+          type: 'warning',
+          text: data.message || `FormSubmit returned: ${JSON.stringify(data)}. Check ${targetEmail} for activation.`,
+        });
+      }
+    } catch (err) {
+      setEmailTestResult({
+        type: 'error',
+        text: `Failed to dispatch test probe: ${err.message}`,
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
@@ -129,15 +175,70 @@ export default function SettingsModule() {
             </div>
 
             <div>
-              <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
-                Official Priority Email
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider">
+                  Official Priority Email (Receives Inbound Inquiries)
+                </label>
+                <button
+                  type="button"
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                  className="px-2.5 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hover:bg-cyan-900/60 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <Mail className="w-3 h-3 text-cyan-400" />
+                  <span>{testingEmail ? 'SENDING PROBE...' : 'SEND TEST PROBE'}</span>
+                </button>
+              </div>
               <input
                 type="email"
                 value={settings.adminEmail || ''}
                 onChange={(e) => setSettings({ ...settings, adminEmail: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                placeholder="theritiksoni@gmail.com"
               />
+
+              {emailTestResult && (
+                <div
+                  className={`mt-2 p-3 rounded-xl font-mono text-[11px] leading-relaxed border ${
+                    emailTestResult.type === 'success'
+                      ? 'bg-cyan-950/80 border-cyan-500/50 text-cyan-200 shadow-[0_0_15px_rgba(56,189,248,0.2)]'
+                      : emailTestResult.type === 'warning'
+                        ? 'bg-amber-950/80 border-amber-500/50 text-amber-200'
+                        : 'bg-red-950/80 border-red-500/50 text-red-200'
+                  }`}
+                >
+                  {emailTestResult.text}
+                </div>
+              )}
+
+              <div className="mt-2.5 p-3.5 rounded-xl bg-zinc-900/70 border border-white/5 space-y-1.5 text-[11px] text-zinc-400 font-sans leading-relaxed">
+                <div className="text-white font-medium flex items-center gap-1.5 text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  How Client Inquiries Reach Your Inbox:
+                </div>
+                <p>
+                  Inquiries submitted via the Contact Form are dispatched directly to <strong>{settings.adminEmail || 'theritiksoni@gmail.com'}</strong> via FormSubmit.co.
+                </p>
+                <p className="text-zinc-400 text-[10.5px]">
+                  📌 <strong>First-Time Gmail Step:</strong> Check your inbox (and Spam/Promotions folder) for an email from <code>FormSubmit.co</code> with subject <em>"Action Required: Confirm your form"</em> and click the green <em>"Activate Form"</em> button once. After that single confirmation, all future inquiries land in your inbox automatically.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
+                Web3Forms Access Key (Optional — 100% Instant Delivery)
+              </label>
+              <input
+                type="text"
+                value={settings.web3formsKey || ''}
+                onChange={(e) => setSettings({ ...settings, web3formsKey: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                placeholder="e.g. 12345678-abcd-ef01-2345-6789abcdef01"
+              />
+              <span className="text-[10px] font-mono text-zinc-500 mt-1 block">
+                Want zero-activation instant delivery? Grab a free key from <a href="https://web3forms.com" target="_blank" rel="noreferrer" className="text-cyan-400 underline">web3forms.com</a> in 30 seconds and paste it here.
+              </span>
             </div>
 
             <div>

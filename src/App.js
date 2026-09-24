@@ -18,9 +18,7 @@ import usePageMetadata from './utils/usePageMetadata';
 
 // Immediate Landing Page for Instant First Paint
 import HomePage from './pages/HomePage';
-
-// Data
-import { PROJECTS } from './data/projects';
+import usePortfolioData from './utils/usePortfolioData';
 
 // Lazy-Loaded Secondary Pages for Lightweight Initial Bundle
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -56,6 +54,7 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   const location = useLocation();
   const navigate = useNavigate();
   usePageMetadata();
+  const { projects } = usePortfolioData();
   const [selectedProject, setSelectedProject] = useState(null);
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isTheaterArchiveOpen, setIsTheaterArchiveOpen] = useState(false);
@@ -248,8 +247,8 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
         {selectedProject && (
           <Suspense fallback={null}>
             <ProjectModal
-              project={selectedProject}
-              allProjects={PROJECTS}
+              project={projects.find((p) => p.id === selectedProject.id) || selectedProject}
+              allProjects={projects}
               onClose={() => setSelectedProject(null)}
               onSelectNext={(nextProj) => setSelectedProject(nextProj)}
             />

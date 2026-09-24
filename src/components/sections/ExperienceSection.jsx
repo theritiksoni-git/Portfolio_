@@ -22,30 +22,26 @@ import {
 import { EXPERIENCES, TIMELINE_TRACKS, TIMELINE_SPAN } from '../../data/experience';
 import sound from '../../utils/SoundEngine';
 import useNetworkQuality from '../../utils/useNetworkQuality';
+import usePortfolioData from '../../utils/usePortfolioData';
 import { ToolIcon } from '../common/ProjectCardBadges';
 
-// Authentic NLE Video Editor Track Priority:
-// Higher video tracks (V2) take visual precedence over lower layers (V1, A1)
-const getActiveExperienceAtPercent = (percent) => {
-  const matching = EXPERIENCES.filter(
-    (exp) =>
-      percent >= exp.trackStartPercent &&
-      percent <= exp.trackStartPercent + exp.trackWidthPercent
-  );
-  if (matching.length === 0) return null;
-
-  // Track priority: V2 (Top video layer / client cuts) > V1 (Middle layer) > A1 (Bottom layer)
-  const trackOrder = { V2: 3, V1: 2, A1: 1 };
-  matching.sort((a, b) => (trackOrder[b.track] || 0) - (trackOrder[a.track] || 0));
-
-  return matching[0];
-};
-
 const ExperienceSection = () => {
-  const [selectedExpId, setSelectedExpId] = useState(EXPERIENCES[0].id);
+  const { experience: liveExperiences } = usePortfolioData();
+  const experiences = liveExperiences && liveExperiences.length > 0 ? liveExperiences : EXPERIENCES;
+
+  const [selectedExpId, setSelectedExpId] = useState(experiences[0]?.id || EXPERIENCES[0].id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showFullSpecs, setShowFullSpecs] = useState(false);
   const [layoutMode, setLayoutMode] = useState('studio'); // 'studio' (side-by-side) | 'stacked'
+
+  // Keep selectedExpId in sync if the current selected experience is updated or removed
+  useEffect(() => {
+    if (!experiences.some((e) => e.id === selectedExpId)) {
+      if (experiences[0]) {
+        setSelectedExpId(experiences[0].id);
+      }
+    }
+  }, [experiences, selectedExpId]);
 
   // Video Edit Suite Interactive States:
   const [isVideoMuted, setIsVideoMuted] = useState(true);
@@ -56,8 +52,25 @@ const ExperienceSection = () => {
   const videoRef = useRef(null);
   const { videoPreload } = useNetworkQuality();
 
-  const selectedExperience = EXPERIENCES.find((e) => e.id === selectedExpId) || EXPERIENCES[0];
-  const currentIndex = EXPERIENCES.findIndex((e) => e.id === selectedExperience.id);
+  const selectedExperience = experiences.find((e) => e.id === selectedExpId) || experiences[0] || EXPERIENCES[0];
+  const currentIndex = experiences.findIndex((e) => e.id === selectedExperience.id);
+
+  // Authentic NLE Video Editor Track Priority:
+  // Higher video tracks (V2) take visual precedence over lower layers (V1, A1)
+  const getActiveExperienceAtPercent = useCallback((percent) => {
+    const matching = experiences.filter(
+      (exp) =>
+        percent >= (exp.trackStartPercent ?? 0) &&
+        percent <= (exp.trackStartPercent ?? 0) + (exp.trackWidthPercent ?? 20)
+    );
+    if (matching.length === 0) return null;
+
+    // Track priority: V2 (Top video layer / client cuts) > V1 (Middle layer) > A1 (Bottom layer)
+    const trackOrder = { V2: 3, V1: 2, A1: 1 };
+    matching.sort((a, b) => (trackOrder[b.track] || 0) - (trackOrder[a.track] || 0));
+
+    return matching[0];
+  }, [experiences]);
 
   // Playhead position along the 0-100% time continuum
   const [playheadPercent, setPlayheadPercent] = useState(() => {
@@ -76,7 +89,7 @@ const ExperienceSection = () => {
 
   // Preload images and logos for instantaneous zero-latency switching
   useEffect(() => {
-    EXPERIENCES.forEach((exp) => {
+    experiences.forEach((exp) => {
       if (exp.previewImage) {
         const img = new Image();
         img.src = exp.previewImage;
@@ -86,7 +99,7 @@ const ExperienceSection = () => {
         logo.src = exp.logoImage;
       }
     });
-  }, []);
+  }, [experiences]);
 
   // 24 FPS Live Frame Counter simulation for Program Monitor (ticks only when playing)
   useEffect(() => {
@@ -126,29 +139,29 @@ const ExperienceSection = () => {
 
   // Synchronize playhead smoothly when user selects an experience manually
   const handleSelectExperience = useCallback((id, shouldPlaySound = true) => {
-    const exp = EXPERIENCES.find((e) => e.id === id);
+    const exp = experiences.find((e) => e.id === id);
     if (!exp) return;
     if (shouldPlaySound) {
       sound.playLensClick();
     }
     triggerCut();
     setSelectedExpId(id);
-    setPlayheadPercent(exp.trackStartPercent + exp.trackWidthPercent / 2);
-  }, [triggerCut]);
+    setPlayheadPercent((exp.trackStartPercent ?? 0) + (exp.trackWidthPercent ?? 20) / 2);
+  }, [experiences, triggerCut]);
 
   // Jump to previous milestone
   const handlePrev = useCallback(() => {
     sound.playLensClick();
-    const prevIdx = (currentIndex - 1 + EXPERIENCES.length) % EXPERIENCES.length;
-    handleSelectExperience(EXPERIENCES[prevIdx].id, false);
-  }, [currentIndex, handleSelectExperience]);
+    const prevIdx = (currentIndex - 1 + experiences.length) % experiences.length;
+    handleSelectExperience(experiences[prevIdx].id, false);
+  }, [currentIndex, experiences, handleSelectExperience]);
 
   // Jump to next milestone
   const handleNext = useCallback(() => {
     sound.playLensClick();
-    const nextIdx = (currentIndex + 1) % EXPERIENCES.length;
-    handleSelectExperience(EXPERIENCES[nextIdx].id, false);
-  }, [currentIndex, handleSelectExperience]);
+    const nextIdx = (currentIndex + 1) % experiences.length;
+    handleSelectExperience(experiences[nextIdx].id, false);
+  }, [currentIndex, experiences, handleSelectExperience]);
 
   // Toggle Automated Timeline Sequence Playback
   const togglePlay = () => {
@@ -617,7 +630,7 @@ const ExperienceSection = () => {
         {/* ── QUICK MOBILE MILESTONE CUES NAVIGATION STRIP (VISIBLE ON < LG) ── */}
         <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-mono">
           <span className="text-zinc-500 shrink-0 text-[9px] uppercase tracking-wider pl-1">CUES:</span>
-          {EXPERIENCES.map((exp) => (
+          {experiences.map((exp) => (
             <button
               key={exp.id}
               type="button"
@@ -846,7 +859,7 @@ const ExperienceSection = () => {
 
                   {/* ── 2. Track V2 (Brand Engagements: Arentech, Red Bull, Reliance - FULL VISIBILITY) ── */}
                   <div className="nle-track-lane relative h-11 sm:h-13 md:h-14 rounded-lg overflow-hidden border border-white/5">
-                    {EXPERIENCES.filter((e) => e.track === 'V2').map((exp) => {
+                    {experiences.filter((e) => e.track === 'V2').map((exp) => {
                       const isSelected = selectedExpId === exp.id;
                       return (
                         <div
@@ -891,7 +904,7 @@ const ExperienceSection = () => {
 
                   {/* ── 3. Track V1 (Executive Leadership: Vishwa Vinayak) ── */}
                   <div className="nle-track-lane relative h-11 sm:h-13 md:h-14 rounded-lg overflow-hidden border border-white/5">
-                    {EXPERIENCES.filter((e) => e.track === 'V1').map((exp) => {
+                    {experiences.filter((e) => e.track === 'V1').map((exp) => {
                       const isSelected = selectedExpId === exp.id;
                       return (
                         <div
@@ -936,7 +949,7 @@ const ExperienceSection = () => {
 
                   {/* ── 4. Track A1 (Independent & Creative: Freelance) ── */}
                   <div className="nle-track-lane relative h-11 sm:h-13 md:h-14 rounded-lg overflow-hidden border border-white/5">
-                    {EXPERIENCES.filter((e) => e.track === 'A1').map((exp) => {
+                    {experiences.filter((e) => e.track === 'A1').map((exp) => {
                       const isSelected = selectedExpId === exp.id;
                       return (
                         <div
@@ -1023,22 +1036,22 @@ const ExperienceSection = () => {
                 <span
                   className="font-mono text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
                   style={{
-                    backgroundColor: `${selectedExperience.accentColor}25`,
-                    color: selectedExperience.accentColor,
-                    border: `1px solid ${selectedExperience.accentColor}60`
+                    backgroundColor: `${selectedExperience.accentColor || '#06b6d4'}25`,
+                    color: selectedExperience.accentColor || '#06b6d4',
+                    border: `1px solid ${selectedExperience.accentColor || '#06b6d4'}60`
                   }}
                 >
-                  {`TRACK ${selectedExperience.track} // ${selectedExperience.badge}`}
+                  {`TRACK ${selectedExperience.track || 'V1'} // ${selectedExperience.badge || selectedExperience.employmentType || 'EXECUTIVE'}`}
                 </span>
                 <span className="text-[8px] font-mono text-zinc-500 mt-0.5">
-                  {selectedExperience.durationLabel}
+                  {selectedExperience.durationLabel || selectedExperience.timelinePosition || selectedExperience.period || ''}
                 </span>
               </div>
             </div>
 
             {/* Core Mission (Clean 1-2 line impact statement) */}
             <p className="text-zinc-300 text-[11px] sm:text-xs font-sans leading-relaxed line-clamp-2">
-              {selectedExperience.coreMission}
+              {selectedExperience.coreMission || selectedExperience.summary || (selectedExperience.points && selectedExperience.points[0]) || ''}
             </p>
 
             {/* Tools Stack and Full Specs Expander */}
@@ -1048,7 +1061,7 @@ const ExperienceSection = () => {
                   Tools:
                 </span>
                 <div className="flex items-center gap-1.5">
-                  {selectedExperience.toolsUsed.map((tool) => (
+                  {(selectedExperience.toolsUsed || ['Premiere Pro', 'After Effects']).map((tool) => (
                     <ToolIcon key={tool} tool={tool} />
                   ))}
                 </div>
@@ -1067,24 +1080,28 @@ const ExperienceSection = () => {
             {/* Expanded Full Specifications & Responsibilities Drawer */}
             {showFullSpecs && (
               <div className="pt-2 border-t border-white/10 space-y-2 text-[10px] sm:text-[11px] text-zinc-400 max-h-44 overflow-y-auto scrollbar-none animate-fadeIn">
-                <div className="space-y-1">
-                  <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">Key Highlights:</span>
-                  {selectedExperience.highlights?.map((hl, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 pl-1">
-                      <span className="text-cyan-400 font-bold shrink-0 mt-0.5">•</span>
-                      <span>{hl}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-1 pt-1.5 border-t border-white/5">
-                  <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">Responsibilities:</span>
-                  {selectedExperience.responsibilities.map((r, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 pl-1">
-                      <span className="text-cyan-400 font-bold shrink-0 mt-0.5">•</span>
-                      <span>{r}</span>
-                    </div>
-                  ))}
-                </div>
+                {((selectedExperience.highlights && selectedExperience.highlights.length > 0) ? selectedExperience.highlights : (selectedExperience.points || [])).length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">Key Highlights:</span>
+                    {((selectedExperience.highlights && selectedExperience.highlights.length > 0) ? selectedExperience.highlights : (selectedExperience.points || [])).map((hl, idx) => (
+                      <div key={idx} className="flex items-start gap-1.5 pl-1">
+                        <span className="text-cyan-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span>{hl}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {((selectedExperience.responsibilities && selectedExperience.responsibilities.length > 0) ? selectedExperience.responsibilities : []).length > 0 && (
+                  <div className="space-y-1 pt-1.5 border-t border-white/5">
+                    <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">Responsibilities:</span>
+                    {selectedExperience.responsibilities.map((r, idx) => (
+                      <div key={idx} className="flex items-start gap-1.5 pl-1">
+                        <span className="text-cyan-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span>{r}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

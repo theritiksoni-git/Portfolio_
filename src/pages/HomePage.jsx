@@ -2,14 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Play, Sparkles, Film, Award, Send, FileText } from 'lucide-react';
 import HeroSection from '../components/sections/HeroSection';
-import { PROJECTS } from '../data/projects';
 import sound from '../utils/SoundEngine';
+import usePortfolioData from '../utils/usePortfolioData';
 
 const HomePage = ({ onSelectProject, onOpenResume }) => {
   const navigate = useNavigate();
+  const { projects } = usePortfolioData();
 
-  // Pick the top 3 standout featured projects for the home highlight
-  const featuredProjects = PROJECTS.slice(0, 3);
+  // Pick standout featured projects (or top projects if not tagged)
+  const featured = projects.filter((p) => p.status === 'Featured' || p.featured);
+  const featuredProjects = (featured.length > 0 ? featured : projects).slice(0, 3);
 
   return (
     <div className="relative cinematic-page-enter">
@@ -23,7 +25,7 @@ const HomePage = ({ onSelectProject, onOpenResume }) => {
           sound.playLensClick();
           navigate('/about');
         }}
-        onPlayReel={() => onSelectProject(PROJECTS[0])}
+        onPlayReel={() => onSelectProject(projects[0] || null)}
       />
 
       {/* 2. Curated Featured Master Cuts (3 Projects) */}
@@ -49,7 +51,7 @@ const HomePage = ({ onSelectProject, onOpenResume }) => {
             className="group inline-flex items-center gap-2 text-xs font-mono tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors uppercase"
             data-cursor="ALL WORKS"
           >
-            <span>VIEW COMPLETE VAULT ({PROJECTS.length} FILMS)</span>
+            <span>VIEW COMPLETE VAULT ({projects.length} FILMS)</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
         </div>

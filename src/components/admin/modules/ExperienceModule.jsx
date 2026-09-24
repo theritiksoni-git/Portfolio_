@@ -28,9 +28,13 @@ export default function ExperienceModule() {
       shortLabel: '',
       period: '2024 — Present',
       timelinePosition: '2024 — Present',
+      durationLabel: '2024 — Present',
       track: 'V1',
       badge: 'FULL-TIME EXECUTIVE',
       summary: '',
+      coreMission: '',
+      toolsInput: 'Premiere Pro, After Effects, DaVinci Resolve',
+      toolsUsed: ['Premiere Pro', 'After Effects', 'DaVinci Resolve'],
       points: ['Structured high-retention video pipelines', 'Spearheaded commercial brand campaigns'],
     });
     setIsModalOpen(true);
@@ -38,17 +42,70 @@ export default function ExperienceModule() {
 
   const handleOpenEdit = (exp) => {
     sound.playClick();
-    setEditingExp({ ...exp });
+    const safePoints = (exp.points && exp.points.length > 0)
+      ? exp.points
+      : ((exp.highlights && exp.highlights.length > 0)
+          ? exp.highlights
+          : ((exp.responsibilities && exp.responsibilities.length > 0) ? exp.responsibilities : []));
+    const safeSummary = exp.summary || exp.coreMission || '';
+    const safePeriod = exp.timelinePosition || exp.period || exp.durationLabel || '2024 — Present';
+    const safeTools = exp.toolsUsed && exp.toolsUsed.length > 0 ? exp.toolsUsed : ['Premiere Pro', 'After Effects'];
+
+    setEditingExp({
+      ...exp,
+      summary: safeSummary,
+      coreMission: safeSummary,
+      timelinePosition: safePeriod,
+      period: safePeriod,
+      durationLabel: safePeriod,
+      badge: exp.badge || exp.employmentType || 'FULL-TIME',
+      points: safePoints,
+      toolsUsed: safeTools,
+      toolsInput: safeTools.join(', '),
+      track: exp.track || 'V1',
+    });
     setIsModalOpen(true);
   };
 
   const handleSave = (e) => {
     e.preventDefault();
     sound.playClick();
+    const cleanPoints = (editingExp.points || []).map((p) => p.trim()).filter(Boolean);
+    const summaryVal = (editingExp.summary || editingExp.coreMission || '').trim();
+    const periodVal = (editingExp.timelinePosition || editingExp.period || editingExp.durationLabel || '2024 — Present').trim();
+    const parsedTools = editingExp.toolsInput
+      ? editingExp.toolsInput.split(',').map((t) => t.trim()).filter(Boolean)
+      : (editingExp.toolsUsed || ['Premiere Pro', 'After Effects']);
+
+    const normalizedExp = {
+      ...editingExp,
+      id: editingExp.id || `exp_${Date.now()}`,
+      role: editingExp.role.trim(),
+      company: editingExp.company.trim(),
+      shortLabel: editingExp.shortLabel || editingExp.company.trim(),
+      timelinePosition: periodVal,
+      period: periodVal,
+      durationLabel: periodVal,
+      track: editingExp.track || 'V1',
+      badge: editingExp.badge || 'FULL-TIME',
+      employmentType: editingExp.badge || 'FULL-TIME',
+      summary: summaryVal,
+      coreMission: summaryVal,
+      points: cleanPoints,
+      highlights: cleanPoints,
+      responsibilities: cleanPoints,
+      toolsUsed: parsedTools,
+      accentColor: editingExp.accentColor || (editingExp.track === 'V1' ? '#06b6d4' : editingExp.track === 'V2' ? '#3b82f6' : '#a855f7'),
+      trackStartPercent: editingExp.trackStartPercent ?? 10,
+      trackWidthPercent: editingExp.trackWidthPercent ?? 80,
+    };
+
+    delete normalizedExp.toolsInput;
+
     if (editingExp.id) {
-      adminStore.updateExperience(editingExp.id, editingExp);
+      adminStore.updateExperience(editingExp.id, normalizedExp);
     } else {
-      adminStore.addExperience(editingExp);
+      adminStore.addExperience(normalizedExp);
     }
     setIsModalOpen(false);
     setEditingExp(null);
@@ -192,7 +249,7 @@ export default function ExperienceModule() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
                     Timeline Span
@@ -201,8 +258,21 @@ export default function ExperienceModule() {
                     type="text"
                     value={editingExp.timelinePosition}
                     onChange={(e) => setEditingExp({ ...editingExp, timelinePosition: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
                     placeholder="2023 — Present"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
+                    Employment Badge
+                  </label>
+                  <input
+                    type="text"
+                    value={editingExp.badge || ''}
+                    onChange={(e) => setEditingExp({ ...editingExp, badge: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                    placeholder="FULL-TIME EXECUTIVE"
                   />
                 </div>
 
@@ -213,7 +283,7 @@ export default function ExperienceModule() {
                   <select
                     value={editingExp.track}
                     onChange={(e) => setEditingExp({ ...editingExp, track: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
                   >
                     <option value="V1">V1: Executive Leadership</option>
                     <option value="V2">V2: Brand Engagements</option>
@@ -224,7 +294,33 @@ export default function ExperienceModule() {
 
               <div>
                 <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
-                  Key Accomplishments (One per line)
+                  Core Mission & Summary (Shown in About Page Narrative & Timeline Dossier)
+                </label>
+                <textarea
+                  rows={2}
+                  value={editingExp.summary || ''}
+                  onChange={(e) => setEditingExp({ ...editingExp, summary: e.target.value, coreMission: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 resize-none font-sans"
+                  placeholder="e.g. Directing end-to-end video production workflows and high-retention social campaigns..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
+                  Tools Used (Comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={editingExp.toolsInput ?? (editingExp.toolsUsed ? editingExp.toolsUsed.join(', ') : '')}
+                  onChange={(e) => setEditingExp({ ...editingExp, toolsInput: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs"
+                  placeholder="Premiere Pro, After Effects, DaVinci Resolve"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
+                  Key Accomplishments / Highlights (One per line)
                 </label>
                 <textarea
                   rows={4}

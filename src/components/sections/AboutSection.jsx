@@ -1,7 +1,31 @@
 import React from 'react';
-import { Aperture, Eye, Target, Compass, TrendingUp } from 'lucide-react';
+import { Aperture, Eye, Target, Compass, TrendingUp, Briefcase } from 'lucide-react';
+import usePortfolioData from '../../utils/usePortfolioData';
 
 const AboutSection = () => {
+  const { experience, settings, clients } = usePortfolioData();
+
+  // Dynamic Current Role & Organization derived from Admin Store
+  const currentExp = experience && experience.length > 0 ? experience[0] : null;
+  const currentRole = currentExp?.role || 'Video Production Executive & Content Strategist';
+  const currentCompany = currentExp?.company || 'Vishwa Vinayak Group';
+  const currentMission = currentExp?.coreMission || currentExp?.summary || '';
+
+  // Dynamic Collaborator Brands derived from other experience items & client portfolio
+  const otherExperienceCompanies = (experience || [])
+    .slice(1)
+    .map((e) => e.company)
+    .filter(Boolean);
+  const clientNames = (clients || []).map((c) => c.name).filter(Boolean);
+  const brandList = Array.from(new Set([...otherExperienceCompanies, ...clientNames]))
+    .filter((name) => name !== currentCompany);
+  const brandHighlights = brandList.length > 0
+    ? brandList.slice(0, 3).join(', ')
+    : 'Arentech, Reliance, and Red Bull';
+
+  const authorName = settings?.name || 'RITIK SONI';
+  const firstName = authorName.split(' ')[0].toUpperCase();
+
   return (
     <section id="about" className="relative py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       
@@ -14,11 +38,11 @@ const AboutSection = () => {
         <h2 className="font-syne font-bold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight">
           ABOUT{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-200">
-            RITIK
+            {firstName}
           </span>
         </h2>
         <p className="mt-2 text-sm sm:text-base text-zinc-400 max-w-2xl">
-          Filmmaker, Video Production Executive, and Social Media Manager bridging cinematic storytelling with data-backed organic growth.
+          {settings?.tagline || `${currentRole} bridging cinematic storytelling with data-backed organic growth.`}
         </p>
       </div>
 
@@ -39,7 +63,7 @@ const AboutSection = () => {
                 <source srcSet="/img/ritik-portrait.webp" type="image/webp" />
                 <img
                   src="/img/ritik-portrait.png"
-                  alt="Ritik Soni"
+                  alt={authorName}
                   loading="lazy"
                   decoding="async"
                   width="960"
@@ -77,9 +101,11 @@ const AboutSection = () => {
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] text-zinc-300 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 z-10 shadow-md">
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-                  RITIK SONI
+                  {authorName.toUpperCase()}
                 </span>
-                <span className="text-cyan-400 tracking-wider">DIRECTOR // SMM & POST LEAD</span>
+                <span className="text-cyan-400 tracking-wider truncate max-w-[190px] text-right font-semibold">
+                  {currentRole.toUpperCase()}
+                </span>
               </div>
             </div>
           </div>
@@ -97,15 +123,64 @@ const AboutSection = () => {
               My journey unites two disciplines that belong together: <strong>cinematic filmmaking</strong> and <strong>high-growth social media management</strong>. In an era where attention spans are measured in milliseconds, cutting beautiful footage is only half the battle—you must know how to engineer the hook, optimize for retention, and navigate platform distribution.
             </p>
             <p>
-              As a <strong>Video Production Executive & Content Strategist</strong> at <strong>Vishwa Vinayak Group</strong> and a collaborator on brand campaigns involving names like <strong>Arentech, Reliance, and Red Bull</strong>, I manage the full content lifecycle: from market research, trend scouting, and editorial content calendars to multi-cam cinematic shoots, micro-pacing, and analytics optimization.
+              As a <strong className="text-white font-medium">{currentRole}</strong> at{' '}
+              <strong className="text-cyan-300 font-medium">{currentCompany}</strong>
+              {brandHighlights ? (
+                <> and a collaborator on brand campaigns involving names like <strong className="text-white font-medium">{brandHighlights}</strong>,</>
+              ) : (
+                <>,</>
+              )}{' '}
+              I manage the full content lifecycle: from market research, trend scouting, and editorial content calendars to multi-cam cinematic shoots, micro-pacing, and analytics optimization.
             </p>
+
+            {currentMission && (
+              <p className="border-l-2 border-cyan-500/50 pl-3 py-1 italic text-cyan-200/90 text-xs sm:text-sm bg-cyan-950/20 rounded-r-lg">
+                "{currentMission}"
+              </p>
+            )}
+
             <p>
               Whether orchestrating a 30-day Instagram Reel growth campaign engineered to stop the scroll or directing a multi-minute corporate brand film, my mission is clear: <span className="text-white font-medium">turn casual scrollers into loyal communities and measurable brand momentum.</span>
             </p>
           </div>
 
+          {/* Dynamic Production Timeline / Active Milestones Arc */}
+          {experience && experience.length > 0 && (
+            <div className="pt-2 border-t border-white/10 space-y-2">
+              <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                <span className="flex items-center gap-1.5 text-cyan-400">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  ACTIVE PRODUCTION ARC ({experience.length} MILESTONES)
+                </span>
+                <span className="text-zinc-500">LIVE SYNC</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {experience.map((exp, idx) => (
+                  <div
+                    key={exp.id || idx}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/40 transition-colors text-xs group"
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ backgroundColor: exp.accentColor || '#06b6d4' }}
+                    />
+                    <span className="text-white font-medium group-hover:text-cyan-300 transition-colors">
+                      {exp.role}
+                    </span>
+                    <span className="text-zinc-400 font-mono text-[10px]">
+                      @{exp.company}
+                    </span>
+                    <span className="text-[9px] font-mono text-cyan-400/90 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                      {exp.timelinePosition || exp.period || exp.durationLabel || 'Active'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Pillars of Craft Grid (4 Pillars) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1">
               <Eye className="w-4 h-4 text-cyan-400" />
               <span className="font-syne font-bold text-xs text-white">Visual Grammar</span>

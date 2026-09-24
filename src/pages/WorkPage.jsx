@@ -3,9 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Film, ArrowRight, Lightbulb } from 'lucide-react';
 import WorkSection from '../components/sections/WorkSection';
 import sound from '../utils/SoundEngine';
+import usePortfolioData from '../utils/usePortfolioData';
 
 const WorkPage = ({ onSelectProject, onOpenTheaterArchive }) => {
   const navigate = useNavigate();
+  const { clients } = usePortfolioData();
+  const clientNames = (clients || []).map((c) => c.name).filter(Boolean);
+  const featuredClients = clientNames.length > 0
+    ? clientNames.slice(0, 4).join(', ')
+    : 'Arentech, Reliance, Red Bull, and Vishwa Vinayak Group';
 
   return (
     <div className="pt-28 sm:pt-32 pb-20 cinematic-page-enter">
@@ -22,7 +28,7 @@ const WorkPage = ({ onSelectProject, onOpenTheaterArchive }) => {
           </span>
         </h1>
         <p className="mt-3 text-sm sm:text-base text-zinc-400 max-w-2xl font-light leading-relaxed">
-          Explore full-funnel commercial films, high-energy event recaps, viral retention edits, and narrative visual pieces crafted for industry leaders including Arentech, Reliance, Red Bull, and Vishwa Vinayak Group.
+          Explore full-funnel commercial films, high-energy event recaps, viral retention edits, and narrative visual pieces crafted for industry leaders including {featuredClients}.
         </p>
       </div>
 
