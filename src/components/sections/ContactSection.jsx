@@ -207,6 +207,7 @@ const ContactSection = ({ onOpenResume }) => {
     }
 
     // 3. Direct online delivery via FormSubmit AJAX service
+    let isActivationPending = false;
     if (!emailDispatched) {
       try {
         const fsRes = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
@@ -223,10 +224,14 @@ const ContactSection = ({ onOpenResume }) => {
             _subject: `🎬 New Portfolio Inquiry from ${submissionName} [${submissionProjectType}]`,
             _captcha: 'false',
             _template: 'table',
+            _url: typeof window !== 'undefined' ? window.location.href : '',
           }),
         });
         const fsData = await fsRes.json();
         if (fsData.success === 'true' || fsData.success === true) {
+          emailDispatched = true;
+        } else if (fsData.message && fsData.message.toLowerCase().includes('activation')) {
+          isActivationPending = true;
           emailDispatched = true;
         }
       } catch (err) {
@@ -262,7 +267,9 @@ const ContactSection = ({ onOpenResume }) => {
       });
       setStatus({
         state: 'success',
-        message: 'INQUIRY SENT SUCCESSFULLY! THANK YOU FOR REACHING OUT, I WILL GET BACK TO YOU SHORTLY.',
+        message: isActivationPending
+          ? 'INQUIRY LOGGED! OWNER SETUP: PLEASE CHECK YOUR EMAIL AND CLICK "ACTIVATE FORM" FOR THIS DOMAIN.'
+          : 'INQUIRY SENT SUCCESSFULLY! THANK YOU FOR REACHING OUT, I WILL GET BACK TO YOU SHORTLY.',
       });
     } else {
       setStatus({
