@@ -217,13 +217,12 @@ const ContactSection = ({ onOpenResume }) => {
             'Accept': 'application/json',
           },
           body: JSON.stringify({
-            name: submissionName || 'New Client Inquiry',
-            email: (submissionEmail.toLowerCase() === targetEmail.toLowerCase())
+            Name: submissionName || 'New Client Inquiry',
+            Email: (submissionEmail.toLowerCase() === targetEmail.toLowerCase())
               ? 'inquiry@ritiksoni.in'
               : submissionEmail,
-            client_reply_email: submissionEmail,
-            project_scope: submissionProjectType,
-            message: `[Client Email: ${submissionEmail}]\n[Project Scope: ${submissionProjectType}]\n\n${submissionMessage}`,
+            'Project Scope': submissionProjectType,
+            Message: submissionMessage,
             _subject: `🎬 New Portfolio Inquiry from ${submissionName || 'Client'} [${submissionProjectType}]`,
             _captcha: 'false',
             _template: 'table',
