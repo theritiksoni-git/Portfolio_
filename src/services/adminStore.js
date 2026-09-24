@@ -370,7 +370,7 @@ const DEFAULT_SEED_DATA = {
   },
   settings: {
     studioTitle: 'Ritik Soni Creative Studios',
-    metaDescription: 'Official portfolio and creative control room for Ritik Soni — Filmmaker, Video Production Executive & SMM Post Lead.',
+    metaDescription: 'Ritik Soni is a video editor in Pune and UGC creator in India crafting viral reels, brand commercial cuts, and high-retention post-production.',
     defaultSoundOn: true,
     crtScanlinesEnabled: true,
     adminPasscodeHash: hashPasscode('2026'),

@@ -6,38 +6,38 @@ const BASE_URL = 'https://www.ritiksoni.in';
 
 const PAGE_METADATA = {
   '/': {
-    title: 'Ritik Soni | Commercial Film Director, Video Production Executive & Lead Editor',
-    description: 'Official portfolio of Ritik Soni — Commercial Film Director, Video Production Executive, and Lead Video Editor. Crafting high-retention brand films, viral reels, and corporate documentaries generating 50M+ views for Red Bull, Reliance, AdenTech.',
+    title: 'Ritik Soni | Video Editor in Pune, Film Director & UGC Creator',
+    description: 'Ritik Soni is a video editor in Pune and UGC creator in India crafting viral reels, brand commercial cuts, and high-retention post-production.',
     name: 'Home',
   },
   '/about': {
-    title: 'About Ritik Soni | Biography, Directorial Journey & Storytelling Philosophy',
-    description: 'Explore Ritik Soni\'s background, 5+ year career timeline with premier global brands (Red Bull, Reliance, AdenTech), and cinematic directing philosophy.',
+    title: 'About Ritik Soni | Video Editor & Film Director in Pune',
+    description: 'Learn about Ritik Soni, a Pune-based video editor, commercial director, and UGC content creator delivering high-retention visual stories.',
     name: 'About',
   },
   '/work': {
-    title: 'Directed Works & Commercial Repertoire | Ritik Soni',
-    description: 'Complete commercial portfolio featuring commercial cuts, tech product films, music videos, 9:16 viral short-form retention edits, and enterprise documentaries.',
+    title: 'Portfolio & Commercial Projects | Ritik Soni Pune',
+    description: 'Explore video editing and directorial projects by Ritik Soni in Pune, featuring commercial brand films, social reels, and product videos.',
     name: 'Work',
   },
   '/process': {
-    title: 'How I See a Story | 6-Stage Filmmaking Framework - Ritik Soni',
-    description: 'From initial hook psychology to theatrical master grading: inspect Ritik Soni\'s 6-stage frame-accurate commercial filmmaking methodology.',
+    title: 'Filmmaking & Video Editing Workflow | Ritik Soni',
+    description: "Discover Ritik Soni's 6-stage video editing and directing workflow, from hook psychology to sound design and master color grading.",
     name: 'Process',
   },
   '/skills': {
-    title: 'Technical Console & NLE Suite | Ritik Soni - Premiere, After Effects, DaVinci',
-    description: 'Frame-accurate editing suite across Adobe Premiere Pro, After Effects, DaVinci Resolve Studio (ACES/Rec.709), and broadcast sound engineering.',
+    title: 'Editing Suite & NLE Skills | Ritik Soni Pune',
+    description: 'Technical proficiency in Adobe Premiere Pro, After Effects, and DaVinci Resolve Studio for commercial video editing and color grading.',
     name: 'Skills',
   },
   '/contact': {
-    title: 'Initiate Contact & Commission Terminal | Ritik Soni',
-    description: 'Direct priority booking terminal for commercial directing commissions, post-production lead retainers, and full-time video executive inquiries.',
+    title: 'Hire Ritik Soni | Video Editor & Director in Pune',
+    description: 'Hire Ritik Soni for commercial video editing, UGC campaigns, or directorial commissions in Pune and across India. Get in touch today.',
     name: 'Contact',
   },
   '/resume': {
-    title: 'Executive Resume & ATS Curriculum Vitae | Ritik Soni - Video Production Executive',
-    description: 'Verified CV, career timeline, brand impact metrics (50M+ views), and technical competencies for Ritik Soni — Video Production Executive & Lead Editor.',
+    title: 'Resume & Experience | Ritik Soni Video Editor Pune',
+    description: "View Ritik Soni's professional background, video editing credentials, client metrics, and commercial production experience.",
     name: 'Resume',
   },
 };
@@ -75,8 +75,8 @@ export default function usePageMetadata() {
   useEffect(() => {
     const meta = PAGE_METADATA[pathname] || PAGE_METADATA['/'];
     let title = meta.title;
-    if (pathname === '/' && settings?.studioTitle) {
-      title = `${settings.studioTitle} | Film Director, Video Editor & SMM Lead`;
+    if (pathname === '/' && settings?.studioTitle && settings.studioTitle !== 'Ritik Soni' && settings.studioTitle !== 'Ritik Soni Creative Studios') {
+      title = `${settings.studioTitle} | Video Editor in Pune`;
     }
     document.title = title;
 
@@ -85,6 +85,7 @@ export default function usePageMetadata() {
       : meta.description;
 
     const pageUrl = `${BASE_URL}${pathname === '/' ? '' : pathname}`;
+    const ogImage = `${BASE_URL}/img/og-preview.jpg`;
 
     // Canonical link
     setOrCreateCanonical(pageUrl);
@@ -96,11 +97,17 @@ export default function usePageMetadata() {
     setOrCreateMeta('og:title', 'property', title);
     setOrCreateMeta('og:description', 'property', description);
     setOrCreateMeta('og:url', 'property', pageUrl);
+    setOrCreateMeta('og:image', 'property', ogImage);
+    setOrCreateMeta('og:image:width', 'property', '1200');
+    setOrCreateMeta('og:image:height', 'property', '630');
+    setOrCreateMeta('og:image:alt', 'property', 'Ritik Soni - Commercial Film Director & Video Editor in Pune');
 
     // Twitter Card
+    setOrCreateMeta('twitter:card', 'property', 'summary_large_image');
     setOrCreateMeta('twitter:title', 'property', title);
     setOrCreateMeta('twitter:description', 'property', description);
     setOrCreateMeta('twitter:url', 'property', pageUrl);
+    setOrCreateMeta('twitter:image', 'property', ogImage);
 
     // Dynamic Breadcrumb Schema
     if (pathname !== '/') {

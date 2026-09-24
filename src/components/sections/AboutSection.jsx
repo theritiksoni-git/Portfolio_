@@ -63,7 +63,7 @@ const AboutSection = () => {
                 <source srcSet="/img/ritik-portrait.webp" type="image/webp" />
                 <img
                   src="/img/ritik-portrait.png"
-                  alt={authorName}
+                  alt={`${authorName} - Commercial Film Director & Video Editor in Pune`}
                   loading="lazy"
                   decoding="async"
                   width="960"
