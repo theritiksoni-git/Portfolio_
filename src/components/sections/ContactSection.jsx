@@ -217,14 +217,17 @@ const ContactSection = ({ onOpenResume }) => {
             'Accept': 'application/json',
           },
           body: JSON.stringify({
-            name: submissionName,
-            email: submissionEmail,
+            name: submissionName || 'New Client Inquiry',
+            email: (submissionEmail.toLowerCase() === targetEmail.toLowerCase())
+              ? 'inquiry@ritiksoni.in'
+              : submissionEmail,
+            client_reply_email: submissionEmail,
             project_scope: submissionProjectType,
-            message: `[Project Scope: ${submissionProjectType}]\n\n${submissionMessage}`,
-            _subject: `🎬 New Portfolio Inquiry from ${submissionName} [${submissionProjectType}]`,
+            message: `[Client Email: ${submissionEmail}]\n[Project Scope: ${submissionProjectType}]\n\n${submissionMessage}`,
+            _subject: `🎬 New Portfolio Inquiry from ${submissionName || 'Client'} [${submissionProjectType}]`,
             _captcha: 'false',
             _template: 'table',
-            _url: typeof window !== 'undefined' ? window.location.href : '',
+            _url: typeof window !== 'undefined' ? window.location.href : 'https://www.ritiksoni.in',
           }),
         });
         const fsData = await fsRes.json();
