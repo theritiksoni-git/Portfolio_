@@ -224,10 +224,10 @@ function generatePageHtml(route) {
     </main>
   `;
 
-  // Update root container content for static crawlers
+  // Update noscript container content for static crawlers without flashing in JS browsers
   html = html.replace(
-    /<div id="root">[\s\S]*?<\/div>\s*<\/body>/i,
-    `<div id="root"><div class="pre-rendered-seo-shell" style="padding: 2.5rem 1.5rem; max-width: 1000px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #f4f4f5; line-height: 1.65;">${pageBody}</div></div></body>`
+    /<noscript>[\s\S]*?<\/noscript>/i,
+    `<noscript><main style="padding: 2.5rem 1.5rem; max-width: 900px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #f4f4f5;">${pageBody}</main></noscript>`
   );
 
   return html;
