@@ -10,14 +10,14 @@ import sound from '../../utils/SoundEngine';
  * followed by cinematic rotations across other iconic letters.
  */
 const DEFAULT_SEQUENCE = [
-  { indices: [7], theme: 'red', duration: 2800 },    // 'N' in 'SONI' (Direct match to reference)
-  { indices: [2], theme: 'red', duration: 2500 },    // 'T' in 'RITIK'
-  { indices: [6], theme: 'red', duration: 2600 },    // 'O' in 'SONI'
-  { indices: [4], theme: 'red', duration: 2400 },    // 'K' in 'RITIK'
-  { indices: [3, 7], theme: 'red', duration: 3000 }, // 'I' & 'N' (Dual transformation)
-  { indices: [5], theme: 'red', duration: 2500 },    // 'S' in 'SONI'
-  { indices: [0], theme: 'red', duration: 2600 },    // 'R' in 'RITIK'
-  { indices: [1, 6], theme: 'red', duration: 2800 }, // 'I' & 'O'
+  { indices: [7], theme: 'white', duration: 2800 },    // 'N' in 'SONI'
+  { indices: [2], theme: 'white', duration: 2500 },    // 'T' in 'RITIK'
+  { indices: [6], theme: 'white', duration: 2600 },    // 'O' in 'SONI'
+  { indices: [4], theme: 'white', duration: 2400 },    // 'K' in 'RITIK'
+  { indices: [3, 7], theme: 'white', duration: 3000 }, // 'I' & 'N' (Dual transformation)
+  { indices: [5], theme: 'white', duration: 2500 },    // 'S' in 'SONI'
+  { indices: [0], theme: 'white', duration: 2600 },    // 'R' in 'RITIK'
+  { indices: [1, 6], theme: 'white', duration: 2800 }, // 'I' & 'O'
 ];
 
 /**
@@ -28,7 +28,7 @@ function KineticLetter({
   char,
   index,
   isTargetOutlined,
-  outlineTheme = 'red',
+  outlineTheme = 'white',
   onHoverSound,
 }) {
   // Step 0: Solid (0%), Step 1: Outline (-33.333%), Step 2: Next Solid (-66.666%)
@@ -96,11 +96,11 @@ function KineticLetter({
     return '0%';
   };
 
-  const themeClass = outlineTheme === 'cyan' 
+  const themeClass = outlineTheme === 'red' 
+    ? 'outline-red' 
+    : outlineTheme === 'cyan' 
     ? 'outline-cyan' 
-    : outlineTheme === 'white' 
-    ? 'outline-white' 
-    : '';
+    : 'outline-white';
 
   return (
     <span
@@ -124,7 +124,7 @@ function KineticLetter({
           {char}
         </span>
 
-        {/* Slot 2: Hollow Razor-Sharp Crimson Outline (Reference Screenshot) */}
+        {/* Slot 2: Hollow White Outline Letter */}
         <span className={`kinetic-glyph kinetic-glyph-outline ${themeClass}`}>
           {char}
         </span>
@@ -144,7 +144,7 @@ function KineticLetter({
 export default function KineticHeroText({
   text = 'RITIK SONI',
   className = '',
-  outlineTheme = 'red',
+  outlineTheme = 'white',
   autoPlay = true,
   interval = 4000,
 }) {

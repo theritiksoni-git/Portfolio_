@@ -3096,7 +3096,7 @@ body {
   box-decoration-break: clone;
 }
 
-/* Slot 2: Hollow Outline Letter (Matching Reference Screenshot) */
+/* Slot 2: Hollow White Outline Letter */
 .kinetic-glyph-outline {
   position: relative;
   display: inline-flex;
@@ -3106,12 +3106,18 @@ body {
   background-clip: border-box !important;
   -webkit-text-fill-color: transparent !important;
   color: transparent !important;
-  -webkit-text-stroke: clamp(2px, 0.25vw, 3.5px) #ff2a55 !important;
-  text-stroke: clamp(2px, 0.25vw, 3.5px) #ff2a55 !important;
-  filter: drop-shadow(0 0 12px rgba(255, 42, 85, 0.8)) drop-shadow(0 0 24px rgba(255, 42, 85, 0.4)) !important;
+  -webkit-text-stroke: clamp(2px, 0.25vw, 3.5px) #ffffff !important;
+  text-stroke: clamp(2px, 0.25vw, 3.5px) #ffffff !important;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.45)) drop-shadow(0 0 35px rgba(56, 189, 248, 0.25)) !important;
   text-shadow: none !important;
   animation: kineticOutlinePulse 2.4s ease-in-out infinite alternate !important;
   transition: filter 0.3s ease;
+}
+
+.kinetic-glyph-outline.outline-red {
+  -webkit-text-stroke-color: #ff2a55 !important;
+  text-stroke-color: #ff2a55 !important;
+  filter: drop-shadow(0 0 12px rgba(255, 42, 85, 0.8)) drop-shadow(0 0 24px rgba(255, 42, 85, 0.4)) !important;
 }
 
 .kinetic-glyph-outline.outline-cyan {
@@ -3123,19 +3129,19 @@ body {
 .kinetic-glyph-outline.outline-white {
   -webkit-text-stroke-color: #ffffff !important;
   text-stroke-color: #ffffff !important;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(56, 189, 248, 0.35)) !important;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 22px rgba(255, 255, 255, 0.45)) !important;
 }
 
 .kinetic-letter-cell:hover .kinetic-glyph-outline {
-  filter: drop-shadow(0 0 16px rgba(255, 42, 85, 1)) drop-shadow(0 0 32px rgba(255, 42, 85, 0.6)) !important;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 1)) drop-shadow(0 0 32px rgba(255, 255, 255, 0.75)) !important;
 }
 
 @keyframes kineticOutlinePulse {
   0% {
-    filter: drop-shadow(0 0 10px rgba(255, 42, 85, 0.65)) drop-shadow(0 0 20px rgba(255, 42, 85, 0.35));
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.75)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.35));
   }
   100% {
-    filter: drop-shadow(0 0 16px rgba(255, 42, 85, 0.95)) drop-shadow(0 0 32px rgba(255, 42, 85, 0.55));
+    filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 28px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 40px rgba(56, 189, 248, 0.3));
   }
 }
 

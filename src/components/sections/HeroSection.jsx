@@ -53,7 +53,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
           {/* Hero Name Typography with Kinetic Letter Scroll & Outline Transformation */}
           <h1 className="font-syne font-extrabold text-4xl sm:text-6xl md:text-8xl xl:text-9xl tracking-tight uppercase leading-[0.95] w-fit max-w-full select-none">
-            <KineticHeroText text="RITIK SONI" outlineTheme="red" />
+            <KineticHeroText text="RITIK SONI" outlineTheme="white" />
           </h1>
 
           {/* Craft Disciplines Line (Clean, Box-Free, Refined & Light) */}
