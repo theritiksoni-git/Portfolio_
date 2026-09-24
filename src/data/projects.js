@@ -36,7 +36,7 @@ export const PROJECTS = [
       'Dynamic Sound Design & Motion Typography'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1F_qX4leuz7UMKU472lZkuUe2TfuGsOyz/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/adentech-lineup-master.jpg',
     colorTheme: 'from-cyan-950/40 via-black to-blue-950/30',
     accentColor: '#38bdf8',
     stats: {
@@ -66,7 +66,7 @@ export const PROJECTS = [
       'Pacing & Sound Design Mix'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1JVWpUFFzRrfO9ye_Rx4zvO4jRbhhCx8h/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/adentech-lineup-short.jpg',
     colorTheme: 'from-sky-950/40 via-black to-slate-950/30',
     accentColor: '#0ea5e9',
     stats: {
@@ -97,7 +97,7 @@ export const PROJECTS = [
       'Conference Recap for Social Distribution'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/16hsjAuVgdKCnZlVb-GRBG9vpuVC7pTps/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/adentech-lineup-master.jpg',
     colorTheme: 'from-blue-950/40 via-black to-zinc-950/30',
     accentColor: '#3b82f6',
     stats: {
@@ -130,7 +130,7 @@ export const PROJECTS = [
       'Social & Promo Campaign Packaging'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1NGSXY-iibOn1z6pwnDM3grgLZld8aMb0/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/red-bull-action-reel.jpg',
     colorTheme: 'from-red-950/40 via-black to-slate-950/30',
     accentColor: '#f87171',
     stats: {
@@ -162,7 +162,7 @@ export const PROJECTS = [
       'Internal Broadcast Delivery Package'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/109weRIX2rSCKExP4ZJk738SXtpbXD019/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/reliance-mumbai-summit.jpg',
     colorTheme: 'from-amber-950/40 via-black to-stone-950/30',
     accentColor: '#fbbf24',
     stats: {
@@ -192,7 +192,7 @@ export const PROJECTS = [
       'Internal Executive Briefing Cut'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/143Wro6CMyHfAqb7EoubmJP98nqNl0HDz/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/reliance-nhq-film.jpg',
     colorTheme: 'from-emerald-950/40 via-black to-slate-950/30',
     accentColor: '#10b981',
     stats: {
@@ -224,7 +224,7 @@ export const PROJECTS = [
       'Investor & Client Presentation Cut'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1E6B1Kg87330YYHgUhHs-ZrJGJ3s9c18_/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/vvg-elnor-project-film.jpg',
     colorTheme: 'from-emerald-950/40 via-black to-zinc-950/30',
     accentColor: '#34d399',
     stats: {
@@ -254,7 +254,7 @@ export const PROJECTS = [
       'Social Media Broadcast Stems'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1l3XIFh6YM0Sa_oGWGdBh1D4ZPRYL3rUz/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/vvg-motion-graphics-identity.jpg',
     colorTheme: 'from-teal-950/40 via-black to-slate-950/30',
     accentColor: '#2dd4bf',
     stats: {
@@ -286,7 +286,7 @@ export const PROJECTS = [
       'Investor & B2B Client Package'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/16NGY7foPNJ4JZ6v5UzQ47d2vZQ2PAgTv/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/zaggle-corporate-showcase.jpg',
     colorTheme: 'from-violet-950/40 via-black to-zinc-950/30',
     accentColor: '#8b5cf6',
     stats: {
@@ -318,7 +318,7 @@ export const PROJECTS = [
       'B-roll Integration of Co-living Spaces'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1OTh1b2vd2lTJ3wsUO2V-sHm4OtwFb5j3/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/yukio-resident-interviews.jpg',
     colorTheme: 'from-fuchsia-950/40 via-black to-slate-950/30',
     accentColor: '#d946ef',
     stats: {
@@ -348,7 +348,7 @@ export const PROJECTS = [
       'Ambient Chill-Hop Soundscape Sync'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1m8S_CiJZg1_T5kEyF9iV4kF618qiL5z_/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/yukio-lifestyle-showcase.jpg',
     colorTheme: 'from-amber-950/40 via-black to-zinc-950/30',
     accentColor: '#f59e0b',
     stats: {
@@ -380,7 +380,7 @@ export const PROJECTS = [
       'Dynamic Audio Mix & Sound Polish'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1qPlz2KOL_la0CT_1sXiAlNmAg2nsHc8w/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/influencer-brand-campaign.jpg',
     colorTheme: 'from-sky-950/40 via-black to-blue-950/30',
     accentColor: '#38bdf8',
     stats: {
@@ -412,7 +412,7 @@ export const PROJECTS = [
       'SFX Transients & Acoustic Impact Layer'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1mCtq5gkgXi8y3efdNzbj_vcDw_NSFN47/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/overthinking-mindset-reel.jpg',
     colorTheme: 'from-purple-950/40 via-black to-indigo-950/30',
     accentColor: '#a855f7',
     stats: {
@@ -442,7 +442,7 @@ export const PROJECTS = [
       'Impact Sound Effects Suite'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/12Sy7BQDanD37_pElVBA0D7BGeqmny1yG/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/tera-kal-karunga-reel.jpg',
     colorTheme: 'from-red-950/40 via-black to-stone-950/30',
     accentColor: '#ef4444',
     stats: {
@@ -472,7 +472,7 @@ export const PROJECTS = [
       'Heavy Bass & Transient Sound Bed'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1c76fuOMi7tJCFJv2IhcXN30dr_o0zpvJ/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/workout-motivation-reel.jpg',
     colorTheme: 'from-orange-950/40 via-black to-slate-950/30',
     accentColor: '#fb923c',
     stats: {
@@ -502,7 +502,7 @@ export const PROJECTS = [
       'Minimalist Typographic Callouts'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1ZrJkZOWmjCfciNGBhfZeO9iYPrcctyAW/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/cant-give-up-mindset-reel.jpg',
     colorTheme: 'from-neutral-950/40 via-black to-zinc-950/30',
     accentColor: '#94a3b8',
     stats: {
@@ -534,7 +534,7 @@ export const PROJECTS = [
       'Film Grain & Custom Color Grade Stills'
     ],
     videoEmbedUrl: 'https://drive.google.com/file/d/1Mk95JqOEEjU_UGXvo_7w376W06CPSUmb/view?usp=sharing',
-    previewPoster: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1200&q=80',
+    previewPoster: '/img/projects/deep-thinker-essay.jpg',
     colorTheme: 'from-indigo-950/40 via-black to-blue-950/30',
     accentColor: '#818cf8',
     stats: {

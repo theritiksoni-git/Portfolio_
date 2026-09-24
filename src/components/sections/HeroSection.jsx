@@ -157,7 +157,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
             {/* 16:9 Aspect Video Preview */}
             <div className="relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-900">
               <img
-                src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80"
+                src="/img/projects/adentech-lineup-master.jpg"
                 alt="Ritik Soni Cinema Showreel"
                 className="w-full h-full object-cover filter contrast-110 brightness-90 group-hover:scale-105 transition-transform duration-700"
               />

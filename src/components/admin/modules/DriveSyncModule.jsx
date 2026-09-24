@@ -185,7 +185,7 @@ export default function DriveSyncModule() {
       tagline: stagedItem.tagline || '',
       synopsis: stagedItem.synopsis || '',
       videoEmbedUrl: stagedItem.videoEmbedUrl || '',
-      previewPoster: stagedItem.previewPoster || 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80',
+      previewPoster: stagedItem.previewPoster || '/img/projects/adentech-lineup-master.jpg',
     });
   };
 
@@ -649,7 +649,7 @@ function doGet() {
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-75 group-hover:opacity-100"
                     onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80';
+                      e.target.src = '/img/projects/adentech-lineup-master.jpg';
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />

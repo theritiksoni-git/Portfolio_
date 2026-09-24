@@ -479,9 +479,19 @@ class AdminStore {
           this.cache.leads = [];
         }
 
-        // 4. Upgrade media to real verified assets
         if (!this.cache.media || !Array.isArray(this.cache.media) || this.cache.media.some(m => m.url?.includes('images.unsplash.com'))) {
           this.cache.media = DEFAULT_SEED_DATA.media;
+        }
+
+        // 4b. Upgrade projects with real verified portfolio pictures
+        if (this.cache.projects && Array.isArray(this.cache.projects)) {
+          this.cache.projects = this.cache.projects.map(p => {
+            const seedMatch = DEFAULT_SEED_DATA.projects.find(dp => dp.id === p.id);
+            if ((!p.previewPoster || p.previewPoster.includes('images.unsplash.com')) && seedMatch?.previewPoster) {
+              return { ...p, previewPoster: seedMatch.previewPoster };
+            }
+            return p;
+          });
         }
 
         // 5. Upgrade settings to encrypted credentials

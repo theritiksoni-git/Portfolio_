@@ -184,7 +184,7 @@ const WorkSection = ({ onSelectProject, onOpenTheaterArchive, showAll = false })
                       alt={project.title}
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80';
+                        e.currentTarget.src = '/img/projects/adentech-lineup-master.jpg';
                       }}
                       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-105 brightness-95 group-hover:brightness-105"
                       loading="lazy"

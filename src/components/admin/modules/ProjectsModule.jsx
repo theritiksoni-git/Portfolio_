@@ -49,7 +49,7 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
       synopsis: '',
       deliverables: ['Master 4K Cinematic Cut', 'Social Media 9:16 Cutdowns'],
       videoEmbedUrl: '',
-      previewPoster: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80',
+      previewPoster: '/img/projects/adentech-lineup-master.jpg',
       status: 'Published',
     });
     setIsModalOpen(true);
