@@ -65,7 +65,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050608]/70 backdrop-blur-[2px] text-zinc-100 flex flex-col justify-between relative z-10 select-none overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-transparent text-zinc-100 flex flex-col justify-between relative z-10 select-none overflow-x-hidden font-sans">
       {/* Atmospheric Soft Radiance Backlights */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="fixed top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[250px] bg-blue-600/8 rounded-full blur-[130px] pointer-events-none z-0" />

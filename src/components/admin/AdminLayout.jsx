@@ -172,7 +172,7 @@ export default function AdminLayout({ onLogout }) {
   );
 
   return (
-    <div className="h-screen bg-[#050608]/75 backdrop-blur-[2px] text-zinc-100 flex flex-col font-sans select-none relative z-10 overflow-hidden">
+    <div className="h-screen bg-transparent text-zinc-100 flex flex-col font-sans select-none relative z-10 overflow-hidden">
       {/* Atmospheric Soft Radiance Lighting */}
       <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-cyan-500/8 rounded-full blur-[180px] pointer-events-none z-0" />
       <div className="fixed bottom-10 right-10 w-[500px] h-[300px] bg-sky-500/6 rounded-full blur-[140px] pointer-events-none z-0" />
