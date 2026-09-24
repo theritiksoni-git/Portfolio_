@@ -172,7 +172,7 @@ export default function AdminLayout({ onLogout }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#050608] text-zinc-100 flex flex-col font-sans select-none relative z-20 overflow-x-hidden">
+    <div className="h-screen bg-[#050608] text-zinc-100 flex flex-col font-sans select-none relative z-20 overflow-hidden">
       {/* 35mm Celluloid Film Grain Overlay (Matching Website Theme) */}
       <div className="film-grain" />
 
@@ -181,7 +181,7 @@ export default function AdminLayout({ onLogout }) {
       <div className="fixed bottom-10 right-10 w-[500px] h-[300px] bg-sky-500/6 rounded-full blur-[140px] pointer-events-none z-0" />
 
       {/* Top Tactical HUD Header (Matching Website Navbar) */}
-      <header className="h-16 px-4 sm:px-6 lg:px-8 bg-black/85 border-b border-white/10 backdrop-blur-xl flex items-center justify-between sticky top-0 z-40">
+      <header className="h-16 shrink-0 px-4 sm:px-6 lg:px-8 bg-black/85 border-b border-white/10 backdrop-blur-xl flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -349,14 +349,22 @@ export default function AdminLayout({ onLogout }) {
       </header>
 
       {/* Main Workspace Body */}
-      <div className="flex-1 flex overflow-hidden relative z-10">
-        {/* Tactical Sidebar */}
+      <div className="flex-1 flex min-h-0 overflow-hidden relative z-10">
+        {/* Mobile Backdrop when sidebar is open */}
+        {sidebarOpen && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 top-16 bg-black/70 backdrop-blur-sm z-20 md:hidden animate-fadeIn"
+          />
+        )}
+
+        {/* Tactical Sidebar - Permanently fixed and independent from rest of page */}
         <aside
-          className={`fixed md:static inset-y-16 left-0 z-30 w-64 bg-black/90 md:bg-zinc-950/70 border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-out backdrop-blur-2xl ${
+          className={`fixed top-16 bottom-0 left-0 z-30 w-64 bg-black/95 md:bg-zinc-950/90 border-r border-white/10 flex flex-col justify-between transition-transform duration-300 ease-out backdrop-blur-2xl ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           }`}
         >
-          <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+          <div className="p-4 space-y-3 flex-1 overflow-y-auto min-h-0">
             {/* Quick Module Filter */}
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -419,7 +427,7 @@ export default function AdminLayout({ onLogout }) {
           </div>
 
           {/* Sidebar Footer Metadata */}
-          <div className="p-4 border-t border-white/5 space-y-2">
+          <div className="p-4 border-t border-white/5 space-y-2 shrink-0 bg-zinc-950/90">
             <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-1">
               <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
                 <span className="truncate font-bold text-white">{currentUser?.name || 'RITIK SONI'}</span>
@@ -440,58 +448,62 @@ export default function AdminLayout({ onLogout }) {
           </div>
         </aside>
 
-        {/* Dynamic Canvas Container */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
-          {!adminStore.isModuleAllowed(activeModule) ? (
-            <div className="p-12 rounded-3xl bg-zinc-950/80 border border-red-500/30 text-center space-y-4 max-w-xl mx-auto my-12 backdrop-blur-xl">
-              <div className="w-16 h-16 rounded-2xl bg-red-950/50 border border-red-500/40 text-red-400 flex items-center justify-center mx-auto">
-                <ShieldAlert className="w-8 h-8" />
-              </div>
-              <h3 className="font-syne text-2xl font-bold text-white uppercase tracking-wider">
-                Access Restricted // Capability Required
-              </h3>
-              <p className="text-zinc-400 text-xs font-mono leading-relaxed">
-                Your current active profile ({currentUser?.name || 'User'}) does not hold the capability required to view this module. Contact studio owner <strong>Ritik</strong> to request elevated permissions.
-              </p>
-              <div className="pt-2">
-                <button
-                  onClick={() => setActiveModule('overview')}
-                  className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all"
-                >
-                  Return to Overview
-                </button>
-              </div>
+        {/* Dynamic Canvas Container - Offset by fixed sidebar on desktop */}
+        <div className="flex-1 flex flex-col md:pl-64 min-w-0 min-h-0 overflow-hidden w-full">
+          <main className="flex-1 h-full overflow-y-auto min-h-0 w-full p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto w-full pb-20">
+              {!adminStore.isModuleAllowed(activeModule) ? (
+                <div className="p-12 rounded-3xl bg-zinc-950/80 border border-red-500/30 text-center space-y-4 max-w-xl mx-auto my-12 backdrop-blur-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-red-950/50 border border-red-500/40 text-red-400 flex items-center justify-center mx-auto">
+                    <ShieldAlert className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-syne text-2xl font-bold text-white uppercase tracking-wider">
+                    Access Restricted // Capability Required
+                  </h3>
+                  <p className="text-zinc-400 text-xs font-mono leading-relaxed">
+                    Your current active profile ({currentUser?.name || 'User'}) does not hold the capability required to view this module. Contact studio owner <strong>Ritik</strong> to request elevated permissions.
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setActiveModule('overview')}
+                      className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all"
+                    >
+                      Return to Overview
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {activeModule === 'overview' && (
+                    <OverviewModule onSelectModule={handleSelectModule} />
+                  )}
+                  {activeModule === 'projects' && (
+                    <ProjectsModule
+                      initialOpenNew={moduleParams.openNew}
+                      onNavigateDrive={() => handleSelectModule('driveSync')}
+                    />
+                  )}
+                  {activeModule === 'driveSync' && (
+                    <DriveSyncModule onNavigate={handleSelectModule} />
+                  )}
+                  {activeModule === 'media' && <MediaModule />}
+                  {activeModule === 'leads' && (
+                    <LeadsModule initialLeadId={moduleParams.leadId} />
+                  )}
+                  {activeModule === 'experience' && <ExperienceModule />}
+                  {activeModule === 'skills' && <SkillsModule />}
+                  {activeModule === 'services' && <ServicesModule />}
+                  {activeModule === 'clients' && <ClientsModule />}
+                  {activeModule === 'analytics' && <AnalyticsModule />}
+                  {activeModule === 'socialLinks' && <SocialLinksModule />}
+                  {activeModule === 'availability' && <AvailabilityModule />}
+                  {activeModule === 'settings' && <SettingsModule />}
+                  {activeModule === 'team' && <TeamModule />}
+                </>
+              )}
             </div>
-          ) : (
-            <>
-              {activeModule === 'overview' && (
-                <OverviewModule onSelectModule={handleSelectModule} />
-              )}
-              {activeModule === 'projects' && (
-                <ProjectsModule
-                  initialOpenNew={moduleParams.openNew}
-                  onNavigateDrive={() => handleSelectModule('driveSync')}
-                />
-              )}
-              {activeModule === 'driveSync' && (
-                <DriveSyncModule onNavigate={handleSelectModule} />
-              )}
-              {activeModule === 'media' && <MediaModule />}
-              {activeModule === 'leads' && (
-                <LeadsModule initialLeadId={moduleParams.leadId} />
-              )}
-              {activeModule === 'experience' && <ExperienceModule />}
-              {activeModule === 'skills' && <SkillsModule />}
-              {activeModule === 'services' && <ServicesModule />}
-              {activeModule === 'clients' && <ClientsModule />}
-              {activeModule === 'analytics' && <AnalyticsModule />}
-              {activeModule === 'socialLinks' && <SocialLinksModule />}
-              {activeModule === 'availability' && <AvailabilityModule />}
-              {activeModule === 'settings' && <SettingsModule />}
-              {activeModule === 'team' && <TeamModule />}
-            </>
-          )}
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Global Cyber Popup Toast & Confirmation Modal System */}
