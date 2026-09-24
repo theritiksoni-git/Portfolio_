@@ -438,11 +438,11 @@ function AdminPopupContainer() {
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
               exit={{
                 opacity: 0,
-                x: 75,
-                scale: 0.92,
-                filter: 'blur(8px)',
+                y: -24,
+                scale: 0.94,
+                filter: 'blur(4px)',
                 transition: {
-                  duration: 0.35,
+                  duration: 0.28,
                   ease: [0.32, 0.72, 0, 1]
                 }
               }}
