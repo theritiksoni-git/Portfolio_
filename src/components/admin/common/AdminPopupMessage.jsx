@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -24,7 +25,7 @@ const EVENT_SHOW_CONFIRM = 'admin-confirm-event';
  * @param {string} [options.title]
  * @param {string} options.message
  * @param {string} [options.tag]
- * @param {number} [options.duration=4200]
+ * @param {number} [options.duration=2800]
  * @param {string} [options.actionLabel]
  * @param {Function} [options.onAction]
  */
@@ -159,9 +160,7 @@ const THEME_CONFIG = {
  * Individual Cyber Toast Popup Item with Auto-dismiss countdown
  */
 function ToastItem({ toast, onDismiss }) {
-  const [progress, setProgress] = useState(100);
-  const [isExiting, setIsExiting] = useState(false);
-  const duration = toast.duration || 2600;
+  const duration = toast.duration || 2800;
 
   const onDismissRef = useRef(onDismiss);
   useEffect(() => {
@@ -179,55 +178,36 @@ function ToastItem({ toast, onDismiss }) {
   });
 
   useEffect(() => {
-    // Initiate smooth hardware-accelerated progress countdown
-    const pTimer = setTimeout(() => {
-      setProgress(0);
-    }, 20);
-
-    // Guaranteed auto-dismissal timer that never gets reset by parent re-renders
+    // Guaranteed auto-dismissal timer that triggers Framer Motion exit
     const dismissTimer = setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(() => {
-        if (onDismissRef.current) {
-          onDismissRef.current(toast.id);
-        }
-      }, 300);
+      if (onDismissRef.current) {
+        onDismissRef.current(toast.id);
+      }
     }, duration);
 
     return () => {
-      clearTimeout(pTimer);
       clearTimeout(dismissTimer);
     };
   }, [toast.id, duration]);
 
   const handleManualDismiss = () => {
     sound.playClick();
-    setIsExiting(true);
-    setTimeout(() => {
-      if (onDismissRef.current) {
-        onDismissRef.current(toast.id);
-      }
-    }, 200);
+    if (onDismissRef.current) {
+      onDismissRef.current(toast.id);
+    }
   };
 
   const handleActionClick = () => {
     sound.playClick();
     if (toast.onAction) toast.onAction();
-    setIsExiting(true);
-    setTimeout(() => {
-      if (onDismissRef.current) {
-        onDismissRef.current(toast.id);
-      }
-    }, 200);
+    if (onDismissRef.current) {
+      onDismissRef.current(toast.id);
+    }
   };
 
   return (
     <div
-      className={`group relative w-full sm:w-[410px] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border ${theme.borderColor} ${theme.glowColor} overflow-hidden shadow-2xl transition-all duration-300 flex flex-col ${
-        isExiting
-          ? 'opacity-0 -translate-y-4 scale-95 pointer-events-none'
-          : 'animate-slideDown opacity-100 translate-y-0 scale-100'
-      }`}
+      className={`group relative w-full sm:w-[410px] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border ${theme.borderColor} ${theme.glowColor} overflow-hidden shadow-2xl flex flex-col`}
       style={{
         boxShadow: `0 10px 35px -5px rgba(0, 0, 0, 0.7), 0 0 20px -2px ${theme.accentColor}25`,
       }}
@@ -291,12 +271,11 @@ function ToastItem({ toast, onDismiss }) {
 
       {/* Dynamic Animated Auto-Dismiss Progress Bar */}
       <div className="h-[2px] w-full bg-zinc-900/80 overflow-hidden">
-        <div
+        <motion.div
           className={`h-full ${theme.progressBarBg}`}
-          style={{
-            width: `${progress}%`,
-            transition: `width ${duration}ms linear`,
-          }}
+          initial={{ width: '100%' }}
+          animate={{ width: '0%' }}
+          transition={{ duration: duration / 1000, ease: 'linear' }}
         />
       </div>
     </div>
@@ -324,8 +303,17 @@ function ConfirmModal({ config, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-fadeIn select-none">
-      <div 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.22, ease: 'easeOut' } }}
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl select-none"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 12, transition: { duration: 0.2, ease: [0.32, 0.72, 0, 1] } }}
+        transition={{ type: 'spring', stiffness: 400, damping: 28 }}
         className={`w-full max-w-md rounded-3xl bg-zinc-950/95 border ${
           isDanger ? 'border-red-500/40 shadow-[0_0_50px_rgba(244,63,94,0.25)]' : 'border-cyan-500/40 shadow-[0_0_50px_rgba(6,182,212,0.25)]'
         } p-6 sm:p-7 relative overflow-hidden flex flex-col space-y-5`}
@@ -381,8 +369,8 @@ function ConfirmModal({ config, onClose }) {
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -441,17 +429,43 @@ function AdminPopupContainer() {
         className="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-full"
         style={{ perspective: 1000 }}
       >
-        {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
-            <ToastItem toast={toast} onDismiss={dismissToast} />
-          </div>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              layout
+              initial={{ opacity: 0, y: -24, scale: 0.94, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={{
+                opacity: 0,
+                x: 75,
+                scale: 0.92,
+                filter: 'blur(8px)',
+                transition: {
+                  duration: 0.35,
+                  ease: [0.32, 0.72, 0, 1]
+                }
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 380,
+                damping: 28,
+                layout: { duration: 0.28, ease: 'easeOut' }
+              }}
+              className="pointer-events-auto"
+            >
+              <ToastItem toast={toast} onDismiss={dismissToast} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Confirmation Modal */}
-      {confirmModal && (
-        <ConfirmModal config={confirmModal} onClose={() => setConfirmModal(null)} />
-      )}
+      <AnimatePresence>
+        {confirmModal && (
+          <ConfirmModal key="admin-confirm-dialog" config={confirmModal} onClose={() => setConfirmModal(null)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }
