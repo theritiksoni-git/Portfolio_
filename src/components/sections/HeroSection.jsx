@@ -2,6 +2,7 @@ import React from 'react';
 import { Play, ArrowDown, ChevronRight, Clapperboard, Scissors, TrendingUp } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 import usePortfolioData from '../../utils/usePortfolioData';
+import KineticHeroText from '../common/KineticHeroText';
 
 const CLIENTS = [
   { name: 'Red Bull', logo: '/img/client-logos/redbull.png', width: 'w-24 sm:w-28', height: 'h-6 sm:h-7' },
@@ -50,11 +51,9 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
             <span className="text-cyan-300">SCENE 01 • 24 FPS • 4K DCI</span>
           </div>
 
-          {/* Hero Name Typography with Retro CRT Television Effect Strictly on Text */}
-          <h1 className="font-syne font-extrabold text-4xl sm:text-6xl md:text-8xl xl:text-9xl tracking-tight uppercase leading-[0.95] w-fit max-w-full pointer-events-none select-none">
-            <span className="hero-name-tv pointer-events-auto inline cursor-default">
-              RITIK SONI
-            </span>
+          {/* Hero Name Typography with Kinetic Letter Scroll & Outline Transformation */}
+          <h1 className="font-syne font-extrabold text-4xl sm:text-6xl md:text-8xl xl:text-9xl tracking-tight uppercase leading-[0.95] w-fit max-w-full select-none">
+            <KineticHeroText text="RITIK SONI" outlineTheme="red" />
           </h1>
 
           {/* Craft Disciplines Line (Clean, Box-Free, Refined & Light) */}
