@@ -6,13 +6,13 @@ const BASE_URL = 'https://www.ritiksoni.in';
 
 const PAGE_METADATA = {
   '/': {
-    title: 'Ritik Soni | Video Editor in Pune, Film Director & UGC Creator',
-    description: 'Ritik Soni is a video editor in Pune and UGC creator in India crafting viral reels, brand commercial cuts, and high-retention post-production.',
+    title: 'Ritik Soni | Video Editor & Filmmaker in Pune, India',
+    description: 'Ritik Soni is a Pune-based video editor and filmmaker creating cinematic brand films, UGC and high-retention short-form reels for Indian brands.',
     name: 'Home',
   },
   '/about': {
-    title: 'About Ritik Soni | Video Editor & Film Director in Pune',
-    description: 'Learn about Ritik Soni, a Pune-based video editor, commercial director, and UGC content creator delivering high-retention visual stories.',
+    title: 'About Ritik Soni | Video Editor & Filmmaker in Pune',
+    description: 'Learn about Ritik Soni, a Pune-based video editor, filmmaker, and UGC content creator delivering high-retention visual stories.',
     name: 'About',
   },
   '/work': {
@@ -31,7 +31,7 @@ const PAGE_METADATA = {
     name: 'Skills',
   },
   '/contact': {
-    title: 'Hire Ritik Soni | Video Editor & Director in Pune',
+    title: 'Hire Ritik Soni | Video Editor & Filmmaker in Pune',
     description: 'Hire Ritik Soni for commercial video editing, UGC campaigns, or directorial commissions in Pune and across India. Get in touch today.',
     name: 'Contact',
   },
@@ -76,7 +76,7 @@ export default function usePageMetadata() {
     const meta = PAGE_METADATA[pathname] || PAGE_METADATA['/'];
     let title = meta.title;
     if (pathname === '/' && settings?.studioTitle && settings.studioTitle !== 'Ritik Soni' && settings.studioTitle !== 'Ritik Soni Creative Studios') {
-      title = `${settings.studioTitle} | Video Editor in Pune`;
+      title = `${settings.studioTitle} | Video Editor & Filmmaker in Pune, India`;
     }
     document.title = title;
 
@@ -85,7 +85,7 @@ export default function usePageMetadata() {
       : meta.description;
 
     const pageUrl = `${BASE_URL}${pathname === '/' ? '' : pathname}`;
-    const ogImage = `${BASE_URL}/img/og-preview.jpg`;
+    const ogImage = `${BASE_URL}/img/og-card.png`;
 
     // Canonical link
     setOrCreateCanonical(pageUrl);
@@ -100,7 +100,7 @@ export default function usePageMetadata() {
     setOrCreateMeta('og:image', 'property', ogImage);
     setOrCreateMeta('og:image:width', 'property', '1200');
     setOrCreateMeta('og:image:height', 'property', '630');
-    setOrCreateMeta('og:image:alt', 'property', 'Ritik Soni - Commercial Film Director & Video Editor in Pune');
+    setOrCreateMeta('og:image:alt', 'property', 'Ritik Soni, video editor and filmmaker in Pune');
 
     // Twitter Card
     setOrCreateMeta('twitter:card', 'property', 'summary_large_image');
