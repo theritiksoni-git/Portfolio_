@@ -157,9 +157,6 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
         {/* Scroll Position Reset On Route Change */}
         <ScrollToTop />
 
-        {/* 35mm Celluloid Film Grain Texture */}
-        <div className="film-grain" />
-
         {/* 3D WebGL Digital Film Environment Canvas */}
         <CinematicCanvas activeSection={activeScene} isMobile={isMobile} isPaused={isCanvasPaused} />
 
@@ -314,8 +311,6 @@ function App() {
   return (
     <>
       <CustomCursor />
-      {/* 35mm Celluloid Film Grain Texture Overlay */}
-      <div className="film-grain" aria-hidden="true" />
       <Router>
         <ExperienceShell
           isBackgroundSoundOn={isBackgroundSoundOn}
