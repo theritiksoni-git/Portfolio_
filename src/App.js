@@ -143,13 +143,12 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
 
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  // Pause heavy canvas rendering during modal inspection, document viewing, or admin control room
+  // Pause heavy canvas rendering during modal inspection or document viewing
   const isCanvasPaused = Boolean(
     selectedProject ||
     isResumeOpen ||
     isTheaterArchiveOpen ||
-    location.pathname === '/resume' ||
-    isAdminRoute
+    location.pathname === '/resume'
   );
 
   return (
@@ -159,17 +158,13 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
         <ScrollToTop />
 
         {/* 35mm Celluloid Film Grain Texture */}
-        {!isAdminRoute && <div className="film-grain" />}
+        <div className="film-grain" />
 
-        {/* 3D WebGL Digital Film Environment Canvas (Auto-paused when modal/resume/admin active) */}
-        {!isAdminRoute && (
-          <CinematicCanvas activeSection={activeScene} isMobile={isMobile} isPaused={isCanvasPaused} />
-        )}
+        {/* 3D WebGL Digital Film Environment Canvas */}
+        <CinematicCanvas activeSection={activeScene} isMobile={isMobile} isPaused={isCanvasPaused} />
 
-        {/* Assassin's Creed Animus Point-Cloud Web (Auto-paused when modal/resume/admin active) */}
-        {!isAdminRoute && (
-          <AnimusPlexusVoid className="animus-plexus-void--fixed" opacity={0.48} isPaused={isCanvasPaused} />
-        )}
+        {/* Assassin's Creed Animus Point-Cloud Web */}
+        <AnimusPlexusVoid className="animus-plexus-void--fixed" opacity={0.48} isPaused={isCanvasPaused} />
 
         {/* Viewfinder Viewport HUD (REC status, SMPTE timecode, Aspect toggle) - Hidden on official resume and admin */}
         {!isAdminRoute && location.pathname !== '/resume' && !isResumeOpen && (
