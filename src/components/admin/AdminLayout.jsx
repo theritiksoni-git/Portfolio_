@@ -66,18 +66,9 @@ const MODULES_CONFIG = [
   { id: 'team', label: 'TEAM', icon: Users, category: 'Operations' },
 ];
 
-export default function AdminLayout({ onLogout }) {
-  const [activeModule, setActiveModule] = useState('overview');
-  const [moduleParams, setModuleParams] = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [moduleSearch, setModuleSearch] = useState('');
+function RunningTimecode() {
   const [timecode, setTimecode] = useState('00:00:00:00');
-  const [storeData, setStoreData] = useState(adminStore.getData());
-  const [currentUser, setCurrentUser] = useState(adminStore.getCurrentUser());
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const navigate = useNavigate();
 
-  // SMPTE running timecode
   useEffect(() => {
     let frame = 0;
     const interval = setInterval(() => {
@@ -92,6 +83,30 @@ export default function AdminLayout({ onLogout }) {
     }, 1000 / 24);
     return () => clearInterval(interval);
   }, []);
+
+  return (
+    <div className="hidden lg:flex items-center gap-2 font-mono text-xs">
+      <span className="text-zinc-600">TC</span>
+      <span className="px-2.5 py-1 rounded bg-zinc-900/80 border border-white/10 text-cyan-300 font-bold tracking-widest">
+        {timecode}
+      </span>
+      <span className="text-[10px] text-emerald-400 flex items-center gap-1 ml-2">
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span>LIVE SYNC</span>
+      </span>
+    </div>
+  );
+}
+
+export default function AdminLayout({ onLogout }) {
+  const [activeModule, setActiveModule] = useState('overview');
+  const [moduleParams, setModuleParams] = useState({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [moduleSearch, setModuleSearch] = useState('');
+  const [storeData, setStoreData] = useState(adminStore.getData());
+  const [currentUser, setCurrentUser] = useState(adminStore.getCurrentUser());
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Update on store change or user profile change
   useEffect(() => {
@@ -200,16 +215,7 @@ export default function AdminLayout({ onLogout }) {
         </div>
 
         {/* Center: SMPTE running timecode (desktop) */}
-        <div className="hidden lg:flex items-center gap-2 font-mono text-xs">
-          <span className="text-zinc-600">TC</span>
-          <span className="px-2.5 py-1 rounded bg-zinc-900/80 border border-white/10 text-cyan-300 font-bold tracking-widest">
-            {timecode}
-          </span>
-          <span className="text-[10px] text-emerald-400 flex items-center gap-1 ml-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>LIVE SYNC</span>
-          </span>
-        </div>
+        <RunningTimecode />
 
         {/* Right Action Dock */}
         <div className="flex items-center gap-2 sm:gap-3">

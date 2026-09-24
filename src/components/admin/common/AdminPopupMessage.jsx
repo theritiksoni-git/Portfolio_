@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -161,7 +161,12 @@ const THEME_CONFIG = {
 function ToastItem({ toast, onDismiss }) {
   const [progress, setProgress] = useState(100);
   const [isExiting, setIsExiting] = useState(false);
-  const duration = toast.duration || 2800;
+  const duration = toast.duration || 2600;
+
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  });
 
   const theme = THEME_CONFIG[toast.type] || THEME_CONFIG.info;
   const Icon = theme.Icon;
@@ -179,11 +184,13 @@ function ToastItem({ toast, onDismiss }) {
       setProgress(0);
     }, 20);
 
-    // Automatically trigger exit transition and dismiss after duration
+    // Guaranteed auto-dismissal timer that never gets reset by parent re-renders
     const dismissTimer = setTimeout(() => {
       setIsExiting(true);
       setTimeout(() => {
-        onDismiss(toast.id);
+        if (onDismissRef.current) {
+          onDismissRef.current(toast.id);
+        }
       }, 300);
     }, duration);
 
@@ -191,14 +198,16 @@ function ToastItem({ toast, onDismiss }) {
       clearTimeout(pTimer);
       clearTimeout(dismissTimer);
     };
-  }, [duration, onDismiss, toast.id]);
+  }, [toast.id, duration]);
 
   const handleManualDismiss = () => {
     sound.playClick();
     setIsExiting(true);
     setTimeout(() => {
-      onDismiss(toast.id);
-    }, 250);
+      if (onDismissRef.current) {
+        onDismissRef.current(toast.id);
+      }
+    }, 200);
   };
 
   const handleActionClick = () => {
@@ -206,8 +215,10 @@ function ToastItem({ toast, onDismiss }) {
     if (toast.onAction) toast.onAction();
     setIsExiting(true);
     setTimeout(() => {
-      onDismiss(toast.id);
-    }, 250);
+      if (onDismissRef.current) {
+        onDismissRef.current(toast.id);
+      }
+    }, 200);
   };
 
   return (
@@ -379,7 +390,7 @@ function ConfirmModal({ config, onClose }) {
  * Global Admin Popup Messages Container
  * Mount this once in AdminLayout.
  */
-export default function AdminPopupContainer() {
+function AdminPopupContainer() {
   const [toasts, setToasts] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null);
 
@@ -419,9 +430,9 @@ export default function AdminPopupContainer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [confirmModal]);
 
-  const dismissToast = (id) => {
+  const dismissToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   return (
     <>
@@ -444,3 +455,5 @@ export default function AdminPopupContainer() {
     </>
   );
 }
+
+export default React.memo(AdminPopupContainer);
