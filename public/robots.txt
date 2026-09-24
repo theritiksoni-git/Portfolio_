@@ -1,3 +1,39 @@
-# https://www.robotstxt.org/robotstxt.html
+# Ritik Soni Portfolio Robots Directive
+# Website: https://www.ritiksoni.in/
+# Author: Ritik Soni (Director, Video Production Executive & SMM Lead)
+
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+# AI Search & Generative Engine Crawlers (Full Crawling & Indexing Permitted)
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# Sitemap & Host Location
+Sitemap: https://www.ritiksoni.in/sitemap.xml
+Host: https://www.ritiksoni.in
