@@ -10,14 +10,12 @@ import sound from '../../utils/SoundEngine';
  * followed by cinematic rotations across other iconic letters.
  */
 const DEFAULT_SEQUENCE = [
-  { indices: [7], theme: 'white', duration: 2800 },    // 'N' in 'SONI'
-  { indices: [2], theme: 'white', duration: 2500 },    // 'T' in 'RITIK'
-  { indices: [6], theme: 'white', duration: 2600 },    // 'O' in 'SONI'
-  { indices: [4], theme: 'white', duration: 2400 },    // 'K' in 'RITIK'
-  { indices: [3, 7], theme: 'white', duration: 3000 }, // 'I' & 'N' (Dual transformation)
-  { indices: [5], theme: 'white', duration: 2500 },    // 'S' in 'SONI'
-  { indices: [0], theme: 'white', duration: 2600 },    // 'R' in 'RITIK'
-  { indices: [1, 6], theme: 'white', duration: 2800 }, // 'I' & 'O'
+  { index: 7, duration: 2000 }, // 'N' in 'SONI' (Signature hero transformation)
+  { index: 2, duration: 2000 }, // 'T' in 'RITIK'
+  { index: 6, duration: 2000 }, // 'O' in 'SONI'
+  { index: 4, duration: 2000 }, // 'K' in 'RITIK'
+  { index: 8, duration: 2000 }, // 'I' in 'SONI'
+  { index: 0, duration: 2000 }, // 'R' in 'RITIK'
 ];
 
 /**
@@ -149,7 +147,6 @@ export default function KineticHeroText({
   interval = 4000,
 }) {
   const [activeIndices, setActiveIndices] = useState([]);
-  const [currentTheme, setCurrentTheme] = useState(outlineTheme);
   const seqIndexRef = useRef(0);
   const timerRef = useRef(null);
   const holdTimerRef = useRef(null);
@@ -186,28 +183,28 @@ export default function KineticHeroText({
       const currentItem = DEFAULT_SEQUENCE[seqIndexRef.current % DEFAULT_SEQUENCE.length];
       
       if (!isMounted) return;
-      setActiveIndices(currentItem.indices);
-      if (currentItem.theme) setCurrentTheme(currentItem.theme);
+      // Single letter active at a time
+      setActiveIndices([currentItem.index]);
 
       // Hold in outline state
       holdTimerRef.current = setTimeout(() => {
         if (!isMounted) return;
-        // Release back to solid
+        // Return back to solid original text
         setActiveIndices([]);
 
-        // Rest pause before next letter begins
+        // Rest pause (4.2 seconds of full solid original text)
         timerRef.current = setTimeout(() => {
           if (!isMounted) return;
           seqIndexRef.current = (seqIndexRef.current + 1) % DEFAULT_SEQUENCE.length;
           runSequenceStep();
-        }, 1600);
-      }, currentItem.duration || 2600);
+        }, 4200);
+      }, currentItem.duration || 1900);
     };
 
-    // Initial delay after page load (2.2 seconds) before first transformation begins
+    // Initial delay after page load (3 seconds of full solid original text)
     timerRef.current = setTimeout(() => {
       runSequenceStep();
-    }, 2200);
+    }, 3000);
 
     return () => {
       isMounted = false;
@@ -227,7 +224,7 @@ export default function KineticHeroText({
                 char={char}
                 index={index}
                 isTargetOutlined={activeIndices.includes(index)}
-                outlineTheme={currentTheme}
+                outlineTheme={outlineTheme}
                 onHoverSound={handleHoverSound}
               />
             ))}

@@ -3104,7 +3104,7 @@ body {
   box-decoration-break: clone;
 }
 
-/* Slot 2: Clean, Crisp White Outline Letter (Zero Glow, Zero Blur, Pure Sharp Stroke) */
+/* Slot 2: Premium Precision-Cut White Outline Letter */
 .kinetic-glyph-outline {
   position: relative;
   display: inline-flex;
@@ -3112,43 +3112,45 @@ body {
   background-image: none !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  -webkit-text-stroke: clamp(1.8px, 0.22vw, 3px) #ffffff !important;
-  text-stroke: clamp(1.8px, 0.22vw, 3px) #ffffff !important;
+  color: rgba(255, 255, 255, 0.04) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.04) !important;
+  -webkit-text-stroke: clamp(1px, 0.12vw, 1.6px) rgba(255, 255, 255, 0.95) !important;
+  text-stroke: clamp(1px, 0.12vw, 1.6px) rgba(255, 255, 255, 0.95) !important;
+  paint-order: stroke fill;
   filter: none !important;
-  text-shadow: none !important;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.35);
   box-shadow: none !important;
   animation: none !important;
+  transition: color 0.3s ease, -webkit-text-stroke-color 0.3s ease;
 }
 
 .kinetic-glyph-outline.outline-white {
-  -webkit-text-stroke-color: #ffffff !important;
-  text-stroke-color: #ffffff !important;
-  filter: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
+  -webkit-text-stroke-color: rgba(255, 255, 255, 0.95) !important;
+  text-stroke-color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(255, 255, 255, 0.04) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 .kinetic-glyph-outline.outline-red {
-  -webkit-text-stroke-color: #ff2a55 !important;
-  text-stroke-color: #ff2a55 !important;
-  filter: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
+  -webkit-text-stroke-color: rgba(255, 42, 85, 0.95) !important;
+  text-stroke-color: rgba(255, 42, 85, 0.95) !important;
+  color: rgba(255, 42, 85, 0.04) !important;
+  -webkit-text-fill-color: rgba(255, 42, 85, 0.04) !important;
 }
 
 .kinetic-glyph-outline.outline-cyan {
-  -webkit-text-stroke-color: #38bdf8 !important;
-  text-stroke-color: #38bdf8 !important;
-  filter: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
+  -webkit-text-stroke-color: rgba(56, 189, 248, 0.95) !important;
+  text-stroke-color: rgba(56, 189, 248, 0.95) !important;
+  color: rgba(56, 189, 248, 0.04) !important;
+  -webkit-text-fill-color: rgba(56, 189, 248, 0.04) !important;
 }
 
 .kinetic-letter-cell:hover .kinetic-glyph-outline {
+  -webkit-text-stroke-color: #ffffff !important;
+  text-stroke-color: #ffffff !important;
+  color: rgba(255, 255, 255, 0.1) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.1) !important;
   filter: none !important;
-  text-shadow: none !important;
   box-shadow: none !important;
 }
 
