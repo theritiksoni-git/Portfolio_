@@ -22,6 +22,7 @@ import {
   Settings
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 // Capability Icon Helper
 const CAPABILITY_ICONS = {
@@ -133,12 +134,30 @@ export default function TeamModule() {
   const handleDeleteUser = (id, name, role) => {
     sound.playClick();
     if (role === 'owner') {
-      alert('Security Policy: Studio Owner Ritik has permanent master access and cannot be deleted.');
+      showAdminToast({
+        type: 'warning',
+        title: 'SECURITY POLICY RESTRICTION',
+        message: 'Studio Owner Ritik Soni holds permanent master sovereignty and cannot be revoked.',
+        tag: 'OWNER ROOT IMMUNITY',
+      });
       return;
     }
-    if (window.confirm(`Revoke all capability permissions and remove collaborator "${name}"?`)) {
-      adminStore.deleteAdminUser(id);
-    }
+    showAdminConfirm({
+      title: 'Revoke Collaborator Access?',
+      message: `Are you sure you want to revoke all capability permissions and remove collaborator "${name}" from the studio dashboard?`,
+      confirmText: 'REVOKE ACCESS',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteAdminUser(id);
+        showAdminToast({
+          type: 'error',
+          title: 'ACCESS REVOKED',
+          message: `Collaborator "${name}" removed from access directory.`,
+          tag: 'ACCESS TERMINATED',
+        });
+      },
+    });
   };
 
   const handleSwitchSession = (user) => {
@@ -183,9 +202,22 @@ export default function TeamModule() {
 
   const handleDeleteCrew = (id, name) => {
     sound.playClick();
-    if (window.confirm(`Delete crew member "${name}" from production directory?`)) {
-      adminStore.deleteTeamMember(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Crew Member?',
+      message: `Are you sure you want to remove "${name}" from the production crew directory?`,
+      confirmText: 'DELETE CREW MEMBER',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteTeamMember(id);
+        showAdminToast({
+          type: 'error',
+          title: 'CREW MEMBER REMOVED',
+          message: `"${name}" removed from production roster.`,
+          tag: 'ROSTER UPDATED',
+        });
+      },
+    });
   };
 
   const ownerUser = adminUsers.find(u => u.role === 'owner') || adminUsers[0];

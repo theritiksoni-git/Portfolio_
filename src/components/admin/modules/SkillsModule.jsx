@@ -7,6 +7,7 @@ import {
   Trash2
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function SkillsModule() {
   const [skills, setSkills] = useState(adminStore.getModule('skills'));
@@ -48,14 +49,33 @@ export default function SkillsModule() {
       adminStore.addSkill(editingSkill);
     }
     setIsModalOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'CAPABILITY SAVED',
+      message: `Skill tool "${editingSkill.name}" updated successfully.`,
+      tag: 'SKILLS STORE',
+    });
     setEditingSkill(null);
   };
 
   const handleDelete = (id, name) => {
     sound.playClick();
-    if (window.confirm(`Delete skill tool "${name}"?`)) {
-      adminStore.deleteSkill(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Skill Tool?',
+      message: `Are you sure you want to remove "${name}" from your studio capabilities?`,
+      confirmText: 'DELETE SKILL',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteSkill(id);
+        showAdminToast({
+          type: 'error',
+          title: 'SKILL REMOVED',
+          message: `"${name}" removed from capabilities.`,
+          tag: 'PURGE COMPLETE',
+        });
+      },
+    });
   };
 
   return (

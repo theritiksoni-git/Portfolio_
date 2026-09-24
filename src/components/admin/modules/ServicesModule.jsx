@@ -9,6 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function ServicesModule() {
   const [services, setServices] = useState(adminStore.getModule('services'));
@@ -57,14 +58,33 @@ export default function ServicesModule() {
       adminStore.addService(editingService);
     }
     setIsModalOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'SERVICE SUITE SAVED',
+      message: `Commercial package "${editingService.title}" updated.`,
+      tag: 'SERVICES DIRECTORY',
+    });
     setEditingService(null);
   };
 
   const handleDelete = (id, title) => {
     sound.playClick();
-    if (window.confirm(`Delete service offering "${title}"?`)) {
-      adminStore.deleteService(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Service Offering?',
+      message: `Are you sure you want to remove package "${title}" from your commercial offerings?`,
+      confirmText: 'DELETE SERVICE',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteService(id);
+        showAdminToast({
+          type: 'error',
+          title: 'SERVICE REMOVED',
+          message: `"${title}" has been deleted.`,
+          tag: 'PURGE COMPLETE',
+        });
+      },
+    });
   };
 
   return (

@@ -17,6 +17,7 @@ import SocialLinksModule from './modules/SocialLinksModule';
 import AvailabilityModule from './modules/AvailabilityModule';
 import SettingsModule from './modules/SettingsModule';
 import TeamModule from './modules/TeamModule';
+import AdminPopupContainer, { showAdminToast } from './common/AdminPopupMessage';
 
 // Icons
 import {
@@ -120,7 +121,12 @@ export default function AdminLayout({ onLogout }) {
 
   const handleSelectModule = (id, params = {}) => {
     if (!adminStore.isModuleAllowed(id)) {
-      alert('Access Restricted: You do not possess the required capability permission for this module.');
+      showAdminToast({
+        type: 'error',
+        title: 'ACCESS RESTRICTED // 403',
+        message: 'Your current profile does not possess the required capability permission for this module.',
+        tag: 'SECURITY POLICY',
+      });
       return;
     }
     setActiveModule(id);
@@ -481,6 +487,9 @@ export default function AdminLayout({ onLogout }) {
           )}
         </main>
       </div>
+
+      {/* Global Cyber Popup Toast & Confirmation Modal System */}
+      <AdminPopupContainer />
     </div>
   );
 }

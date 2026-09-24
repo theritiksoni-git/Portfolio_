@@ -14,12 +14,12 @@ import {
   Mail
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function SettingsModule() {
   const [settings, setSettings] = useState(adminStore.getModule('settings'));
   const [passcode, setPasscode] = useState(settings.adminPasscode || '2026');
   const [showSettingsPin, setShowSettingsPin] = useState(false);
-  const [notice, setNotice] = useState(null);
   const [testingEmail, setTestingEmail] = useState(false);
   const [emailTestResult, setEmailTestResult] = useState(null);
 
@@ -84,8 +84,12 @@ export default function SettingsModule() {
       updates.adminPasscode = passcode.trim();
     }
     adminStore.updateSettings(updates);
-    setNotice({ type: 'success', text: 'System settings & encrypted credentials saved!' });
-    setTimeout(() => setNotice(null), 2500);
+    showAdminToast({
+      type: 'success',
+      title: 'SETTINGS UPDATED',
+      message: 'Studio parameters & encrypted credentials saved successfully!',
+      tag: 'SYSTEM CONFIG',
+    });
   };
 
   const handleExport = () => {
@@ -98,8 +102,12 @@ export default function SettingsModule() {
     link.download = `Ritik_Control_Room_Snapshot_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    setNotice({ type: 'success', text: 'Complete JSON snapshot exported!' });
-    setTimeout(() => setNotice(null), 2500);
+    showAdminToast({
+      type: 'info',
+      title: 'SNAPSHOT EXPORTED',
+      message: 'Complete JSON archive downloaded to your device.',
+      tag: 'BACKUP CREATED',
+    });
   };
 
   const handleImport = (e) => {
@@ -110,22 +118,42 @@ export default function SettingsModule() {
       sound.playClick();
       const res = adminStore.importSnapshot(event.target.result);
       if (res.success) {
-        setNotice({ type: 'success', text: 'Snapshot restored successfully!' });
+        showAdminToast({
+          type: 'success',
+          title: 'SNAPSHOT RESTORED',
+          message: 'All 13 studio modules restored from JSON backup.',
+          tag: 'DATA RESTORED',
+        });
       } else {
-        setNotice({ type: 'error', text: `Import failed: ${res.error}` });
+        showAdminToast({
+          type: 'error',
+          title: 'IMPORT ERROR',
+          message: `Import failed: ${res.error}`,
+          tag: 'VERIFICATION FAILED',
+        });
       }
-      setTimeout(() => setNotice(null), 3000);
     };
     reader.readAsText(file);
   };
 
   const handleReset = () => {
     sound.playClick();
-    if (window.confirm('WARNING: Reset all portfolio and control room data back to original seed defaults?')) {
-      adminStore.resetToDefaults();
-      setNotice({ type: 'success', text: 'Control room reset to factory seed!' });
-      setTimeout(() => setNotice(null), 2500);
-    }
+    showAdminConfirm({
+      title: 'Reset Entire Control Room?',
+      message: 'CRITICAL WARNING: This will reset all 13 modules, project repertoire, credentials, and settings back to factory seed defaults. Are you sure you wish to continue?',
+      confirmText: 'RESET ALL DATA',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.resetToDefaults();
+        showAdminToast({
+          type: 'warning',
+          title: 'FACTORY SEED RESTORED',
+          message: 'Control room data has been reset to initial production defaults.',
+          tag: 'SYSTEM RESET',
+        });
+      },
+    });
   };
 
   return (

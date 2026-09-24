@@ -7,6 +7,7 @@ import {
   Trash2
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function ExperienceModule() {
   const [experience, setExperience] = useState(adminStore.getModule('experience'));
@@ -108,14 +109,33 @@ export default function ExperienceModule() {
       adminStore.addExperience(normalizedExp);
     }
     setIsModalOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'TIMELINE UPDATED',
+      message: `Experience record "${normalizedExp.role} @ ${normalizedExp.company}" saved.`,
+      tag: 'RESUME CAREER',
+    });
     setEditingExp(null);
   };
 
   const handleDelete = (id, role) => {
     sound.playClick();
-    if (window.confirm(`Delete experience milestone "${role}"?`)) {
-      adminStore.deleteExperience(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Experience Milestone?',
+      message: `Are you sure you want to delete career milestone "${role}"?`,
+      confirmText: 'DELETE RECORD',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteExperience(id);
+        showAdminToast({
+          type: 'error',
+          title: 'MILESTONE PURGED',
+          message: `"${role}" removed from production history.`,
+          tag: 'PURGE COMPLETE',
+        });
+      },
+    });
   };
 
   return (

@@ -16,6 +16,7 @@ import {
   Globe
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive }) {
   const [projects, setProjects] = useState(adminStore.getModule('projects'));
@@ -25,7 +26,6 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
   const [activeVisibility, setActiveVisibility] = useState('all'); // 'all' | 'public' | 'private'
   const [editingProject, setEditingProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(initialOpenNew);
-  const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -86,13 +86,25 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
     sound.playClick();
     const updated = adminStore.toggleProjectVisibility(project.id);
     const isNowPrivate = updated?.isPrivate;
-    setToastMessage({
+
+    showAdminToast({
       type: isNowPrivate ? 'private' : 'public',
-      text: isNowPrivate
-        ? `🔒 "${project.title}" marked PRIVATE (hidden from public portfolio).`
-        : `🌐 "${project.title}" marked PUBLIC (now live on portfolio).`,
+      title: isNowPrivate ? 'VISIBILITY SET TO PRIVATE' : 'PROJECT PUBLISHED LIVE',
+      message: isNowPrivate
+        ? `"${project.title}" is now hidden from the public portfolio and search engines.`
+        : `"${project.title}" is now live on your portfolio and visible to clients.`,
+      tag: isNowPrivate ? 'PRIVATE // HIDDEN' : 'PUBLIC // LIVE',
+      actionLabel: 'Undo',
+      onAction: () => {
+        adminStore.toggleProjectVisibility(project.id);
+        showAdminToast({
+          type: isNowPrivate ? 'public' : 'private',
+          title: 'ACTION REVERTED',
+          message: `Reverted visibility status for "${project.title}".`,
+          tag: 'STATUS REVERSED',
+        });
+      },
     });
-    setTimeout(() => setToastMessage(null), 3800);
   };
 
   const handleSave = (e) => {
@@ -115,18 +127,33 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
     }
     setIsModalOpen(false);
     setEditingProject(null);
-    setToastMessage({
-      type: isPrivate ? 'private' : 'public',
-      text: `✓ Project "${payload.title}" saved successfully (${isPrivate ? 'PRIVATE' : 'PUBLIC'}).`,
+
+    showAdminToast({
+      type: isPrivate ? 'private' : 'success',
+      title: payload.id ? 'PROJECT RECORD SAVED' : 'NEW PROJECT ARCHIVED',
+      message: `"${payload.title}" has been saved successfully (${isPrivate ? 'PRIVATE' : 'PUBLIC'}).`,
+      tag: isPrivate ? 'VISIBILITY: PRIVATE' : 'VISIBILITY: PUBLIC',
     });
-    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const handleDelete = (id, title) => {
     sound.playClick();
-    if (window.confirm(`Are you sure you want to delete project: "${title}"?`)) {
-      adminStore.deleteProject(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Project Archive?',
+      message: `Are you sure you want to permanently delete "${title}"? This video project will be purged from your archives.`,
+      confirmText: 'DELETE PROJECT',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteProject(id);
+        showAdminToast({
+          type: 'error',
+          title: 'PROJECT ARCHIVE PURGED',
+          message: `"${title}" has been permanently removed from your repertoire.`,
+          tag: 'ARCHIVE PURGED',
+        });
+      },
+    });
   };
 
   const handleDuplicate = (project) => {
@@ -143,6 +170,12 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
       status: isPrivate ? 'Private' : (project.status || 'Published'),
     };
     adminStore.addProject(copy);
+    showAdminToast({
+      type: 'info',
+      title: 'PROJECT DUPLICATED',
+      message: `Created archive clone "${copy.title}".`,
+      tag: 'CLONE CREATED',
+    });
   };
 
   const filtered = projects.filter((p) => {
@@ -217,29 +250,6 @@ export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive
         </div>
       </div>
 
-      {/* Floating Status Notification Toast */}
-      {toastMessage && (
-        <div className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-mono animate-fadeIn shadow-xl transition-all ${
-          toastMessage.type === 'private'
-            ? 'bg-amber-950/80 border-amber-500/40 text-amber-200 shadow-[0_0_20px_rgba(245,158,11,0.2)]'
-            : 'bg-emerald-950/80 border-emerald-500/40 text-emerald-200 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-        }`}>
-          <div className="flex items-center gap-2.5">
-            {toastMessage.type === 'private' ? (
-              <EyeOff className="w-4 h-4 text-amber-400 shrink-0" />
-            ) : (
-              <Eye className="w-4 h-4 text-emerald-400 shrink-0" />
-            )}
-            <span className="font-semibold">{toastMessage.text}</span>
-          </div>
-          <button
-            onClick={() => setToastMessage(null)}
-            className="p-1 text-zinc-400 hover:text-white transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
 
       {/* Pending Google Drive Staging Gate Banner */}
       {stagedCount > 0 && (

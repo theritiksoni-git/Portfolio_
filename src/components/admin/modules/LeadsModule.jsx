@@ -8,6 +8,7 @@ import {
   Trash2
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function LeadsModule({ initialLeadId = null }) {
   const [leads, setLeads] = useState(adminStore.getModule('leads'));
@@ -32,14 +33,34 @@ export default function LeadsModule({ initialLeadId = null }) {
     if (selectedLead && selectedLead.id === id) {
       setSelectedLead((prev) => ({ ...prev, status: newStatus }));
     }
+    showAdminToast({
+      type: 'info',
+      title: 'LEAD STATUS UPDATED',
+      message: `Transmission flagged as "${newStatus}".`,
+      tag: 'CRM TELEMETRY',
+      duration: 2500,
+    });
   };
 
   const handleDelete = (id, name) => {
     sound.playClick();
-    if (window.confirm(`Delete lead from "${name}"?`)) {
-      adminStore.deleteLead(id);
-      if (selectedLead?.id === id) setSelectedLead(null);
-    }
+    showAdminConfirm({
+      title: 'Delete Inbound Lead?',
+      message: `Are you sure you want to permanently delete lead communication from "${name}"?`,
+      confirmText: 'DELETE LEAD',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteLead(id);
+        if (selectedLead?.id === id) setSelectedLead(null);
+        showAdminToast({
+          type: 'error',
+          title: 'LEAD PURGED',
+          message: `Inquiry from "${name}" has been removed from inbox.`,
+          tag: 'CRM PURGED',
+        });
+      },
+    });
   };
 
   const handleNotesChange = (id, notes) => {
@@ -69,8 +90,13 @@ export default function LeadsModule({ initialLeadId = null }) {
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', `Ritik_Soni_Leads_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
-    link.click();
     document.body.removeChild(link);
+    showAdminToast({
+      type: 'success',
+      title: 'LEADS EXPORTED',
+      message: 'Downloaded CRM leads report as CSV file.',
+      tag: 'CSV EXPORT',
+    });
   };
 
   const filtered = leads.filter((l) => {

@@ -8,6 +8,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function SocialLinksModule() {
   const [links, setLinks] = useState(adminStore.getModule('socialLinks'));
@@ -58,15 +59,34 @@ export default function SocialLinksModule() {
     }
     adminStore.updateSocialLinks(updated);
     setIsModalOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'CHANNEL CONFIG SAVED',
+      message: `Social link "${editingLink.platform}" updated successfully.`,
+      tag: 'SOCIAL NETWORKS',
+    });
     setEditingLink(null);
   };
 
   const handleDelete = (id, platform) => {
     sound.playClick();
-    if (window.confirm(`Delete social channel "${platform}"?`)) {
-      const updated = links.filter((l) => l.id !== id);
-      adminStore.updateSocialLinks(updated);
-    }
+    showAdminConfirm({
+      title: 'Delete Social Channel?',
+      message: `Are you sure you want to remove channel "${platform}" from your public profiles?`,
+      confirmText: 'DELETE CHANNEL',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        const updated = links.filter((l) => l.id !== id);
+        adminStore.updateSocialLinks(updated);
+        showAdminToast({
+          type: 'error',
+          title: 'CHANNEL PURGED',
+          message: `"${platform}" removed from portfolio links.`,
+          tag: 'PURGE COMPLETE',
+        });
+      },
+    });
   };
 
   return (

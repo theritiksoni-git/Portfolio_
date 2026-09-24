@@ -8,6 +8,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function ClientsModule() {
   const [clients, setClients] = useState(adminStore.getModule('clients'));
@@ -50,14 +51,33 @@ export default function ClientsModule() {
       adminStore.addClient(editingClient);
     }
     setIsModalOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'CLIENT ROSTER UPDATED',
+      message: `Brand partner "${editingClient.name}" saved successfully.`,
+      tag: 'CLIENT DIRECTORY',
+    });
     setEditingClient(null);
   };
 
   const handleDelete = (id, name) => {
     sound.playClick();
-    if (window.confirm(`Delete client "${name}" from directory?`)) {
-      adminStore.deleteClient(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Client Partner?',
+      message: `Are you sure you want to remove client "${name}" from your portfolio directory?`,
+      confirmText: 'DELETE CLIENT',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteClient(id);
+        showAdminToast({
+          type: 'error',
+          title: 'CLIENT REMOVED',
+          message: `"${name}" removed from client roster.`,
+          tag: 'DIRECTORY PURGED',
+        });
+      },
+    });
   };
 
   return (

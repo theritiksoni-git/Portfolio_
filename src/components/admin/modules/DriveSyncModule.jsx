@@ -26,6 +26,7 @@ import {
   Check
 } from 'lucide-react';
 import { parseVideoSource } from '../../../utils/videoUtils';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function DriveSyncModule() {
   const [stagedProjects, setStagedProjects] = useState(adminStore.getStagedProjects());
@@ -199,11 +200,12 @@ export default function DriveSyncModule() {
     setSelectedStaged(null);
     setPublishForm(null);
 
-    setScanNotice({
-      type: 'success',
-      text: `🎉 Project "${publishForm.title}" is now PUBLISHED and LIVE on your portfolio!`,
+    showAdminToast({
+      type: 'public',
+      title: 'PROJECT PUBLISHED LIVE',
+      message: `🎉 "${publishForm.title}" is now PUBLISHED and LIVE on your portfolio!`,
+      tag: 'DRIVE INGESTION LIVE',
     });
-    setTimeout(() => setScanNotice(null), 4500);
   };
 
   // Final Action: Save as Hidden Draft in Admin
@@ -216,11 +218,12 @@ export default function DriveSyncModule() {
     setSelectedStaged(null);
     setPublishForm(null);
 
-    setScanNotice({
-      type: 'info',
-      text: `Project "${publishForm.title}" saved as a hidden Draft in your Admin Projects catalog.`,
+    showAdminToast({
+      type: 'private',
+      title: 'SAVED AS PRIVATE DRAFT',
+      message: `"${publishForm.title}" saved as a hidden Draft in your Admin Projects catalog.`,
+      tag: 'ADMIN DRAFT',
     });
-    setTimeout(() => setScanNotice(null), 4500);
   };
 
   // Quick 1-Click Instant Accept & Publish
@@ -231,25 +234,45 @@ export default function DriveSyncModule() {
       client: item.client || 'Client Production',
       category: item.category || 'corporate',
     });
-    setScanNotice({
-      type: 'success',
-      text: `Project "${item.title}" instantly published to your live portfolio!`,
+    showAdminToast({
+      type: 'public',
+      title: '1-CLICK PUBLISH COMPLETE',
+      message: `"${item.title}" instantly published to your live portfolio!`,
+      tag: 'FAST PUBLISH',
     });
-    setTimeout(() => setScanNotice(null), 4000);
   };
 
   // Dismiss / Reject Staged item
   const handleDismiss = (id, title) => {
     sound.playClick();
     adminStore.dismissStagedProject(id);
+    showAdminToast({
+      type: 'info',
+      title: 'STAGED ASSET DISMISSED',
+      message: `Dismissed "${title || 'item'}" from review queue.`,
+      tag: 'QUEUE UPDATED',
+    });
   };
 
   // Clear all staged items
   const handleClearAllStaged = () => {
     sound.playClick();
-    if (window.confirm('Clear all pending Google Drive items from the review queue? (This will not delete files from your Google Drive)')) {
-      adminStore.clearStagedProjects();
-    }
+    showAdminConfirm({
+      title: 'Clear Drive Staging Queue?',
+      message: 'Are you sure you want to clear all pending Google Drive items from the review queue? (This will not delete any files from your actual Google Drive).',
+      confirmText: 'CLEAR QUEUE',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.clearStagedProjects();
+        showAdminToast({
+          type: 'error',
+          title: 'STAGING QUEUE CLEARED',
+          message: 'All staged Google Drive items have been cleared.',
+          tag: 'PURGE COMPLETE',
+        });
+      },
+    });
   };
 
   // Copy sample Google Apps Script code

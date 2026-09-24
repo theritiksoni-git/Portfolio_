@@ -13,6 +13,7 @@ import {
   HardDrive
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
+import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
 
 export default function MediaModule() {
   const [media, setMedia] = useState(adminStore.getModule('media'));
@@ -41,24 +42,51 @@ export default function MediaModule() {
     sound.playClick();
     navigator.clipboard.writeText(url);
     setCopiedId(id);
+    showAdminToast({
+      type: 'info',
+      title: 'MEDIA URL COPIED',
+      message: `Copied "${url}" to clipboard.`,
+      tag: 'CLIPBOARD SYNC',
+      duration: 2500,
+    });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDelete = (id, title) => {
     sound.playClick();
-    if (window.confirm(`Delete media asset "${title}"?`)) {
-      adminStore.deleteMedia(id);
-    }
+    showAdminConfirm({
+      title: 'Delete Media Asset?',
+      message: `Are you sure you want to delete media asset "${title}"? This item will be removed from your master asset library.`,
+      confirmText: 'DELETE ASSET',
+      cancelText: 'CANCEL (ESC)',
+      type: 'danger',
+      onConfirm: () => {
+        adminStore.deleteMedia(id);
+        showAdminToast({
+          type: 'error',
+          title: 'ASSET REMOVED',
+          message: `"${title}" has been deleted from the media library.`,
+          tag: 'MEDIA PURGED',
+        });
+      },
+    });
   };
 
   const handleAdd = (e) => {
     e.preventDefault();
     sound.playClick();
-    adminStore.addMedia({
+    const created = {
       ...newAsset,
       tags: newAsset.tags.split(',').map((t) => t.trim()),
-    });
+    };
+    adminStore.addMedia(created);
     setIsAddOpen(false);
+    showAdminToast({
+      type: 'success',
+      title: 'ASSET INGESTED',
+      message: `"${created.title}" added to the studio media repository.`,
+      tag: 'MEDIA INGEST',
+    });
     setNewAsset({
       title: '',
       type: 'video',
