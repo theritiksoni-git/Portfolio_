@@ -8,19 +8,24 @@ import {
   Trash2, 
   Copy, 
   Check, 
-  X
+  X,
+  HardDrive
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 
-export default function ProjectsModule({ initialOpenNew = false }) {
+export default function ProjectsModule({ initialOpenNew = false, onNavigateDrive }) {
   const [projects, setProjects] = useState(adminStore.getModule('projects'));
+  const [stagedCount, setStagedCount] = useState(adminStore.getStagedProjects().length);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [editingProject, setEditingProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(initialOpenNew);
 
   useEffect(() => {
-    const handleUpdate = () => setProjects(adminStore.getModule('projects'));
+    const handleUpdate = () => {
+      setProjects(adminStore.getModule('projects'));
+      setStagedCount(adminStore.getStagedProjects().length);
+    };
     window.addEventListener('control-room-updated', handleUpdate);
     return () => window.removeEventListener('control-room-updated', handleUpdate);
   }, []);
@@ -108,14 +113,65 @@ export default function ProjectsModule({ initialOpenNew = false }) {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider uppercase flex items-center gap-2 transition-all hover:scale-102 shadow-[0_0_15px_rgba(56,189,248,0.3)] shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Project</span>
-        </button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {onNavigateDrive && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onNavigateDrive();
+              }}
+              className="px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-mono font-bold text-xs tracking-wider uppercase flex items-center gap-2 transition-all shadow-[0_0_12px_rgba(6,182,212,0.15)] group"
+              title="Open Google Drive Sync & Review Staged Projects"
+            >
+              <HardDrive className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition-transform" />
+              <span>Google Drive Sync</span>
+              {stagedCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-cyan-400 text-black text-[9px] font-bold animate-pulse">
+                  {stagedCount} PENDING
+                </span>
+              )}
+            </button>
+          )}
+
+          <button
+            onClick={handleOpenAdd}
+            className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider uppercase flex items-center gap-2 transition-all hover:scale-102 shadow-[0_0_15px_rgba(56,189,248,0.3)] shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Project</span>
+          </button>
+        </div>
       </div>
+
+      {/* Pending Google Drive Staging Gate Banner */}
+      {stagedCount > 0 && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-zinc-900/80 to-zinc-950 border border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono shadow-lg">
+          <div className="flex items-start sm:items-center gap-3 text-cyan-200">
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center shrink-0">
+              <HardDrive className="w-4 h-4 text-cyan-400 animate-pulse" />
+            </div>
+            <div>
+              <div className="font-bold text-white tracking-wide">
+                GOOGLE DRIVE SYNC GATE: {stagedCount} NEW ASSET{stagedCount > 1 ? 'S' : ''} PENDING REVIEW
+              </div>
+              <div className="text-[11px] text-zinc-400 mt-0.5">
+                These video projects are securely staged inside your Admin dashboard and will <strong>never</strong> appear on your public website until you allow or publish them.
+              </div>
+            </div>
+          </div>
+          {onNavigateDrive && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onNavigateDrive();
+              }}
+              className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold uppercase tracking-wider text-[11px] self-start sm:self-auto transition-all shrink-0 shadow-[0_0_12px_rgba(56,189,248,0.3)]"
+            >
+              Open Drive Queue &rarr;
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">

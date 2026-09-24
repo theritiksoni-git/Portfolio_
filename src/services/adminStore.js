@@ -53,6 +53,7 @@ export const CAPABILITIES = [
 export const MODULE_CAPABILITY_MAP = {
   overview: null,
   projects: 'PROJECTS',
+  driveSync: 'PROJECTS',
   media: 'MEDIA',
   leads: 'LEADS',
   analytics: 'ANALYTICS',
@@ -208,6 +209,7 @@ const DEFAULT_SEED_DATA = {
     },
   ],
   leads: [], // Clean, genuine inbound inquiries only (from public Contact form)
+  stagedProjects: [], // Google Drive Inbound Staging Queue (Private review before publishing)
   experience: EXPERIENCES,
   skills: CORE_SOFTWARE,
   services: [
@@ -377,6 +379,12 @@ const DEFAULT_SEED_DATA = {
     syncToLocalBackend: false,
     backendApiUrl: 'http://localhost:3001',
     lastBackupDate: new Date().toISOString().split('T')[0],
+    googleDriveFolderUrl: '',
+    googleDriveFolderId: '',
+    googleDriveApiKey: '',
+    googleDriveScriptUrl: '',
+    googleDriveAutoSync: true,
+    lastDriveSync: null,
   },
   team: [
     {
@@ -486,6 +494,11 @@ class AdminStore {
           this.cache.settings = DEFAULT_SEED_DATA.settings;
         }
 
+        // 6. Ensure Google Drive staged queue is active
+        if (!this.cache.stagedProjects || !Array.isArray(this.cache.stagedProjects)) {
+          this.cache.stagedProjects = [];
+        }
+
         this.saveToStorage();
       } else {
         this.cache = DEFAULT_SEED_DATA;
@@ -589,6 +602,112 @@ class AdminStore {
 
   deleteProject(id) {
     this.cache.projects = this.cache.projects.filter((p) => p.id !== id);
+    this.saveToStorage();
+  }
+
+  // --- Google Drive Staged Projects & Cloud Sync Engine ---
+  getStagedProjects() {
+    if (!this.cache) this.init();
+    return this.cache.stagedProjects || [];
+  }
+
+  addStagedProject(item) {
+    if (!this.cache) this.init();
+    if (!this.cache.stagedProjects) this.cache.stagedProjects = [];
+
+    // Avoid duplicate staging of the same Drive file ID
+    const exists = this.cache.stagedProjects.some(
+      (p) => (item.driveId && p.driveId === item.driveId) || p.id === item.id
+    );
+    // Avoid staging if already published in projects
+    const alreadyPublished = (this.cache.projects || []).some(
+      (p) => (item.driveId && p.videoEmbedUrl?.includes(item.driveId)) || p.id === item.id
+    );
+
+    if (exists || alreadyPublished) return null;
+
+    const staged = {
+      ...item,
+      id: item.id || `staged-${Date.now()}`,
+      status: 'Staged', // PRIVATE STAGING QUEUE (NEVER PUBLIC)
+      dateDiscovered: item.dateDiscovered || new Date().toISOString(),
+    };
+
+    this.cache.stagedProjects = [staged, ...this.cache.stagedProjects];
+    this.saveToStorage();
+    return staged;
+  }
+
+  addMultipleStagedProjects(items) {
+    if (!Array.isArray(items)) return [];
+    const added = [];
+    items.forEach((item) => {
+      const res = this.addStagedProject(item);
+      if (res) added.push(res);
+    });
+    return added;
+  }
+
+  acceptAndPublishProject(stagedId, customizedData = {}) {
+    if (!this.cache) this.init();
+    const staged = (this.cache.stagedProjects || []).find((p) => p.id === stagedId);
+    if (!staged) return null;
+
+    const publishedProject = {
+      ...staged,
+      ...customizedData,
+      id: customizedData.id || `proj-${Date.now()}`,
+      status: 'Published', // OFFICIALLY PUBLISHED TO LIVE PORTFOLIO
+      datePublished: new Date().toISOString(),
+    };
+
+    // Remove from staging queue
+    this.cache.stagedProjects = (this.cache.stagedProjects || []).filter((p) => p.id !== stagedId);
+    // Add to live projects catalog
+    this.cache.projects = [publishedProject, ...(this.cache.projects || [])];
+
+    this.saveToStorage();
+    return publishedProject;
+  }
+
+  saveAsDraftProject(stagedId, customizedData = {}) {
+    if (!this.cache) this.init();
+    const staged = (this.cache.stagedProjects || []).find((p) => p.id === stagedId);
+    if (!staged) return null;
+
+    const draftProject = {
+      ...staged,
+      ...customizedData,
+      id: customizedData.id || `proj-${Date.now()}`,
+      status: 'Draft', // HIDDEN DRAFT IN ADMIN
+      dateDrafted: new Date().toISOString(),
+    };
+
+    this.cache.stagedProjects = (this.cache.stagedProjects || []).filter((p) => p.id !== stagedId);
+    this.cache.projects = [draftProject, ...(this.cache.projects || [])];
+
+    this.saveToStorage();
+    return draftProject;
+  }
+
+  dismissStagedProject(stagedId) {
+    if (!this.cache) this.init();
+    this.cache.stagedProjects = (this.cache.stagedProjects || []).filter((p) => p.id !== stagedId);
+    this.saveToStorage();
+  }
+
+  clearStagedProjects() {
+    if (!this.cache) this.init();
+    this.cache.stagedProjects = [];
+    this.saveToStorage();
+  }
+
+  updateDriveSettings(driveSettings) {
+    if (!this.cache) this.init();
+    this.cache.settings = {
+      ...(this.cache.settings || {}),
+      ...driveSettings,
+    };
     this.saveToStorage();
   }
 

@@ -8,7 +8,8 @@ import {
   Calendar, 
   ArrowUpRight, 
   Plus, 
-  Activity
+  Activity,
+  HardDrive
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 
@@ -22,6 +23,7 @@ export default function OverviewModule({ onSelectModule }) {
   }, []);
 
   const { overview, projects, leads, clients, availability } = data;
+  const stagedProjects = data.stagedProjects || [];
   const newLeadsCount = leads.filter((l) => l.status === 'NEW').length;
 
   return (
@@ -47,6 +49,21 @@ export default function OverviewModule({ onSelectModule }) {
           <button
             onClick={() => {
               sound.playClick();
+              onSelectModule('driveSync');
+            }}
+            className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-cyan-500/40 text-cyan-300 font-mono text-xs tracking-wider uppercase flex items-center gap-2 transition-all hover:border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] group"
+          >
+            <HardDrive className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition-transform" />
+            <span>Drive Sync</span>
+            {stagedProjects.length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-cyan-400 text-black text-[9px] font-bold animate-pulse">
+                {stagedProjects.length} PENDING
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => {
+              sound.playClick();
               onSelectModule('projects', { openNew: true });
             }}
             className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider uppercase flex items-center gap-2 transition-all hover:scale-102 shadow-[0_0_15px_rgba(56,189,248,0.3)]"
@@ -66,6 +83,37 @@ export default function OverviewModule({ onSelectModule }) {
           </button>
         </div>
       </div>
+
+      {/* Pending Google Drive Staging Banner */}
+      {stagedProjects.length > 0 && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/50 via-zinc-900/80 to-zinc-950 border border-cyan-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono shadow-xl">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center shrink-0">
+              <HardDrive className="w-5 h-5 text-cyan-400 animate-pulse" />
+            </div>
+            <div>
+              <div className="font-syne text-sm font-bold text-white flex items-center gap-2">
+                <span>Google Drive Staging Queue ({stagedProjects.length} Pending Review)</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono uppercase tracking-wider font-bold">
+                  PRIVATE / NOT PUBLISHED
+                </span>
+              </div>
+              <p className="text-zinc-400 text-xs mt-0.5">
+                New project assets synced from your Google Drive folder are waiting for your approval. They will only appear on your live site once accepted.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              sound.playClick();
+              onSelectModule('driveSync');
+            }}
+            className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold uppercase tracking-wider text-xs transition-all shrink-0 self-start sm:self-auto shadow-[0_0_15px_rgba(56,189,248,0.3)]"
+          >
+            Review & Publish Queue &rarr;
+          </button>
+        </div>
+      )}
 
       {/* KPI Telemetry Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

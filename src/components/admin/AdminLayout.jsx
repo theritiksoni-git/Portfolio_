@@ -5,6 +5,7 @@ import adminStore from '../../services/adminStore';
 // Module Components
 import OverviewModule from './modules/OverviewModule';
 import ProjectsModule from './modules/ProjectsModule';
+import DriveSyncModule from './modules/DriveSyncModule';
 import MediaModule from './modules/MediaModule';
 import LeadsModule from './modules/LeadsModule';
 import ExperienceModule from './modules/ExperienceModule';
@@ -21,6 +22,7 @@ import TeamModule from './modules/TeamModule';
 import {
   LayoutDashboard,
   Film,
+  HardDrive,
   Image,
   MessageSquare,
   Briefcase,
@@ -49,6 +51,7 @@ import {
 const MODULES_CONFIG = [
   { id: 'overview', label: 'OVERVIEW', icon: LayoutDashboard, category: 'Core' },
   { id: 'projects', label: 'PROJECTS', icon: Film, category: 'Portfolio' },
+  { id: 'driveSync', label: 'DRIVE SYNC', icon: HardDrive, category: 'Portfolio', hasBadge: true },
   { id: 'media', label: 'MEDIA', icon: Image, category: 'Portfolio' },
   { id: 'leads', label: 'LEADS', icon: MessageSquare, category: 'Business', hasBadge: true },
   { id: 'experience', label: 'EXPERIENCE', icon: Briefcase, category: 'Profile' },
@@ -382,6 +385,12 @@ export default function AdminLayout({ onLogout }) {
                       </span>
                     )}
 
+                    {item.id === 'driveSync' && (storeData.stagedProjects?.length || 0) > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-full bg-cyan-400 text-black text-[9px] font-bold animate-pulse">
+                        {storeData.stagedProjects.length} PENDING
+                      </span>
+                    )}
+
                     {item.id === 'projects' && (
                       <span className="text-[10px] text-zinc-600 group-hover:text-zinc-400">
                         {storeData.projects?.length || 0}
@@ -447,7 +456,13 @@ export default function AdminLayout({ onLogout }) {
                 <OverviewModule onSelectModule={handleSelectModule} />
               )}
               {activeModule === 'projects' && (
-                <ProjectsModule initialOpenNew={moduleParams.openNew} />
+                <ProjectsModule
+                  initialOpenNew={moduleParams.openNew}
+                  onNavigateDrive={() => handleSelectModule('driveSync')}
+                />
+              )}
+              {activeModule === 'driveSync' && (
+                <DriveSyncModule onNavigate={handleSelectModule} />
               )}
               {activeModule === 'media' && <MediaModule />}
               {activeModule === 'leads' && (

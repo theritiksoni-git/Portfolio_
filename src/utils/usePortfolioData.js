@@ -19,9 +19,18 @@ export default function usePortfolioData() {
     };
   }, []);
 
+  const allProjects = data?.projects || [];
+  // Security & Publishing gate: Public visitors strictly see Published or Featured projects.
+  // Any Google Drive items in staging or admin drafts remain completely hidden.
+  const publishedProjects = allProjects.filter(
+    (p) => p.status === 'Published' || p.status === 'Featured' || !p.status
+  );
+
   return {
     data,
-    projects: data?.projects || [],
+    projects: publishedProjects, // Public components receive ONLY published projects!
+    allProjects,                // Unfiltered projects catalog for admin/inspectors
+    stagedProjects: data?.stagedProjects || [], // Inbound Google Drive staging queue
     experience: data?.experience || [],
     skills: data?.skills || [],
     services: data?.services || [],
