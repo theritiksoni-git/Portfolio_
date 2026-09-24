@@ -21,10 +21,13 @@ export default function usePortfolioData() {
 
   const allProjects = data?.projects || [];
   // Security & Publishing gate: Public visitors strictly see Published or Featured projects.
-  // Any Google Drive items in staging or admin drafts remain completely hidden.
-  const publishedProjects = allProjects.filter(
-    (p) => p.status === 'Published' || p.status === 'Featured' || !p.status
-  );
+  // Any project marked private, staged from Google Drive, or in draft mode remains completely hidden.
+  const publishedProjects = allProjects.filter((p) => {
+    if (p.isPrivate === true) return false;
+    if (p.visibility === 'private') return false;
+    if (p.status === 'Private' || p.status === 'Draft' || p.status === 'Staged') return false;
+    return p.status === 'Published' || p.status === 'Featured' || !p.status;
+  });
 
   return {
     data,

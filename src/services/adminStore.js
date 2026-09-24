@@ -82,6 +82,8 @@ const DEFAULT_SEED_DATA = {
   projects: PROJECTS.map((p, idx) => ({
     ...p,
     status: idx < 8 ? 'Published' : 'Featured',
+    isPrivate: false,
+    visibility: 'public',
     views: 'Verified Repertoire',
     likes: 'Client Reel',
     priority: idx + 1,
@@ -483,14 +485,23 @@ class AdminStore {
           this.cache.media = DEFAULT_SEED_DATA.media;
         }
 
-        // 4b. Upgrade projects with real verified portfolio pictures
+        // 4b. Upgrade projects with real verified portfolio pictures & visibility state
         if (this.cache.projects && Array.isArray(this.cache.projects)) {
           this.cache.projects = this.cache.projects.map(p => {
             const seedMatch = DEFAULT_SEED_DATA.projects.find(dp => dp.id === p.id);
+            let updated = { ...p };
             if ((!p.previewPoster || p.previewPoster.includes('images.unsplash.com')) && seedMatch?.previewPoster) {
-              return { ...p, previewPoster: seedMatch.previewPoster };
+              updated.previewPoster = seedMatch.previewPoster;
             }
-            return p;
+            const isPriv = Boolean(
+              p.isPrivate === true ||
+              p.visibility === 'private' ||
+              p.status === 'Private' ||
+              p.status === 'Draft'
+            );
+            updated.isPrivate = isPriv;
+            updated.visibility = isPriv ? 'private' : 'public';
+            return updated;
           });
         }
 
@@ -593,10 +604,18 @@ class AdminStore {
 
   // --- Projects CRUD ---
   addProject(project) {
+    const isPrivate = Boolean(
+      project.isPrivate ?? (project.visibility === 'private' || project.status === 'Private' || project.status === 'Draft')
+    );
     const newProj = {
       ...project,
       id: project.id || `proj-${Date.now()}`,
       year: project.year || String(new Date().getFullYear()),
+      isPrivate,
+      visibility: isPrivate ? 'private' : 'public',
+      status: isPrivate
+        ? (project.status === 'Draft' ? 'Draft' : 'Private')
+        : (project.status === 'Private' ? 'Published' : (project.status || 'Published')),
     };
     this.cache.projects = [newProj, ...this.cache.projects];
     this.saveToStorage();
@@ -604,10 +623,79 @@ class AdminStore {
   }
 
   updateProject(id, updates) {
-    this.cache.projects = this.cache.projects.map((p) =>
-      p.id === id ? { ...p, ...updates } : p
-    );
+    this.cache.projects = this.cache.projects.map((p) => {
+      if (p.id === id) {
+        const merged = { ...p, ...updates };
+        if (updates.isPrivate !== undefined) {
+          merged.visibility = updates.isPrivate ? 'private' : 'public';
+          if (updates.isPrivate && merged.status !== 'Draft') {
+            merged.status = 'Private';
+          } else if (!updates.isPrivate && merged.status === 'Private') {
+            merged.status = 'Published';
+          }
+        } else if (updates.visibility !== undefined) {
+          merged.isPrivate = updates.visibility === 'private';
+          if (merged.isPrivate && merged.status !== 'Draft') {
+            merged.status = 'Private';
+          } else if (!merged.isPrivate && merged.status === 'Private') {
+            merged.status = 'Published';
+          }
+        } else if (updates.status !== undefined) {
+          merged.isPrivate = updates.status === 'Private' || updates.status === 'Draft';
+          merged.visibility = merged.isPrivate ? 'private' : 'public';
+        }
+        return merged;
+      }
+      return p;
+    });
     this.saveToStorage();
+  }
+
+  toggleProjectVisibility(id) {
+    if (!this.cache) this.init();
+    let updatedProject = null;
+    this.cache.projects = (this.cache.projects || []).map((p) => {
+      if (p.id === id) {
+        const currentlyPrivate = Boolean(
+          p.isPrivate === true || p.visibility === 'private' || p.status === 'Private' || p.status === 'Draft'
+        );
+        const newPrivate = !currentlyPrivate;
+        updatedProject = {
+          ...p,
+          isPrivate: newPrivate,
+          visibility: newPrivate ? 'private' : 'public',
+          status: newPrivate
+            ? 'Private'
+            : (p.status === 'Private' || p.status === 'Draft' ? 'Published' : (p.status || 'Published')),
+        };
+        return updatedProject;
+      }
+      return p;
+    });
+    this.saveToStorage();
+    return updatedProject;
+  }
+
+  setProjectVisibility(id, makePrivate) {
+    if (!this.cache) this.init();
+    let updatedProject = null;
+    const isPrivate = Boolean(makePrivate);
+    this.cache.projects = (this.cache.projects || []).map((p) => {
+      if (p.id === id) {
+        updatedProject = {
+          ...p,
+          isPrivate,
+          visibility: isPrivate ? 'private' : 'public',
+          status: isPrivate
+            ? 'Private'
+            : (p.status === 'Private' || p.status === 'Draft' ? 'Published' : (p.status || 'Published')),
+        };
+        return updatedProject;
+      }
+      return p;
+    });
+    this.saveToStorage();
+    return updatedProject;
   }
 
   deleteProject(id) {
@@ -668,6 +756,8 @@ class AdminStore {
       ...customizedData,
       id: customizedData.id || `proj-${Date.now()}`,
       status: 'Published', // OFFICIALLY PUBLISHED TO LIVE PORTFOLIO
+      isPrivate: false,
+      visibility: 'public',
       datePublished: new Date().toISOString(),
     };
 
@@ -690,6 +780,8 @@ class AdminStore {
       ...customizedData,
       id: customizedData.id || `proj-${Date.now()}`,
       status: 'Draft', // HIDDEN DRAFT IN ADMIN
+      isPrivate: true,
+      visibility: 'private',
       dateDrafted: new Date().toISOString(),
     };
 
