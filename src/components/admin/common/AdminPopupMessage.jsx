@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -33,7 +33,7 @@ export function showAdminToast({
   title,
   message,
   tag,
-  duration = 4200,
+  duration = 2800,
   actionLabel,
   onAction,
 }) {
@@ -160,11 +160,8 @@ const THEME_CONFIG = {
  */
 function ToastItem({ toast, onDismiss }) {
   const [progress, setProgress] = useState(100);
-  const [isPaused, setIsPaused] = useState(false);
-  const duration = toast.duration || 4200;
-  const startTimeRef = useRef(Date.now());
-  const remainingTimeRef = useRef(duration);
-  const animationFrameRef = useRef(null);
+  const [isExiting, setIsExiting] = useState(false);
+  const duration = toast.duration || 2800;
 
   const theme = THEME_CONFIG[toast.type] || THEME_CONFIG.info;
   const Icon = theme.Icon;
@@ -177,51 +174,49 @@ function ToastItem({ toast, onDismiss }) {
   });
 
   useEffect(() => {
-    if (isPaused) return;
+    // Initiate smooth hardware-accelerated progress countdown
+    const pTimer = setTimeout(() => {
+      setProgress(0);
+    }, 20);
 
-    startTimeRef.current = Date.now();
-
-    const updateTimer = () => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const timeLeft = Math.max(0, remainingTimeRef.current - elapsed);
-      const percent = (timeLeft / duration) * 100;
-      setProgress(percent);
-
-      if (timeLeft <= 0) {
+    // Automatically trigger exit transition and dismiss after duration
+    const dismissTimer = setTimeout(() => {
+      setIsExiting(true);
+      setTimeout(() => {
         onDismiss(toast.id);
-      } else {
-        animationFrameRef.current = requestAnimationFrame(updateTimer);
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(updateTimer);
+      }, 300);
+    }, duration);
 
     return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      clearTimeout(pTimer);
+      clearTimeout(dismissTimer);
     };
-  }, [isPaused, duration, onDismiss, toast.id]);
+  }, [duration, onDismiss, toast.id]);
 
-  const handleMouseEnter = () => {
-    setIsPaused(true);
-    const elapsed = Date.now() - startTimeRef.current;
-    remainingTimeRef.current = Math.max(0, remainingTimeRef.current - elapsed);
-  };
-
-  const handleMouseLeave = () => {
-    setIsPaused(false);
+  const handleManualDismiss = () => {
+    sound.playClick();
+    setIsExiting(true);
+    setTimeout(() => {
+      onDismiss(toast.id);
+    }, 250);
   };
 
   const handleActionClick = () => {
     sound.playClick();
     if (toast.onAction) toast.onAction();
-    onDismiss(toast.id);
+    setIsExiting(true);
+    setTimeout(() => {
+      onDismiss(toast.id);
+    }, 250);
   };
 
   return (
     <div
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`group relative w-full sm:w-[410px] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border ${theme.borderColor} ${theme.glowColor} overflow-hidden shadow-2xl transition-all duration-300 animate-slideDown flex flex-col`}
+      className={`group relative w-full sm:w-[410px] rounded-2xl bg-zinc-950/95 backdrop-blur-2xl border ${theme.borderColor} ${theme.glowColor} overflow-hidden shadow-2xl transition-all duration-300 flex flex-col ${
+        isExiting
+          ? 'opacity-0 -translate-y-4 scale-95 pointer-events-none'
+          : 'animate-slideDown opacity-100 translate-y-0 scale-100'
+      }`}
       style={{
         boxShadow: `0 10px 35px -5px rgba(0, 0, 0, 0.7), 0 0 20px -2px ${theme.accentColor}25`,
       }}
@@ -275,10 +270,7 @@ function ToastItem({ toast, onDismiss }) {
         {/* Dismiss Button */}
         <button
           type="button"
-          onClick={() => {
-            sound.playClick();
-            onDismiss(toast.id);
-          }}
+          onClick={handleManualDismiss}
           className="p-1 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-900 transition-colors shrink-0"
           title="Dismiss notification"
         >
@@ -287,10 +279,13 @@ function ToastItem({ toast, onDismiss }) {
       </div>
 
       {/* Dynamic Animated Auto-Dismiss Progress Bar */}
-      <div className="h-[2.5px] w-full bg-zinc-900/80 overflow-hidden">
+      <div className="h-[2px] w-full bg-zinc-900/80 overflow-hidden">
         <div
-          className={`h-full ${theme.progressBarBg} transition-all duration-75`}
-          style={{ width: `${progress}%` }}
+          className={`h-full ${theme.progressBarBg}`}
+          style={{
+            width: `${progress}%`,
+            transition: `width ${duration}ms linear`,
+          }}
         />
       </div>
     </div>
