@@ -13,7 +13,9 @@ import {
   Award, 
   Clock,
   Video,
-  ArrowRight
+  ArrowRight,
+  Send,
+  Radio
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import usePortfolioData from '../../utils/usePortfolioData';
@@ -145,6 +147,46 @@ const AboutSection = () => {
     },
   ];
 
+  // Architectural Framework (Numbered Lines)
+  const craftFramework = [
+    {
+      step: '01',
+      title: 'Visual Grammar',
+      subtitle: 'Cinematography & Emulation',
+      description: 'Cinematic lighting, intentional camera blocking, and authentic 35mm film halation that create indelible visual tone.',
+      icon: Eye,
+      accent: 'text-cyan-400',
+      borderAccent: 'group-hover:border-cyan-500/50',
+    },
+    {
+      step: '02',
+      title: 'Pacing & Retention',
+      subtitle: 'Algorithmic Drop-Off Elimination',
+      description: 'Frame-accurate cut rhythm and sound-designed micro-transitions engineered to keep viewers riveted until the final second.',
+      icon: Target,
+      accent: 'text-sky-400',
+      borderAccent: 'group-hover:border-sky-500/50',
+    },
+    {
+      step: '03',
+      title: 'Creator Psychology',
+      subtitle: 'The 3-Second Rule',
+      description: 'First 3-second cognitive hook disruption, thumbnail harmony, and curiosity loops that trigger viral algorithmic velocity.',
+      icon: TrendingUp,
+      accent: 'text-amber-400',
+      borderAccent: 'group-hover:border-amber-500/50',
+    },
+    {
+      step: '04',
+      title: 'Full-Funnel Reach',
+      subtitle: 'Narrative to Conversion',
+      description: 'Connecting authentic, cinematic storytelling directly to brand recall, audience trust, and measurable business growth.',
+      icon: Compass,
+      accent: 'text-emerald-400',
+      borderAccent: 'group-hover:border-emerald-500/50',
+    },
+  ];
+
   return (
     <section id="about" className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16 sm:space-y-20">
       
@@ -153,7 +195,7 @@ const AboutSection = () => {
       <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          TIER 1: SECTION HEADER
+          1. SECTION HEADER
           ───────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-8">
         <div>
@@ -186,11 +228,11 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          TIER 2: BALANCED IDENTITY & NARRATIVE (5 / 7 COLUMNS)
+          2. PRIMARY HERO SHOWCASE (SIDE-BY-SIDE: 5 COLS / 7 COLS)
           ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch relative z-10">
         
-        {/* Left: Retro CRT TV Portrait + Integrated 4-Item HUD Telemetry (5 cols) */}
+        {/* Left Column (5 cols): Retro CRT TV Frame + Live Status Telemetry */}
         <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
           
           {/* Retro CRT Television Frame */}
@@ -231,7 +273,7 @@ const AboutSection = () => {
               </div>
 
               {/* Bottom TV Telemetry Badge */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] text-zinc-300 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 z-10 shadow-md">
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] text-zinc-300 bg-black/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 z-10 shadow-md">
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
                   {authorName.toUpperCase()}
@@ -243,50 +285,29 @@ const AboutSection = () => {
             </div>
           </div>
 
-          {/* Integrated 4-Stat Telemetry Matrix under TV */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-              <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
-                <TrendingUp className="w-3 h-3 text-cyan-400" />
-                TOTAL VIEWS
+          {/* Under-TV Command Status Strip */}
+          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md space-y-2">
+            <div className="flex items-center justify-between font-mono text-[10px] tracking-wider text-zinc-400">
+              <span className="flex items-center gap-2 text-emerald-400 font-semibold">
+                <Radio className="w-3.5 h-3.5 animate-pulse" />
+                ONLINE // AVAILABLE GLOBALLY
               </span>
-              <div className="mt-1 font-syne font-extrabold text-2xl text-white">50M+</div>
-              <span className="text-[10px] font-mono text-zinc-500">Cumulative impressions</span>
+              <span className="text-zinc-500">PUNE & MUMBAI, IN</span>
             </div>
-
-            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-              <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
-                <Film className="w-3 h-3 text-amber-400" />
-                COMMERCIALS
+            <div className="text-xs font-mono text-zinc-300 flex items-center gap-2 pt-1 border-t border-white/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+              <span className="truncate">
+                Directing post-production at <strong className="text-white">{currentCompany}</strong>
               </span>
-              <div className="mt-1 font-syne font-extrabold text-2xl text-white">100+</div>
-              <span className="text-[10px] font-mono text-zinc-500">Delivered master cuts</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-              <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
-                <Clock className="w-3 h-3 text-blue-400" />
-                EXPERIENCE
-              </span>
-              <div className="mt-1 font-syne font-extrabold text-2xl text-white">5+ Yrs</div>
-              <span className="text-[10px] font-mono text-zinc-500">Post-production craft</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-              <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
-                <Video className="w-3 h-3 text-emerald-400" />
-                FORMATS
-              </span>
-              <div className="mt-1 font-syne font-extrabold text-2xl text-white">9:16 & 16:9</div>
-              <span className="text-[10px] font-mono text-zinc-500">Dual-format mastery</span>
             </div>
           </div>
+
         </div>
 
-        {/* Right: Narrative Storytelling & Interactive Perspectives (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
+        {/* Right Column (7 cols): Interactive Reading Mode & Narrative Card */}
+        <div className="lg:col-span-7 flex flex-col justify-between space-y-5">
           
-          {/* Interactive Reading Mode Switcher */}
+          {/* Reading Mode Switcher */}
           <div className="p-1.5 rounded-2xl bg-zinc-950/90 border border-white/10 shadow-sm">
             <div className="flex items-center gap-1 w-full">
               <button
@@ -339,100 +360,134 @@ const AboutSection = () => {
             </div>
           </div>
 
-          {/* Mode 1: Creator & Attention */}
-          {readingMode === 'creator' && (
-            <div className="space-y-4 animate-fadeIn flex-1">
-              <div className="p-5 rounded-2xl bg-cyan-950/25 border border-cyan-500/30 text-cyan-200 font-syne text-lg sm:text-xl font-bold leading-relaxed">
-                "In today’s hyper-fast digital feed, viewers decide in 1.8 seconds whether to stay or scroll. I engineer retention from the very first frame."
-              </div>
+          {/* Dynamic Narrative Card Container */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex-1 flex flex-col justify-between space-y-6">
+            
+            {/* Mode 1: Creator & Attention */}
+            {readingMode === 'creator' && (
+              <div className="space-y-4 animate-fadeIn">
+                <div className="p-4 rounded-xl bg-cyan-950/30 border-l-2 border-cyan-400 text-cyan-200 font-syne text-base sm:text-lg font-bold leading-snug">
+                  "In today’s hyper-fast digital feed, viewers decide in 1.8 seconds whether to stay or scroll. I engineer retention from frame zero."
+                </div>
 
-              <div className="space-y-4 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
-                <p>
-                  As an active <strong className="text-white font-medium">Content Creator</strong> with over <strong className="text-cyan-300 font-medium">50M+ cumulative digital impressions</strong> across my personal channels (<a href="https://instagram.com/theritiksoni" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-mono font-medium">@theritiksoni</a>), I understand what works because I test it live on real audiences every single week.
-                </p>
-                <p>
-                  I specialize in behavioral psychology, retention curve pacing, kinetic typography, and audio disruption. By analyzing algorithmic shifts across Instagram Reels, YouTube Shorts, and long-form video essays, I translate complex brand concepts into viral, high-retention formats that stop the thumb and convert viewers into devoted advocates.
-                </p>
-                <p>
-                  Whether scaling a brand's short-form presence from zero or directing multi-platform social campaigns, my approach is rooted in measurable impact, emotional truth, and relentless creative agility.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Mode 2: Director & Craft */}
-          {readingMode === 'directing' && (
-            <div className="space-y-4 animate-fadeIn flex-1">
-              <div className="p-5 rounded-2xl bg-amber-950/25 border border-amber-500/30 text-amber-200 font-syne text-lg sm:text-xl font-bold leading-relaxed">
-                "Every cut is an emotional choice. From camera blocking to ACES color conformity and sound design, every detail serves the story."
-              </div>
-
-              <div className="space-y-4 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
-                <p>
-                  Directing and lead editorial require a holistic command of the entire production arc. Currently leading post-production as <strong className="text-white font-medium">{currentRole}</strong> at <strong className="text-amber-300 font-medium">{currentCompany}</strong>, I bridge the divide between visionary creative concepts and disciplined execution.
-                </p>
-                <p>
-                  My commercial work spans over 100+ delivered brand campaigns, collaborating with premier names including <strong className="text-white font-medium">{brandHighlights}</strong>. From multi-camera anamorphic shoots to node-based DaVinci Resolve color grading and immersive multi-layer soundscapes, I ensure broadcast conformity that looks breathtaking on IMAX and mobile screens alike.
-                </p>
-                {currentMission && (
-                  <p className="border-l-2 border-amber-500/50 pl-3 py-1 italic text-amber-200/90 text-xs sm:text-sm bg-amber-950/20 rounded-r-lg">
-                    "{currentMission}"
+                <div className="space-y-3.5 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+                  <p>
+                    As an active <strong className="text-white font-medium">Content Creator</strong> commanding over <strong className="text-cyan-300 font-medium">50M+ cumulative impressions</strong> across personal channels (<a href="https://instagram.com/theritiksoni" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-mono font-medium">@theritiksoni</a>), I don't rely on guesswork. I test pacing, visual disruption, and hook formulas live on real audiences every week.
                   </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Mode 3: Executive Dossier */}
-          {readingMode === 'executive' && (
-            <div className="space-y-4 animate-fadeIn flex-1">
-              <div className="p-5 rounded-2xl bg-zinc-900 border border-white/10 text-white font-syne text-lg sm:text-xl font-bold leading-relaxed">
-                Executive Dossier // Ritik Soni — Creative Director, Content Creator & Lead Video Editor
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-                <div className="p-4 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
-                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CURRENT POST</div>
-                  <div className="text-white font-bold text-sm">{currentRole}</div>
-                  <div className="text-cyan-400">@{currentCompany}</div>
+                  <p>
+                    I decode algorithmic behavioral shifts across Instagram Reels, YouTube Shorts, and documentary-style video essays. My method fuses cinematic color and kinetic typography with psychological hooks to transform passive thumb-scrollers into engaged brand champions.
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
-                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">LOCATIONS & AVAILABILITY</div>
-                  <div className="text-white font-bold text-sm">Pune & Mumbai, India</div>
-                  <div className="text-emerald-400">Open for Global Remote & Retainers</div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
-                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CORE CAPABILITIES</div>
-                  <div className="text-zinc-300">Commercial Direction, 9:16 Viral Reels, DaVinci Resolve Color, Audio Design</div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
-                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">PROVEN TRACTION</div>
-                  <div className="text-zinc-300">50M+ Organic Video Views, 100+ Commercial Master Cuts, 5+ Years Craft</div>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#RetentionEngineering</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#ViralShorts</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#HookPsychology</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-cyan-300">#50MImpressions</span>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Current Post Callout & Direct CTA Row */}
-          <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs font-mono text-zinc-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span>Currently directing post-production at <strong className="text-white">{currentCompany}</strong></span>
+            {/* Mode 2: Director & Craft */}
+            {readingMode === 'directing' && (
+              <div className="space-y-4 animate-fadeIn">
+                <div className="p-4 rounded-xl bg-amber-950/30 border-l-2 border-amber-400 text-amber-200 font-syne text-base sm:text-lg font-bold leading-snug">
+                  "Every cut is an emotional choice. From camera blocking to ACES color conformity and sound design, every detail serves the narrative."
+                </div>
+
+                <div className="space-y-3.5 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+                  <p>
+                    Directing and lead editorial require complete command of the entire production arc. Currently leading post-production as <strong className="text-white font-medium">{currentRole}</strong> at <strong className="text-amber-300 font-medium">{currentCompany}</strong>, I bridge ambitious creative vision with rigorous technical delivery.
+                  </p>
+                  <p>
+                    My commercial portfolio covers over 100+ delivered brand campaigns, working with names including <strong className="text-white font-medium">{brandHighlights}</strong>. From multi-cam anamorphic setups to node-based DaVinci Resolve grading, I ensure broadcast-level polish for every aspect ratio.
+                  </p>
+                  {currentMission && (
+                    <p className="border-l-2 border-amber-500/50 pl-3 py-1 italic text-amber-200/90 text-xs sm:text-sm bg-amber-950/20 rounded-r-lg">
+                      "{currentMission}"
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#CommercialDirecting</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#DaVinciResolve</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-zinc-300">#SoundDesign</span>
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 font-mono text-[11px] text-amber-300">#100MasterCuts</span>
+                </div>
+              </div>
+            )}
+
+            {/* Mode 3: Executive Dossier */}
+            {readingMode === 'executive' && (
+              <div className="space-y-4 animate-fadeIn">
+                <div className="p-4 rounded-xl bg-zinc-900 border-l-2 border-cyan-400 text-white font-syne text-base sm:text-lg font-bold leading-snug">
+                  Executive Dossier // Ritik Soni — Creative Director, Content Creator & Lead Video Editor
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-white/5 space-y-1">
+                    <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CURRENT POST</div>
+                    <div className="text-white font-bold text-sm">{currentRole}</div>
+                    <div className="text-cyan-400">@{currentCompany}</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-white/5 space-y-1">
+                    <div className="text-zinc-500 uppercase tracking-widest text-[9px]">LOCATIONS & AVAILABILITY</div>
+                    <div className="text-white font-bold text-sm">Pune & Mumbai, India</div>
+                    <div className="text-emerald-400">Global Remote & Retainers</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-white/5 space-y-1">
+                    <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CORE CAPABILITIES</div>
+                    <div className="text-zinc-300">Commercial Direction, 9:16 Viral Reels, DaVinci Resolve Color, Audio Design</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-zinc-900/70 border border-white/5 space-y-1">
+                    <div className="text-zinc-500 uppercase tracking-widest text-[9px]">PROVEN TRACTION</div>
+                    <div className="text-zinc-300">50M+ Organic Views, 100+ Master Cuts, 5+ Years Craft</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Actions Row */}
+            <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span>Available for high-impact creative collaborations</span>
+              </span>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    sound.playLensClick();
+                    navigate('/work');
+                  }}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:scale-105 active:scale-95"
+                >
+                  <span>Explore Works</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    sound.playClick();
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                      contactSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      navigate('/contact');
+                    }
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 hover:border-cyan-500/40 text-zinc-300 hover:text-white font-mono text-xs transition-all active:scale-95"
+                >
+                  <Send className="w-3 h-3 text-cyan-400" />
+                  <span>Get in Touch</span>
+                </button>
+              </div>
             </div>
 
-            <button
-              onClick={() => {
-                sound.playLensClick();
-                navigate('/work');
-              }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:scale-105 shrink-0"
-            >
-              <span>Explore Works</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
           </div>
 
         </div>
@@ -440,7 +495,60 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          TIER 3: CREATOR CHANNELS & VERIFIED HUBS (FULL WIDTH 4-COLUMN DOCK)
+          3. UNIFIED METRICS TELEMETRY RIBBON (FULL-WIDTH 4-STAT STRIP)
+          ───────────────────────────────────────────────────────────────────────────── */}
+      <div className="relative z-10 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md p-6 sm:p-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x divide-white/10">
+          
+          <div className="md:px-6 first:pl-0 flex flex-col justify-between">
+            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+              TOTAL DIGITAL VIEWS
+            </span>
+            <div className="mt-2 font-syne font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+              50M+
+            </div>
+            <span className="mt-1 text-xs font-mono text-zinc-500">Cumulative organic reach</span>
+          </div>
+
+          <div className="md:px-6 flex flex-col justify-between">
+            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Film className="w-3.5 h-3.5 text-amber-400" />
+              COMMERCIAL CUTS
+            </span>
+            <div className="mt-2 font-syne font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+              100+
+            </div>
+            <span className="mt-1 text-xs font-mono text-zinc-500">Master brand deliverables</span>
+          </div>
+
+          <div className="md:px-6 flex flex-col justify-between">
+            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-blue-400" />
+              PRODUCTION CRAFT
+            </span>
+            <div className="mt-2 font-syne font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+              5+ Yrs
+            </div>
+            <span className="mt-1 text-xs font-mono text-zinc-500">Direction & lead editorial</span>
+          </div>
+
+          <div className="md:px-6 last:pr-0 flex flex-col justify-between">
+            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Video className="w-3.5 h-3.5 text-emerald-400" />
+              FORMAT MASTERY
+            </span>
+            <div className="mt-2 font-syne font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+              9:16 & 16:9
+            </div>
+            <span className="mt-1 text-xs font-mono text-zinc-500">Mobile viral & cinema aspect</span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          4. CREATOR CHANNELS & VERIFIED HUBS (FULL-WIDTH 4-CARD DOCK)
           ───────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 space-y-4 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
@@ -449,7 +557,7 @@ const AboutSection = () => {
             <span>CREATOR CHANNELS & VERIFIED HUBS</span>
           </div>
           <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded border border-cyan-500/30">
-            50M+ CUMULATIVE IMPRESSIONS
+            ACTIVE COMMUNITY
           </span>
         </div>
 
@@ -490,59 +598,53 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          TIER 4: 4 PILLARS OF EDITORIAL CRAFT (FULL-WIDTH 4-COLUMN GRID)
+          5. ARCHITECTURAL EDITORIAL FRAMEWORK (NUMBERED LINES — NO REPETITIVE CARDS)
           ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 space-y-4 pt-4 border-t border-white/10">
+      <div className="relative z-10 space-y-6 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-zinc-300 font-semibold">
             <Target className="w-4 h-4 text-cyan-400" />
-            <span>4 PILLARS OF EDITORIAL CRAFT</span>
+            <span>4 PILLARS OF EDITORIAL CRAFT {'//'} RETENTION FRAMEWORK</span>
           </div>
           <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded border border-cyan-500/30">
-            FRAMEWORK
+            EXECUTION BLUEPRINT
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
-            <div className="flex items-center gap-2 mb-2">
-              <Eye className="w-4 h-4 text-cyan-400" />
-              <span className="font-syne font-bold text-sm text-white">Visual Grammar</span>
-            </div>
-            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
-              Cinematic lighting, dynamic blocking, and film emulation.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {craftFramework.map((pillar) => {
+            const PillarIcon = pillar.icon;
+            return (
+              <div
+                key={pillar.step}
+                className={`group p-5 rounded-2xl bg-zinc-950/80 border border-white/10 ${pillar.borderAccent} transition-all duration-300 backdrop-blur-md flex items-start gap-4`}
+              >
+                {/* Numbered Accent Badge */}
+                <div className="flex flex-col items-center shrink-0">
+                  <span className={`font-mono font-bold text-xl ${pillar.accent} opacity-80 group-hover:opacity-100 transition-opacity`}>
+                    {pillar.step}
+                  </span>
+                  <div className="w-px h-8 bg-white/10 my-1 group-hover:bg-cyan-500/40 transition-colors" />
+                  <PillarIcon className={`w-4 h-4 ${pillar.accent}`} />
+                </div>
 
-          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-cyan-400" />
-              <span className="font-syne font-bold text-sm text-white">Pacing & Retention</span>
-            </div>
-            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
-              Frame-accurate cutting rhythm to eliminate audience drop-off.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-              <span className="font-syne font-bold text-sm text-white">Creator Psychology</span>
-            </div>
-            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
-              First 3-second hook disruption and algorithmic lift.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
-            <div className="flex items-center gap-2 mb-2">
-              <Compass className="w-4 h-4 text-cyan-400" />
-              <span className="font-syne font-bold text-sm text-white">Full-Funnel Reach</span>
-            </div>
-            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
-              Connecting creative storytelling directly to brand conversions.
-            </p>
-          </div>
+                {/* Content */}
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-baseline gap-2">
+                    <h4 className="font-syne font-bold text-sm sm:text-base text-white group-hover:text-cyan-200 transition-colors">
+                      {pillar.title}
+                    </h4>
+                    <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline">
+                      {'//'} {pillar.subtitle}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-mono text-zinc-400 leading-relaxed font-light">
+                    {pillar.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
