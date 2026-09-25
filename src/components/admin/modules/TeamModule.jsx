@@ -21,10 +21,12 @@ import {
   FileText,
   Settings,
   Upload,
-  Camera
+  Camera,
+  Crop
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
+import ImageCropModal from '../common/ImageCropModal';
 
 // Capability Icon Helper
 const CAPABILITY_ICONS = {
@@ -70,10 +72,14 @@ export default function TeamModule() {
   const [revealedPins, setRevealedPins] = useState({});
   const [showModalPin, setShowModalPin] = useState(false);
 
-  // Photo Upload Refs & State
+  // Photo Upload Refs & Cropper State
   const userFileInputRef = useRef(null);
   const crewFileInputRef = useRef(null);
-  const [isProcessingPhoto, setIsProcessingPhoto] = useState(false);
+  const [cropModal, setCropModal] = useState({
+    isOpen: false,
+    imageSrc: '',
+    target: 'user', // 'user' | 'crew'
+  });
 
   // Modals
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -82,8 +88,8 @@ export default function TeamModule() {
   const [isCrewModalOpen, setIsCrewModalOpen] = useState(false);
   const [editingCrewMember, setEditingCrewMember] = useState(null);
 
-  // Optimized Client-Side Image Processor (Resizes to crisp 400x400 JPEG Data URL)
-  const processImageFile = (file, onSuccess) => {
+  // Trigger Image Crop Modal when a file is selected
+  const handleInitiateCrop = (file, target = 'user') => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       showAdminToast({
@@ -95,22 +101,19 @@ export default function TeamModule() {
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
+    if (file.size > 20 * 1024 * 1024) {
       showAdminToast({
         type: 'warning',
         title: 'IMAGE TOO LARGE',
-        message: 'Selected image exceeds 15MB. Please choose a smaller picture.',
+        message: 'Selected image exceeds 20MB. Please choose a smaller picture.',
         tag: 'SIZE LIMIT',
       });
       return;
     }
 
-    setIsProcessingPhoto(true);
     sound.playClick();
-
     const reader = new FileReader();
     reader.onerror = () => {
-      setIsProcessingPhoto(false);
       showAdminToast({
         type: 'error',
         title: 'READ ERROR',
@@ -118,61 +121,41 @@ export default function TeamModule() {
         tag: 'UPLOAD FAILED',
       });
     };
-
     reader.onload = (event) => {
-      const img = new Image();
-      img.onerror = () => {
-        setIsProcessingPhoto(false);
-        showAdminToast({
-          type: 'error',
-          title: 'DECODE ERROR',
-          message: 'Unable to decode image file.',
-          tag: 'CORRUPTED FILE',
-        });
-      };
-
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const MAX_DIM = 400; // 400x400 max gives retina crispness and keeps storage lightweight
-          let w = img.width;
-          let h = img.height;
-
-          if (w > h) {
-            if (w > MAX_DIM) {
-              h = Math.round((h * MAX_DIM) / w);
-              w = MAX_DIM;
-            }
-          } else {
-            if (h > MAX_DIM) {
-              w = Math.round((w * MAX_DIM) / h);
-              h = MAX_DIM;
-            }
-          }
-
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-
-          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
-          onSuccess(optimizedDataUrl);
-          setIsProcessingPhoto(false);
-
-          showAdminToast({
-            type: 'success',
-            title: 'PHOTO UPLOADED',
-            message: 'Profile picture attached successfully.',
-            tag: 'PICTURE READY',
-          });
-        } catch (err) {
-          setIsProcessingPhoto(false);
-          onSuccess(event.target.result);
-        }
-      };
-      img.src = event.target.result;
+      setCropModal({
+        isOpen: true,
+        imageSrc: event.target.result,
+        target,
+      });
     };
     reader.readAsDataURL(file);
+  };
+
+  // Allow re-adjusting/cropping existing avatar
+  const handleOpenExistingCrop = (currentAvatar, target = 'user') => {
+    if (!currentAvatar) return;
+    sound.playClick();
+    setCropModal({
+      isOpen: true,
+      imageSrc: currentAvatar,
+      target,
+    });
+  };
+
+  // Callback when user finalizes crop and adjustment in ImageCropModal
+  const handleCropComplete = (croppedDataUrl) => {
+    if (cropModal.target === 'user') {
+      setEditingUser((prev) => ({ ...prev, avatar: croppedDataUrl }));
+    } else {
+      setEditingCrewMember((prev) => ({ ...prev, avatar: croppedDataUrl }));
+    }
+    setCropModal({ isOpen: false, imageSrc: '', target: 'user' });
+    showAdminToast({
+      type: 'success',
+      title: 'PHOTO CROPPED & ATTACHED',
+      message: 'Profile picture cropped and adjusted successfully.',
+      tag: 'PHOTO READY',
+    });
   };
 
   useEffect(() => {
@@ -954,9 +937,7 @@ export default function TeamModule() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          processImageFile(file, (dataUrl) => {
-                            setEditingUser((prev) => ({ ...prev, avatar: dataUrl }));
-                          });
+                          handleInitiateCrop(file, 'user');
                         }
                         e.target.value = '';
                       }}
@@ -966,12 +947,23 @@ export default function TeamModule() {
                       <button
                         type="button"
                         onClick={() => userFileInputRef.current?.click()}
-                        disabled={isProcessingPhoto}
-                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
                       >
                         <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{isProcessingPhoto ? 'Optimizing...' : (editingUser.avatar ? 'Change Picture' : 'Upload Person Photo')}</span>
+                        <span>{editingUser.avatar ? 'Change Picture' : 'Upload Person Photo'}</span>
                       </button>
+
+                      {editingUser.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenExistingCrop(editingUser.avatar, 'user')}
+                          className="px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-cyan-950/60 border border-white/10 hover:border-cyan-500/40 text-zinc-300 hover:text-cyan-300 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                          title="Adjust crop, zoom or rotation"
+                        >
+                          <Crop className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Crop & Adjust</span>
+                        </button>
+                      )}
 
                       {editingUser.avatar && (
                         <button
@@ -990,7 +982,7 @@ export default function TeamModule() {
                     </div>
 
                     <div className="text-[10px] font-mono text-zinc-500">
-                      Auto-compressed (JPG/PNG/WebP, max 400×400) for zero lag.
+                      Interactive crop, zoom & rotate • Auto-optimized for zero lag.
                     </div>
                   </div>
                 </div>
@@ -1225,9 +1217,7 @@ export default function TeamModule() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          processImageFile(file, (dataUrl) => {
-                            setEditingCrewMember((prev) => ({ ...prev, avatar: dataUrl }));
-                          });
+                          handleInitiateCrop(file, 'crew');
                         }
                         e.target.value = '';
                       }}
@@ -1237,12 +1227,23 @@ export default function TeamModule() {
                       <button
                         type="button"
                         onClick={() => crewFileInputRef.current?.click()}
-                        disabled={isProcessingPhoto}
-                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
                       >
                         <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{isProcessingPhoto ? 'Optimizing...' : (editingCrewMember.avatar ? 'Change Picture' : 'Upload Person Photo')}</span>
+                        <span>{editingCrewMember.avatar ? 'Change Picture' : 'Upload Person Photo'}</span>
                       </button>
+
+                      {editingCrewMember.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenExistingCrop(editingCrewMember.avatar, 'crew')}
+                          className="px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-cyan-950/60 border border-white/10 hover:border-cyan-500/40 text-zinc-300 hover:text-cyan-300 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                          title="Adjust crop, zoom or rotation"
+                        >
+                          <Crop className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Crop & Adjust</span>
+                        </button>
+                      )}
 
                       {editingCrewMember.avatar && (
                         <button
@@ -1261,7 +1262,7 @@ export default function TeamModule() {
                     </div>
 
                     <div className="text-[10px] font-mono text-zinc-500">
-                      Auto-compressed (JPG/PNG/WebP, max 400×400) for zero lag.
+                      Interactive crop, zoom & rotate • Auto-optimized for zero lag.
                     </div>
                   </div>
                 </div>
@@ -1313,6 +1314,16 @@ export default function TeamModule() {
           </div>
         </div>
       )}
+
+      {/* Interactive Picture Cropper & Adjuster Modal */}
+      <ImageCropModal
+        isOpen={cropModal.isOpen}
+        imageSrc={cropModal.imageSrc}
+        title={cropModal.target === 'user' ? "ADJUST & CROP COLLABORATOR PHOTO" : "ADJUST & CROP CREW PHOTO"}
+        subtitle="Drag to pan, scroll to zoom, and frame the face perfectly."
+        onCropComplete={handleCropComplete}
+        onCancel={() => setCropModal({ isOpen: false, imageSrc: '', target: 'user' })}
+      />
     </div>
   );
 }
