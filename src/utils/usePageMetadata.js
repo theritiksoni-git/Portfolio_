@@ -6,38 +6,38 @@ const BASE_URL = 'https://www.ritiksoni.in';
 
 const PAGE_METADATA = {
   '/': {
-    title: 'Ritik Soni | Video Editor & Filmmaker in Pune, India',
-    description: 'Ritik Soni is a Pune-based video editor and filmmaker creating cinematic brand films, UGC and high-retention short-form reels for Indian brands.',
+    title: 'Ritik Soni | Content Creator, Video Editor & Filmmaker in Pune, India',
+    description: 'Ritik Soni is a Pune-based Content Creator, Film Director, and Video Editor creating high-retention short-form reels, YouTube videos, and cinematic brand films.',
     name: 'Home',
   },
   '/about': {
-    title: 'About Ritik Soni | Video Editor & Filmmaker in Pune',
-    description: 'Learn about Ritik Soni, a Pune-based video editor, filmmaker, and UGC content creator delivering high-retention visual stories.',
+    title: 'About Ritik Soni | Content Creator, Director & Video Editor in Pune',
+    description: 'Learn about Ritik Soni, a Pune-based Content Creator, commercial filmmaker, and video editor crafting viral hooks and high-retention visual stories.',
     name: 'About',
   },
   '/work': {
     title: 'Portfolio & Commercial Projects | Ritik Soni Pune',
-    description: 'Explore video editing and directorial projects by Ritik Soni in Pune, featuring commercial brand films, social reels, and product videos.',
+    description: 'Explore video editing, content creation, and directorial projects by Ritik Soni in Pune, featuring commercial brand films, social reels, and product videos.',
     name: 'Work',
   },
   '/process': {
-    title: 'Filmmaking & Video Editing Workflow | Ritik Soni',
-    description: "Discover Ritik Soni's 6-stage video editing and directing workflow, from hook psychology to sound design and master color grading.",
+    title: 'Filmmaking & Content Creation Workflow | Ritik Soni',
+    description: "Discover Ritik Soni's 6-stage video editing and directing workflow, from viral hook psychology to sound design and master color grading.",
     name: 'Process',
   },
   '/skills': {
-    title: 'Editing Suite & NLE Skills | Ritik Soni Pune',
-    description: 'Technical proficiency in Adobe Premiere Pro, After Effects, and DaVinci Resolve Studio for commercial video editing and color grading.',
+    title: 'Editing Suite & Creator Tools | Ritik Soni Pune',
+    description: 'Technical proficiency in Adobe Premiere Pro, After Effects, DaVinci Resolve Studio, and algorithmic retention workflows.',
     name: 'Skills',
   },
   '/contact': {
-    title: 'Hire Ritik Soni | Video Editor & Filmmaker in Pune',
-    description: 'Hire Ritik Soni for commercial video editing, UGC campaigns, or directorial commissions in Pune and across India. Get in touch today.',
+    title: 'Hire Ritik Soni | Content Creator & Video Lead in Pune',
+    description: 'Hire Ritik Soni for commercial video editing, content creation, UGC campaigns, or directorial commissions in Pune and across India.',
     name: 'Contact',
   },
   '/resume': {
-    title: 'Resume & Experience | Ritik Soni Video Editor Pune',
-    description: "View Ritik Soni's professional background, video editing credentials, client metrics, and commercial production experience.",
+    title: 'Resume & Credentials | Ritik Soni Content Creator & Video Lead',
+    description: "View Ritik Soni's professional background, content creation metrics, client campaigns, and commercial production experience.",
     name: 'Resume',
   },
 };

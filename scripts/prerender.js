@@ -20,19 +20,17 @@ const baseHtml = fs.readFileSync(templatePath, 'utf8');
 const ROUTES = [
   {
     path: '/about',
-    title: 'About Ritik Soni | Video Editor & Filmmaker in Pune',
-    description: 'Learn about Ritik Soni, a Pune-based video editor, filmmaker, and UGC content creator delivering high-retention visual stories.',
-    heading: 'About Ritik Soni: Commercial Director & Video Editor in Pune',
+    title: 'About Ritik Soni | Content Creator, Director & Video Editor in Pune',
+    description: 'Learn about Ritik Soni, a Pune-based Content Creator, commercial filmmaker, and video editor crafting viral hooks and high-retention visual stories.',
+    heading: 'About Ritik Soni: Content Creator, Commercial Director & Video Editor in Pune',
     content: `
-      <h2>Directorial Biography & Background</h2>
-      <p>Ritik Soni is a commercial film director, lead video editor, and content strategist based in Pune and Mumbai, Maharashtra, India. With 5+ years of dedicated post-production craft, Ritik directs brand commercials, dynamic 9:16 viral short-form reels for Instagram and YouTube, and full-funnel digital narrative campaigns.</p>
-      <p>Having delivered over 100+ master cuts and generated 50M+ organic digital views, Ritik combines cinematic visual rhythm with rigorous viewer psychology to eliminate drop-off and maximize retention.</p>
+      <h2>Creator & Directorial Biography</h2>
+      <p>Ritik Soni is a digital content creator, commercial film director, and lead video editor based in Pune and Mumbai, Maharashtra, India. With 5+ years of dedicated creator and post-production craft, Ritik creates viral short-form content across Instagram and YouTube, directs brand commercials, and engineers high-retention digital campaigns.</p>
+      <p>Having scaled personal content channels (@theritiksoni) to multi-million organic views and delivered 100+ commercial master cuts, Ritik combines cinematic visual grammar with behavioral audience psychology to eliminate drop-off and maximize viewer engagement.</p>
       <h2>Collaborations & Trusted Brands</h2>
       <p>Commercial work spans premier brands and enterprises including Adentech, Vishwa Vinayak Group, Reliance Industries, Red Bull Media House, Zaggle, and Yukio Co-Living.</p>
-      <h2>Storytelling Philosophy</h2>
-      <p>Every frame serves the story. From 3-second hook construction to theatrical master grading and audio spatialization, every edit is crafted with frame-level intentionality.</p>
-      <h2>Contact</h2>
-      <p>Email: <a href="mailto:theritiksoni@gmail.com">theritiksoni@gmail.com</a> | Instagram: <a href="https://www.instagram.com/theritiksoni/">@theritiksoni</a> | LinkedIn: <a href="https://www.linkedin.com/in/theritiksoni">Ritik Soni</a></p>
+      <h2>Creator Channels & Social Links</h2>
+      <p>YouTube: <a href="https://www.youtube.com/@theritiksoni">@theritiksoni</a> | Instagram: <a href="https://www.instagram.com/theritiksoni/">@theritiksoni</a> | LinkedIn: <a href="https://www.linkedin.com/in/theritiksoni">in/theritiksoni</a> | X / Twitter: <a href="https://x.com/theritiksoni">@theritiksoni</a> | Email: <a href="mailto:theritiksoni@gmail.com">theritiksoni@gmail.com</a></p>
     `
   },
   {
