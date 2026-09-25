@@ -5,7 +5,8 @@ import {
   syncFromGoogleDrive,
   importFromDriveLinks,
   getDemoDriveStagingItems,
-  extractFolderId
+  extractFolderId,
+  synthesizeVideoProjectDetails
 } from '../../../services/driveSyncService';
 import {
   HardDrive,
@@ -23,7 +24,11 @@ import {
   ShieldCheck,
   AlertCircle,
   Copy,
-  Check
+  Check,
+  Sparkles,
+  Sliders,
+  Film,
+  RotateCcw
 } from 'lucide-react';
 import { parseVideoSource } from '../../../utils/videoUtils';
 import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
@@ -40,6 +45,7 @@ export default function DriveSyncModule() {
   const [selectedStaged, setSelectedStaged] = useState(null); // for review & publish modal
   const [previewVideoUrl, setPreviewVideoUrl] = useState(null); // for video cinema preview
   const [copiedScript, setCopiedScript] = useState(false);
+  const [approvalTab, setApprovalTab] = useState('primary'); // 'primary' | 'specs'
 
   // Settings form state
   const [driveFolderUrl, setDriveFolderUrl] = useState(settings.googleDriveFolderUrl || '');
@@ -146,47 +152,76 @@ export default function DriveSyncModule() {
   };
 
   // Import from pasted Drive links
-  const handleImportPastedLinks = (e) => {
+  const handleImportPastedLinks = async (e) => {
     e.preventDefault();
     sound.playClick();
-    const items = importFromDriveLinks(pastedLinks);
-    if (items.length > 0) {
-      const added = adminStore.addMultipleStagedProjects(items);
-      setScanNotice({
-        type: 'success',
-        text: `Successfully staged ${added.length} Google Drive video asset(s) for review!`,
-      });
-      setPastedLinks('');
-      setIsImportModalOpen(false);
-    } else {
+    setIsScanning(true);
+    try {
+      const apiKey = driveApiKey || settings.googleDriveApiKey || '';
+      const items = await importFromDriveLinks(pastedLinks, apiKey);
+      if (items.length > 0) {
+        const added = adminStore.addMultipleStagedProjects(items);
+        setScanNotice({
+          type: 'success',
+          text: `Successfully staged ${added.length} Google Drive video asset(s) with pre-filled details!`,
+        });
+        setPastedLinks('');
+        setIsImportModalOpen(false);
+      } else {
+        setScanNotice({
+          type: 'error',
+          text: 'No valid Google Drive file links detected. Ensure links match drive.google.com/file/d/... format.',
+        });
+      }
+    } catch (err) {
       setScanNotice({
         type: 'error',
-        text: 'No valid Google Drive file links detected. Ensure links match drive.google.com/file/d/... format.',
+        text: `Import notice: ${err.message}`,
       });
+    } finally {
+      setIsScanning(false);
+      setTimeout(() => setScanNotice(null), 4000);
     }
-    setTimeout(() => setScanNotice(null), 4000);
   };
 
   // Open Review & Publish Modal for a specific staged item
   const handleOpenPublishModal = (stagedItem) => {
     sound.playClick();
-    setSelectedStaged(stagedItem);
+    const full = synthesizeVideoProjectDetails(stagedItem);
+    setSelectedStaged(full);
     setPublishForm({
-      title: stagedItem.title || 'Untitled Project',
-      client: stagedItem.client || 'Client Commission',
-      category: stagedItem.category || 'corporate',
-      role: stagedItem.role || 'Video Production Executive & Editor',
-      year: stagedItem.year || String(new Date().getFullYear()),
-      duration: stagedItem.duration || '01:30',
-      timecode: stagedItem.timecode || 'TC 00:01:30:00',
-      aspectRatio: stagedItem.aspectRatio || '16:9 UHD',
-      resolution: stagedItem.resolution || '4K DCI (3840x2160)',
-      tools: stagedItem.tools || ['Adobe Premiere Pro', 'DaVinci Resolve'],
-      badge: stagedItem.badge || 'NEW CUT',
-      tagline: stagedItem.tagline || '',
-      synopsis: stagedItem.synopsis || '',
-      videoEmbedUrl: stagedItem.videoEmbedUrl || '',
-      previewPoster: stagedItem.previewPoster || '/img/projects/adentech-lineup-master.jpg',
+      ...full,
+      tools: Array.isArray(full.tools) ? full.tools.join(', ') : (full.tools || ''),
+      deliverables: Array.isArray(full.deliverables) ? full.deliverables.join('\n') : (full.deliverables || ''),
+    });
+    setApprovalTab('primary');
+  };
+
+  // Re-generate & auto-fill details on demand (e.g. after changing client or category)
+  const handleAutoRefillDetails = () => {
+    sound.playClick();
+    if (!publishForm) return;
+
+    const refreshed = synthesizeVideoProjectDetails({
+      ...publishForm,
+      tagline: '', // trigger fresh synthesis
+      synopsis: '',
+      deliverables: [],
+      badge: '',
+      role: '',
+    });
+
+    setPublishForm({
+      ...refreshed,
+      tools: Array.isArray(refreshed.tools) ? refreshed.tools.join(', ') : (refreshed.tools || ''),
+      deliverables: Array.isArray(refreshed.deliverables) ? refreshed.deliverables.join('\n') : (refreshed.deliverables || ''),
+    });
+
+    showAdminToast({
+      type: 'info',
+      title: 'DETAILS AUTO-FILLED',
+      message: `Re-synthesized synopsis, tagline, and specs for "${refreshed.client}" (${refreshed.category.toUpperCase()}).`,
+      tag: 'AI SYNC',
     });
   };
 
@@ -194,16 +229,30 @@ export default function DriveSyncModule() {
   const handleConfirmPublish = (e) => {
     e.preventDefault();
     sound.playClick();
-    if (!selectedStaged) return;
+    if (!selectedStaged || !publishForm) return;
 
-    adminStore.acceptAndPublishProject(selectedStaged.id, publishForm);
+    const formattedTools = typeof publishForm.tools === 'string'
+      ? publishForm.tools.split(/[,]+/).map((t) => t.trim()).filter(Boolean)
+      : (publishForm.tools || []);
+
+    const formattedDeliverables = typeof publishForm.deliverables === 'string'
+      ? publishForm.deliverables.split(/\n+/).map((d) => d.trim()).filter(Boolean)
+      : (publishForm.deliverables || []);
+
+    const finalProjectData = {
+      ...publishForm,
+      tools: formattedTools.length > 0 ? formattedTools : ['Adobe Premiere Pro', 'DaVinci Resolve Studio'],
+      deliverables: formattedDeliverables.length > 0 ? formattedDeliverables : ['Master 4K Cinematic Cut (16:9 UHD)'],
+    };
+
+    adminStore.acceptAndPublishProject(selectedStaged.id, finalProjectData);
     setSelectedStaged(null);
     setPublishForm(null);
 
     showAdminToast({
       type: 'public',
       title: 'PROJECT PUBLISHED LIVE',
-      message: `🎉 "${publishForm.title}" is now PUBLISHED and LIVE on your portfolio!`,
+      message: `🎉 "${finalProjectData.title}" is now PUBLISHED and LIVE on your portfolio!`,
       tag: 'DRIVE INGESTION LIVE',
     });
   };
@@ -212,16 +261,30 @@ export default function DriveSyncModule() {
   const handleSaveDraft = (e) => {
     e.preventDefault();
     sound.playClick();
-    if (!selectedStaged) return;
+    if (!selectedStaged || !publishForm) return;
 
-    adminStore.saveAsDraftProject(selectedStaged.id, publishForm);
+    const formattedTools = typeof publishForm.tools === 'string'
+      ? publishForm.tools.split(/[,]+/).map((t) => t.trim()).filter(Boolean)
+      : (publishForm.tools || []);
+
+    const formattedDeliverables = typeof publishForm.deliverables === 'string'
+      ? publishForm.deliverables.split(/\n+/).map((d) => d.trim()).filter(Boolean)
+      : (publishForm.deliverables || []);
+
+    const finalProjectData = {
+      ...publishForm,
+      tools: formattedTools.length > 0 ? formattedTools : ['Adobe Premiere Pro', 'DaVinci Resolve Studio'],
+      deliverables: formattedDeliverables.length > 0 ? formattedDeliverables : ['Master 4K Cinematic Cut (16:9 UHD)'],
+    };
+
+    adminStore.saveAsDraftProject(selectedStaged.id, finalProjectData);
     setSelectedStaged(null);
     setPublishForm(null);
 
     showAdminToast({
       type: 'private',
       title: 'SAVED AS PRIVATE DRAFT',
-      message: `"${publishForm.title}" saved as a hidden Draft in your Admin Projects catalog.`,
+      message: `"${finalProjectData.title}" saved as a hidden Draft in your Admin Projects catalog.`,
       tag: 'ADMIN DRAFT',
     });
   };
@@ -229,15 +292,12 @@ export default function DriveSyncModule() {
   // Quick 1-Click Instant Accept & Publish
   const handleQuickPublish = (item) => {
     sound.playClick();
-    adminStore.acceptAndPublishProject(item.id, {
-      title: item.title,
-      client: item.client || 'Client Production',
-      category: item.category || 'corporate',
-    });
+    const synthesized = synthesizeVideoProjectDetails(item);
+    adminStore.acceptAndPublishProject(item.id, synthesized);
     showAdminToast({
       type: 'public',
       title: '1-CLICK PUBLISH COMPLETE',
-      message: `"${item.title}" instantly published to your live portfolio!`,
+      message: `"${synthesized.title}" published with auto-detected specs to live portfolio!`,
       tag: 'FAST PUBLISH',
     });
   };
@@ -793,15 +853,20 @@ function doGet() {
       {/* Review & Publish Customization Modal Drawer */}
       {selectedStaged && publishForm && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none">
-          <div className="relative w-full max-w-3xl rounded-3xl bg-zinc-950 border border-cyan-500/50 p-6 sm:p-8 space-y-6 shadow-[0_20px_70px_rgba(0,0,0,0.95)] my-auto">
+          <div className="relative w-full max-w-3xl rounded-3xl bg-zinc-950 border border-cyan-500/50 p-5 sm:p-8 space-y-5 shadow-[0_20px_70px_rgba(0,0,0,0.95)] my-auto max-h-[92vh] overflow-y-auto">
             {/* Top Bar */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest font-bold">
-                  PROJECT APPROVAL & METADATA GATEWAY
-                </span>
-                <h3 className="font-syne text-xl sm:text-2xl font-bold text-white mt-0.5">
-                  Publish to Live Portfolio: {publishForm.title}
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest font-bold">
+                    PROJECT APPROVAL & METADATA GATEWAY
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[9px] font-bold border border-cyan-500/40">
+                    AUTO-PREFILLED
+                  </span>
+                </div>
+                <h3 className="font-syne text-xl sm:text-2xl font-bold text-white mt-0.5 truncate max-w-lg">
+                  {publishForm.title}
                 </h3>
               </div>
               <button
@@ -809,117 +874,325 @@ function doGet() {
                   setSelectedStaged(null);
                   setPublishForm(null);
                 }}
-                className="text-zinc-500 hover:text-white"
+                className="text-zinc-500 hover:text-white p-1 rounded-lg hover:bg-zinc-900 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Video Preview Check */}
-            {publishForm.videoEmbedUrl && (
-              <div className="rounded-xl overflow-hidden bg-black aspect-video border border-white/10 max-h-56">
-                <iframe
-                  src={parseVideoSource(publishForm.videoEmbedUrl).src}
-                  title="Google Drive Preview"
-                  className="w-full h-full border-0"
-                  allow="autoplay; fullscreen"
-                />
+            {/* Smart Auto-Fill Notification Banner */}
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-cyan-200">
+              <div className="flex items-start sm:items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shrink-0 mt-0.5 sm:mt-0">
+                  <Sparkles className="w-4 h-4 animate-pulse" />
+                </div>
+                <div>
+                  <span className="font-bold text-white tracking-wide uppercase block sm:inline">
+                    Drive Video Metadata Auto-Populated:{' '}
+                  </span>
+                  <span className="text-zinc-300 font-light text-[11px] sm:text-xs">
+                    All technical specs, branding, and synopsis are pre-filled. Only change what is important!
+                  </span>
+                </div>
               </div>
-            )}
+              <button
+                type="button"
+                onClick={handleAutoRefillDetails}
+                className="shrink-0 px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-500/40 font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="Re-synthesize synopsis, tagline, and deliverables for current category & client"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Re-Fill AI</span>
+              </button>
+            </div>
 
-            {/* Edit Form */}
+            {/* Video & Live Specs Readout Strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-zinc-900/60 p-3 rounded-2xl border border-white/5 items-center">
+              {publishForm.videoEmbedUrl && (
+                <div className="sm:col-span-1 rounded-xl overflow-hidden bg-black aspect-video border border-white/10 relative max-h-36">
+                  <iframe
+                    src={parseVideoSource(publishForm.videoEmbedUrl).src}
+                    title="Google Drive Preview"
+                    className="w-full h-full border-0 pointer-events-none"
+                    allow="autoplay; fullscreen"
+                  />
+                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/80 font-mono text-[9px] text-cyan-300">
+                    {publishForm.duration}
+                  </div>
+                </div>
+              )}
+              <div className={publishForm.videoEmbedUrl ? 'sm:col-span-2' : 'sm:col-span-3'}>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono">
+                  <div className="p-2 rounded-xl bg-zinc-950/80 border border-white/5">
+                    <span className="text-zinc-500 uppercase block text-[8px] tracking-wider">Resolution</span>
+                    <span className="text-zinc-200 font-bold truncate block">{publishForm.resolution || '4K DCI'}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-zinc-950/80 border border-white/5">
+                    <span className="text-zinc-500 uppercase block text-[8px] tracking-wider">Aspect Ratio</span>
+                    <span className="text-zinc-200 font-bold truncate block">{publishForm.aspectRatio || '16:9 UHD'}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-zinc-950/80 border border-white/5">
+                    <span className="text-zinc-500 uppercase block text-[8px] tracking-wider">Timecode</span>
+                    <span className="text-cyan-400 font-bold truncate block">{publishForm.timecode || 'TC 00:01:30:00'}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-zinc-950/80 border border-white/5">
+                    <span className="text-zinc-500 uppercase block text-[8px] tracking-wider">Duration</span>
+                    <span className="text-zinc-200 font-bold truncate block">{publishForm.duration || '01:30'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Approval Tab Switcher */}
+            <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+              <button
+                type="button"
+                onClick={() => setApprovalTab('primary')}
+                className={`px-3.5 py-1.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 ${
+                  approvalTab === 'primary'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                    : 'text-zinc-400 hover:text-white bg-zinc-900/60 hover:bg-zinc-800'
+                }`}
+              >
+                <Film className="w-3.5 h-3.5" />
+                <span>1. Core Showcase Details</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setApprovalTab('specs')}
+                className={`px-3.5 py-1.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 ${
+                  approvalTab === 'specs'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                    : 'text-zinc-400 hover:text-white bg-zinc-900/60 hover:bg-zinc-800'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>2. Technical Specs & Deliverables (Pre-Filled)</span>
+              </button>
+            </div>
+
+            {/* Form */}
             <form onSubmit={handleConfirmPublish} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1">
-                    PROJECT TITLE
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={publishForm.title}
-                    onChange={(e) => setPublishForm({ ...publishForm, title: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
-                  />
-                </div>
+              {approvalTab === 'primary' ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>PROJECT TITLE</span>
+                        <span className="text-[9px] text-cyan-400 font-mono">Auto-extracted</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={publishForm.title}
+                        onChange={(e) => setPublishForm({ ...publishForm, title: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1">
-                    CLIENT / BRAND
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={publishForm.client}
-                    onChange={(e) => setPublishForm({ ...publishForm, client: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
-                  />
-                </div>
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>CLIENT / BRAND</span>
+                        <span className="text-[9px] text-cyan-400 font-mono">Auto-detected</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={publishForm.client}
+                        onChange={(e) => setPublishForm({ ...publishForm, client: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1">
-                    PORTFOLIO CATEGORY
-                  </label>
-                  <select
-                    value={publishForm.category}
-                    onChange={(e) => setPublishForm({ ...publishForm, category: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
-                  >
-                    <option value="corporate">Corporate / Client Production</option>
-                    <option value="smm">Social Media Strategy & SMM</option>
-                    <option value="reels">High-Retention Short-Form Reels</option>
-                    <option value="cinematic">Cinematic & Narrative</option>
-                  </select>
-                </div>
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>PORTFOLIO CATEGORY</span>
+                        <span className="text-[9px] text-cyan-400 font-mono">Auto-categorized</span>
+                      </label>
+                      <select
+                        value={publishForm.category}
+                        onChange={(e) => setPublishForm({ ...publishForm, category: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      >
+                        <option value="corporate">Corporate / Client Production</option>
+                        <option value="smm">Social Media Strategy & SMM</option>
+                        <option value="reels">High-Retention Short-Form Reels</option>
+                        <option value="cinematic">Cinematic & Narrative</option>
+                      </select>
+                    </div>
 
-                <div>
-                  <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1">
-                    FEATURE BADGE
-                  </label>
-                  <input
-                    type="text"
-                    value={publishForm.badge}
-                    onChange={(e) => setPublishForm({ ...publishForm, badge: e.target.value })}
-                    placeholder="FEATURED CLIENT, VIRAL REEL, etc."
-                    className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>FEATURE BADGE</span>
+                        <span className="text-[9px] text-zinc-500 font-mono">Pill on portfolio</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.badge}
+                        onChange={(e) => setPublishForm({ ...publishForm, badge: e.target.value })}
+                        placeholder="FEATURED CLIENT, VIRAL REEL, etc."
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1">
-                  PROJECT TAGLINE / SYNOPSIS
-                </label>
-                <textarea
-                  rows="2"
-                  value={publishForm.tagline}
-                  onChange={(e) => setPublishForm({ ...publishForm, tagline: e.target.value })}
-                  placeholder="One sentence compelling summary of the visual execution..."
-                  className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none resize-none"
-                />
-              </div>
+                  <div>
+                    <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                      <span>PROJECT TAGLINE / HOOK STATEMENT</span>
+                      <span className="text-[9px] text-cyan-400 font-mono">Auto-synthesized 1-liner</span>
+                    </label>
+                    <textarea
+                      rows="2"
+                      value={publishForm.tagline}
+                      onChange={(e) => setPublishForm({ ...publishForm, tagline: e.target.value })}
+                      placeholder="One sentence compelling summary of the visual execution..."
+                      className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none resize-none"
+                    />
+                  </div>
 
-              <div>
-                <label className="block font-mono text-xs text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
-                  <span>PREVIEW POSTER IMAGE URL</span>
-                  <span className="text-[10px] text-zinc-500">Poster shown on cards</span>
-                </label>
-                <input
-                  type="text"
-                  value={publishForm.previewPoster}
-                  onChange={(e) => setPublishForm({ ...publishForm, previewPoster: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
-                />
-              </div>
+                  <div>
+                    <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                      <span>SYNOPSIS / CASE STUDY DESCRIPTION</span>
+                      <span className="text-[9px] text-cyan-400 font-mono">Auto-synthesized overview</span>
+                    </label>
+                    <textarea
+                      rows="3"
+                      value={publishForm.synopsis}
+                      onChange={(e) => setPublishForm({ ...publishForm, synopsis: e.target.value })}
+                      placeholder="Explain the editorial strategy, rhythm pacing, sound design, and impact..."
+                      className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                      <span>PREVIEW POSTER IMAGE URL</span>
+                      <span className="text-[9px] text-zinc-500 font-mono">Drive HD Thumbnail</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={publishForm.previewPoster}
+                      onChange={(e) => setPublishForm({ ...publishForm, previewPoster: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        PRODUCTION ROLE
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.role}
+                        onChange={(e) => setPublishForm({ ...publishForm, role: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        PRODUCTION YEAR
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.year}
+                        onChange={(e) => setPublishForm({ ...publishForm, year: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        VIDEO DURATION (MM:SS)
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.duration}
+                        onChange={(e) => setPublishForm({ ...publishForm, duration: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        SMPTE TIMECODE
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.timecode}
+                        onChange={(e) => setPublishForm({ ...publishForm, timecode: e.target.value })}
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        ASPECT RATIO
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.aspectRatio}
+                        onChange={(e) => setPublishForm({ ...publishForm, aspectRatio: e.target.value })}
+                        placeholder="16:9 UHD, 9:16 Vertical Reel, etc."
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                        RESOLUTION
+                      </label>
+                      <input
+                        type="text"
+                        value={publishForm.resolution}
+                        onChange={(e) => setPublishForm({ ...publishForm, resolution: e.target.value })}
+                        placeholder="4K DCI (3840x2160), 1080p, etc."
+                        className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1">
+                      TOOLS & NLE SUITES (COMMA SEPARATED)
+                    </label>
+                    <input
+                      type="text"
+                      value={publishForm.tools}
+                      onChange={(e) => setPublishForm({ ...publishForm, tools: e.target.value })}
+                      placeholder="Adobe Premiere Pro, DaVinci Resolve Studio, After Effects"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-[11px] text-zinc-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+                      <span>PROJECT DELIVERABLES (ONE PER LINE)</span>
+                      <span className="text-[9px] text-cyan-400 font-mono">Auto-generated package</span>
+                    </label>
+                    <textarea
+                      rows="3"
+                      value={publishForm.deliverables}
+                      onChange={(e) => setPublishForm({ ...publishForm, deliverables: e.target.value })}
+                      placeholder="Master 4K Cinematic Cut (16:9 UHD)&#10;Social Cutdown (9:16)&#10;Clean Master Without GFX"
+                      className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 focus:border-cyan-500/60 text-white font-mono text-xs focus:outline-none resize-none font-mono"
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 font-mono text-xs uppercase tracking-wider transition-colors"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 font-mono text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5"
                 >
-                  Save as Hidden Draft (Admin Only)
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Save as Hidden Draft (Admin)</span>
                 </button>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -936,9 +1209,10 @@ function doGet() {
 
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-400 hover:from-cyan-400 hover:to-sky-300 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(56,189,248,0.5)] transition-all"
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-400 hover:from-cyan-400 hover:to-sky-300 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(56,189,248,0.5)] transition-all flex items-center gap-1.5"
                   >
-                    Publish to Live Portfolio Now &rarr;
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Publish to Live Portfolio Now &rarr;</span>
                   </button>
                 </div>
               </div>
