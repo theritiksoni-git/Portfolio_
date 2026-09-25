@@ -312,7 +312,7 @@ function ConfirmModal({ config, onClose }) {
       <motion.div 
         initial={{ opacity: 0, scale: 0.92, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 12, transition: { duration: 0.2, ease: [0.32, 0.72, 0, 1] } }}
+        exit={{ opacity: 0, scale: 0.92, y: 16, transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } }}
         transition={{ type: 'spring', stiffness: 400, damping: 28 }}
         className={`w-full max-w-md rounded-3xl bg-zinc-950/95 border ${
           isDanger ? 'border-red-500/40 shadow-[0_0_50px_rgba(244,63,94,0.25)]' : 'border-cyan-500/40 shadow-[0_0_50px_rgba(6,182,212,0.25)]'
@@ -426,7 +426,7 @@ function AdminPopupContainer() {
     <>
       {/* Floating Cyber Toast Messages Stack (Top Right) */}
       <div 
-        className="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-full"
+        className="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col items-end gap-3 pointer-events-none w-[calc(100vw-2rem)] sm:w-[410px]"
         style={{ perspective: 1000 }}
       >
         <AnimatePresence mode="popLayout">
@@ -434,25 +434,25 @@ function AdminPopupContainer() {
             <motion.div
               key={toast.id}
               layout
-              initial={{ opacity: 0, y: -24, scale: 0.94, filter: 'blur(4px)' }}
+              initial={{ opacity: 0, y: -20, scale: 0.9, filter: 'blur(4px)' }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
               exit={{
                 opacity: 0,
-                y: -24,
-                scale: 0.94,
+                y: -20,
+                scale: 0.9,
                 filter: 'blur(4px)',
                 transition: {
-                  duration: 0.28,
-                  ease: [0.32, 0.72, 0, 1]
+                  duration: 0.22,
+                  ease: [0.4, 0, 0.2, 1]
                 }
               }}
               transition={{
                 type: 'spring',
                 stiffness: 380,
                 damping: 28,
-                layout: { duration: 0.28, ease: 'easeOut' }
+                layout: { duration: 0.25, ease: 'easeOut' }
               }}
-              className="pointer-events-auto"
+              className="pointer-events-auto w-full"
             >
               <ToastItem toast={toast} onDismiss={dismissToast} />
             </motion.div>
