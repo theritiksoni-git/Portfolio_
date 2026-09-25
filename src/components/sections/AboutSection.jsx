@@ -10,9 +10,7 @@ import {
   Copy, 
   Check, 
   Film, 
-  Sliders, 
   Award, 
-  CheckCircle2,
   Clock,
   Video,
   ArrowRight
@@ -53,7 +51,6 @@ const AboutSection = () => {
   const { experience, settings, clients, socialLinks } = usePortfolioData();
   const [readingMode, setReadingMode] = useState('creator'); // 'creator' | 'directing' | 'executive'
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [activeGearTab, setActiveGearTab] = useState('camera'); // 'camera' | 'post' | 'color'
 
   // Dynamic Current Role & Organization derived from Admin Store
   const currentExp = experience && experience.length > 0 ? experience[0] : null;
@@ -147,28 +144,6 @@ const AboutSection = () => {
       shadowColor: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]',
     },
   ];
-
-  // Studio Gear & Arsenal Matrix
-  const gearMatrix = {
-    camera: [
-      { name: 'Sony FX3 Cinema Line', role: 'A-Camera (4K 120p 10-Bit 4:2:2 Full-Frame)' },
-      { name: 'Sony FX6 Production Camera', role: 'Commercial Multi-Cam & Electronic Variable NDs' },
-      { name: 'Sony G-Master II Optics', role: '24-70mm f/2.8 GM II, 50mm f/1.2 GM, 85mm f/1.4' },
-      { name: 'DJI RS3 Pro Gimbal', role: 'Dynamic Tracking, Vehicle Rigs & Wireless Follow Focus' },
-    ],
-    post: [
-      { name: 'Adobe Premiere Pro', role: 'Dynamic NLE Assembly, Multi-Cam Sync & Micro-Trimming' },
-      { name: 'After Effects', role: 'Kinetic Typography, Motion Graphics & Visual Effects' },
-      { name: 'Adobe Audition', role: 'Multi-Track Foley, Dialogue De-Noise & -14 LUFS Mastering' },
-      { name: 'Photoshop & Illustrator', role: 'Viral 3-Second Thumbnail Hook Design & Storyboards' },
-    ],
-    color: [
-      { name: 'DaVinci Resolve Studio 19', role: 'Node-Based Primary & Secondary Color Grading' },
-      { name: 'ACES Color Science', role: 'Wide Gamut Transforms & HDR/SDR Conformity' },
-      { name: 'Kodak 2383 Print Emulation', role: 'Authentic 35mm Analog Halation & Grain Texturing' },
-      { name: 'Calibrated DCI-P3 Suite', role: 'Targeted Color Accuracy for YouTube, Mobile & Cinema' },
-    ],
-  };
 
   return (
     <section id="about" className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16 sm:space-y-20">
@@ -515,123 +490,60 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          TIER 4: TECHNICAL ARSENAL & PILLARS OF CRAFT (SIDE-BY-SIDE EQUAL 6/6 SPLIT)
+          TIER 4: 4 PILLARS OF EDITORIAL CRAFT (FULL-WIDTH 4-COLUMN GRID)
           ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch relative z-10 pt-4 border-t border-white/10">
-        
-        {/* Left Card: Director & Post Arsenal with Tabs */}
-        <div className="p-6 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs uppercase tracking-wider text-zinc-300 flex items-center gap-2 font-semibold">
-              <Sliders className="w-4 h-4 text-cyan-400" />
-              <span>DIRECTOR & POST ARSENAL</span>
-            </span>
-
-            {/* Switcher Tabs */}
-            <div className="flex items-center gap-1 bg-zinc-900 rounded-xl p-1 border border-white/10">
-              <button
-                type="button"
-                onClick={() => {
-                  sound.playClick();
-                  setActiveGearTab('camera');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition-colors ${
-                  activeGearTab === 'camera' ? 'bg-cyan-500 text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Camera
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sound.playClick();
-                  setActiveGearTab('post');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition-colors ${
-                  activeGearTab === 'post' ? 'bg-cyan-500 text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Post NLE
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sound.playClick();
-                  setActiveGearTab('color');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition-colors ${
-                  activeGearTab === 'color' ? 'bg-cyan-500 text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Color & Audio
-              </button>
-            </div>
+      <div className="relative z-10 space-y-4 pt-4 border-t border-white/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-zinc-300 font-semibold">
+            <Target className="w-4 h-4 text-cyan-400" />
+            <span>4 PILLARS OF EDITORIAL CRAFT</span>
           </div>
-
-          {/* 4 Gear Items Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-            {gearMatrix[activeGearTab].map((gear, idx) => (
-              <div
-                key={idx}
-                className="p-3.5 rounded-2xl bg-zinc-900/60 border border-white/5 hover:border-cyan-500/30 transition-all flex items-start gap-2.5"
-              >
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-syne font-bold text-xs text-white">{gear.name}</div>
-                  <div className="text-[11px] font-mono text-zinc-400 leading-snug mt-0.5">{gear.role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded border border-cyan-500/30">
+            FRAMEWORK
+          </span>
         </div>
 
-        {/* Right Card: 4 Pillars of Cinematic Retention */}
-        <div className="p-6 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between space-y-5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs uppercase tracking-wider text-zinc-300 flex items-center gap-2 font-semibold">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-2">
+              <Eye className="w-4 h-4 text-cyan-400" />
+              <span className="font-syne font-bold text-sm text-white">Visual Grammar</span>
+            </div>
+            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
+              Cinematic lighting, dynamic blocking, and film emulation.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-2">
               <Target className="w-4 h-4 text-cyan-400" />
-              <span>4 PILLARS OF EDITORIAL CRAFT</span>
-            </span>
-            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-              FRAMEWORK
-            </span>
+              <span className="font-syne font-bold text-sm text-white">Pacing & Retention</span>
+            </div>
+            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
+              Frame-accurate cutting rhythm to eliminate audience drop-off.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col justify-between hover:border-cyan-500/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-cyan-400" />
-                <span className="font-syne font-bold text-xs text-white">Visual Grammar</span>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400 mt-2">Cinematic lighting, dynamic blocking, and film emulation.</span>
+          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-cyan-400" />
+              <span className="font-syne font-bold text-sm text-white">Creator Psychology</span>
             </div>
+            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
+              First 3-second hook disruption and algorithmic lift.
+            </p>
+          </div>
 
-            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col justify-between hover:border-cyan-500/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-cyan-400" />
-                <span className="font-syne font-bold text-xs text-white">Pacing & Retention</span>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400 mt-2">Frame-accurate cutting rhythm to eliminate audience drop-off.</span>
+          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-2">
+              <Compass className="w-4 h-4 text-cyan-400" />
+              <span className="font-syne font-bold text-sm text-white">Full-Funnel Reach</span>
             </div>
-
-            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col justify-between hover:border-cyan-500/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
-                <span className="font-syne font-bold text-xs text-white">Creator Psychology</span>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400 mt-2">First 3-second hook disruption and algorithmic lift.</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-white/5 flex flex-col justify-between hover:border-cyan-500/30 transition-colors">
-              <div className="flex items-center gap-2">
-                <Compass className="w-4 h-4 text-cyan-400" />
-                <span className="font-syne font-bold text-xs text-white">Full-Funnel Reach</span>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400 mt-2">Connecting creative storytelling directly to brand conversions.</span>
-            </div>
+            <p className="text-xs font-mono text-zinc-400 leading-relaxed">
+              Connecting creative storytelling directly to brand conversions.
+            </p>
           </div>
         </div>
-
       </div>
 
     </section>
