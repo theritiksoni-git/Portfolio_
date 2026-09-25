@@ -70,23 +70,32 @@ export function sha256(ascii) {
 
 const CIPHER_KEY = 'RS_STUDIO_VAULT_CIPHER_2026';
 
+const PASSCODE_SALT = 'RS_STUDIO_VAULT_SALT_9824_';
+
 /**
- * Cryptographically hashes a passcode or string with SHA-256
+ * Cryptographically hashes a passcode or string with salted SHA-256
  */
 export function hashPasscode(passcode) {
   if (!passcode) return '';
   const trimmed = String(passcode).trim();
-  return sha256(trimmed);
+  const round1 = sha256(PASSCODE_SALT + trimmed + PASSCODE_SALT);
+  return sha256(round1 + trimmed);
 }
 
 /**
- * Verifies a candidate passcode against a stored SHA-256 hash
+ * Verifies a candidate passcode against a stored SHA-256 hash (salted & legacy compatible)
  */
 export function verifyPasscode(candidate, storedHash) {
   if (!candidate || !storedHash) return false;
   const trimmed = String(candidate).trim();
-  const candHash = hashPasscode(trimmed);
-  return candHash === storedHash || trimmed === storedHash;
+  // 1. Compare against salted hash
+  const candSalted = hashPasscode(trimmed);
+  if (candSalted === storedHash) return true;
+  // 2. Backward compatibility: compare against legacy unsalted SHA-256
+  const legacyHash = sha256(trimmed);
+  if (legacyHash === storedHash) return true;
+  // 3. Fallback comparison
+  return trimmed === storedHash;
 }
 
 /**

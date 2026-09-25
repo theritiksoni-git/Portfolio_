@@ -95,6 +95,8 @@ const ContactSection = ({ onOpenResume }) => {
   });
 
   const [status, setStatus] = useState({ state: 'idle', message: '' }); // idle, sending, success, error
+  const [botTrap, setBotTrap] = useState('');
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -154,13 +156,34 @@ const ContactSection = ({ onOpenResume }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Anti-bot honeypot check (silently drop bot submissions)
+    if (botTrap && botTrap.trim() !== '') {
+      sound.playShutter();
+      setStatus({ state: 'success', message: 'INQUIRY TRANSMITTED SUCCESSFULLY' });
+      return;
+    }
+
+    // 2. Cooldown rate limiter (prevent rapid repeated flooding)
+    const now = Date.now();
+    if (now - lastSubmitTime < 15000) {
+      sound.playClick();
+      setStatus({
+        state: 'error',
+        message: 'RATE LIMIT: PLEASE WAIT 15 SECONDS BEFORE TRANSMITTING ANOTHER INQUIRY',
+      });
+      return;
+    }
+    setLastSubmitTime(now);
+
     sound.playShutter();
     setStatus({ state: 'sending', message: 'TRANSMITTING INQUIRY...' });
 
-    const submissionName = (formData.Name || '').trim();
-    const submissionEmail = (formData.email || '').trim();
-    const submissionProjectType = formData.projectType || 'Corporate Video / Client Production';
-    const submissionMessage = (formData.Message || '').trim();
+    // 3. Strict length bounds to prevent memory/payload bloat
+    const submissionName = (formData.Name || '').trim().slice(0, 100);
+    const submissionEmail = (formData.email || '').trim().slice(0, 150);
+    const submissionProjectType = (formData.projectType || 'Corporate Video / Client Production').slice(0, 100);
+    const submissionMessage = (formData.Message || '').trim().slice(0, 3000);
     const targetEmail = settings?.adminEmail || 'theritiksoni@gmail.com';
 
     // 1. Immediately record lead in central admin control room store
@@ -435,6 +458,20 @@ const ContactSection = ({ onOpenResume }) => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
+            {/* Honeypot anti-spam trap (hidden from users, catches automated bots) */}
+            <div className="hidden" aria-hidden="true" style={{ display: 'none', position: 'absolute', left: '-9999px' }}>
+              <label htmlFor="company_website_verification">Leave this empty</label>
+              <input
+                type="text"
+                id="company_website_verification"
+                name="company_website_verification"
+                value={botTrap}
+                onChange={(e) => setBotTrap(e.target.value)}
+                tabIndex="-1"
+                autoComplete="off"
+              />
+            </div>
+
             {/* Name Input */}
             <div>
               <label htmlFor="Name" className="block font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1.5">
@@ -445,6 +482,7 @@ const ContactSection = ({ onOpenResume }) => {
                 id="Name"
                 name="Name"
                 required
+                maxLength={100}
                 value={formData.Name}
                 onChange={handleChange}
                 placeholder="e.g. Alex Morgan / Media Director"
@@ -462,6 +500,7 @@ const ContactSection = ({ onOpenResume }) => {
                 id="email"
                 name="email"
                 required
+                maxLength={150}
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="name@company.com"
@@ -601,6 +640,7 @@ const ContactSection = ({ onOpenResume }) => {
                 name="Message"
                 rows="4"
                 required
+                maxLength={3000}
                 value={formData.Message}
                 onChange={handleChange}
                 placeholder="Describe timeline, target audience, aesthetic goals, or role expectations..."
