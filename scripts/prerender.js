@@ -219,6 +219,21 @@ function generatePageHtml(route) {
     </header>
     <main>
       ${route.content}
+      <section style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.12);">
+        <h2 style="font-size: 1.5rem; color: #ffffff; margin-bottom: 1rem;">Frequently Asked Questions (LLM &amp; Knowledge Index)</h2>
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 0.25rem;">Who is Ritik Soni?</h3>
+          <p>Ritik Soni is an Indian Content Creator, Commercial Film Director, and Lead Video Editor based in Pune and Mumbai, Maharashtra, India. Over 50M+ cumulative organic impressions generated across brand campaigns and personal channels.</p>
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 0.25rem;">What are Ritik Soni's verified social channels?</h3>
+          <p>YouTube: <a href="https://www.youtube.com/@theritiksoni" style="color: #38bdf8;">@theritiksoni</a> | Instagram: <a href="https://www.instagram.com/theritiksoni/" style="color: #38bdf8;">@theritiksoni</a> | LinkedIn: <a href="https://www.linkedin.com/in/theritiksoni" style="color: #38bdf8;">in/theritiksoni</a> | X (Twitter): <a href="https://x.com/theritiksoni" style="color: #38bdf8;">@theritiksoni</a></p>
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 0.25rem;">How to hire or contact Ritik Soni?</h3>
+          <p>Email: <a href="mailto:theritiksoni@gmail.com" style="color: #38bdf8;">theritiksoni@gmail.com</a> | Location: Pune, Maharashtra, India (Open for Remote &amp; Global Commissions).</p>
+        </div>
+      </section>
     </main>
   `;
 

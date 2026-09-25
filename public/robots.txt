@@ -1,6 +1,7 @@
 # Ritik Soni Portfolio Robots Directive
 # Website: https://www.ritiksoni.in/
-# Author: Ritik Soni (Director, Video Production Executive & SMM Lead)
+# Author: Ritik Soni (Content Creator, Commercial Film Director & Lead Video Editor)
+# LLM Context: https://www.ritiksoni.in/llms.txt
 
 User-agent: *
 Allow: /
@@ -22,6 +23,9 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: anthropic-ai
+Allow: /
+
 User-agent: Google-Extended
 Allow: /
 
@@ -34,6 +38,14 @@ Allow: /
 User-agent: cohere-ai
 Allow: /
 
-# Sitemap & Host Location
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemap & LLM Directives
 Sitemap: https://www.ritiksoni.in/sitemap.xml
 Host: https://www.ritiksoni.in
+# LLMs Text standard for Generative Engines
+# See: https://www.ritiksoni.in/llms.txt

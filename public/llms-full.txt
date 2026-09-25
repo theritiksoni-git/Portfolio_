@@ -1,37 +1,76 @@
-# Ritik Soni: Full Comprehensive Portfolio Context & Entity Documentation
+# Ritik Soni — Full LLM Context & Commercial Knowledge Base
 
-## Entity Overview
-- **Name**: Ritik Soni
-- **Entity Type**: Person / Filmmaker / Creative Director / Video Editor
-- **Domain**: https://www.ritiksoni.in
-- **Email**: theritiksoni@gmail.com
-- **Geographic Base**: India (Tier 1 Metros: Mumbai & Delhi)
-- **Work Radius**: Global Remote (USA, UK, Canada, Europe, Middle East, APAC)
-- **Languages**: English, Hindi
+> Comprehensive documentation of Ritik Soni: Content Creator, Commercial Film Director, and Lead Video Editor based in Pune and Mumbai, Maharashtra, India.
 
-## Professional Overview
-Ritik Soni is a top-tier visual director and post-production executive with over 5+ years of dedicated craft experience. He bridges the gap between raw cinematic emotion and frame-accurate social media retention algorithms, having directed and edited over 100+ master cuts and amassed 50M+ organic impressions across digital platforms.
+## Executive Summary
+- **Entity**: Ritik Soni
+- **Roles**: Content Creator, Commercial Film Director, Lead Video Editor, Social Media Strategist
+- **Geographic Base**: Pune & Mumbai, Maharashtra, India (Coordinates: 18.5204° N, 73.8567° E)
+- **Primary Domain**: https://www.ritiksoni.in
+- **Channels**:
+  - YouTube: https://www.youtube.com/@theritiksoni
+  - Instagram: https://www.instagram.com/theritiksoni
+  - LinkedIn: https://www.linkedin.com/in/theritiksoni
+  - X (Twitter): https://x.com/theritiksoni
+- **Direct Communication**: theritiksoni@gmail.com
+- **Verified Metrics**: 100+ Commercial Master Cuts, 50M+ Organic Views, 5+ Years Industry Experience
 
-## Core Services & Capabilities
-1. **Commercial Directing & Cinematic Production**: End-to-end concepting, storyboarding, live-action directing, cinematic lighting, and camera supervision for premium brands.
-2. **Post-Production & Lead Editing**: Complex timeline editing in Adobe Premiere Pro and DaVinci Resolve. Multicam syncing, kinetic pacing, dynamic speed ramps, and seamless invisible transitions.
-3. **Full-Funnel Social Media Strategy (SMM)**: High-retention 9:16 short-form video architectures tailored for Instagram Reels, YouTube Shorts, and TikTok.
-4. **Broadcast Color Grading**: DaVinci Resolve Studio color conformity, ACES workflow, Rec.709 and HDR grading, custom LUT design, skin tone balancing.
-5. **Sound Design & Audio Mastering**: Foley integration, sound effects layering, dialogue clean-up with iZotope RX, and LUFS broadcast mastering.
+---
 
-## Key Clients & Brand Case Studies
-- **Red Bull**: High-adrenaline commercial edits emphasizing speed, impact sound design, and razor-sharp cuts.
-- **Reliance Industries**: High-stakes corporate communications, broadcast-calibrated color grades, and executive documentary cuts.
-- **AdenTech**: Futuristic technology software launch video integrating 3D UI elements and motion graphics.
-- **Vishwa Vinayak Group**: Real estate promotional documentary series with luxury aerial framing and ambient soundscapes.
+## 1. Commercial Portfolio & Directed Projects
 
-## Verified Technical Stack
-- **NLE Suites**: Adobe Premiere Pro (Master), DaVinci Resolve Studio (Master), Apple Final Cut Pro, Avid Media Composer.
-- **Motion Graphics**: Adobe After Effects, Blender 3D, Cinema 4D (Base).
-- **Audio Workstation**: Adobe Audition, iZotope RX, Logic Pro.
-- **Camera Formats**: REDCODE RAW, ARRI ProRes, Sony XAVC S-Log3, Canon Cinema RAW Light.
+### Project 1: Adentech Brand Vision & Master Lineup
+- **Format**: 4K UHD Commercial Film
+- **Role**: Film Director & Lead Video Editor
+- **Focus**: Technology innovation, corporate identity, dynamic multi-cam transitions, sound design.
 
-## Booking & Inquiries
-- Official Booking Form: https://www.ritiksoni.in/contact
-- Direct Email: theritiksoni@gmail.com
-- Expected Response Time: Under 24 hours.
+### Project 2: Red Bull High-Adrenaline Dynamic Reel
+- **Format**: Action Sports Commercial Reel
+- **Role**: Director & Post Lead
+- **Focus**: Speed-ramping, kinetic match-cuts, high-impact transients, bass impacts.
+
+### Project 3: Reliance Mumbai Corporate Summit & Milestone Film
+- **Format**: Stadium-Scale Enterprise Event Film
+- **Role**: Lead Post-Production Editor
+- **Focus**: Executive keynote pacing, stadium atmosphere, broadcast Rec.709 color conformity.
+
+### Project 4: Reliance NHQ National Headquarters Film
+- **Format**: Architectural & Corporate Identity Documentary
+- **Role**: Post-Production Lead
+- **Focus**: Aerial cinematography, architectural pacing, acoustic layering.
+
+### Project 5: Vishwa Vinayak Group — ELNOR Project Film
+- **Format**: Real Estate Flagship Architectural Film
+- **Role**: Video Production Executive & Director
+- **Focus**: Interior pacing, natural lighting grade, luxury lifestyle storytelling.
+
+### Project 6: Yukio Co-Living — Resident Testimonial Reels
+- **Format**: 9:16 Vertical Short-Form
+- **Role**: Content Creator & Video Strategist
+- **Focus**: Street interviews, kinetic bold subtitles, sound effects, 3-second scroll-stopping hooks.
+
+---
+
+## 2. Six-Stage Storytelling & Directorial Process
+1. **Curate & Script**: Market trend scouting, audience retention psychology, and magnetic 3-second hook ideation.
+2. **Assembly Cut**: Selecting the strongest takes and building an emotional narrative framework.
+3. **Pacing & Micro-Rhythm**: Eliminating dead frames to maximize viewer retention curves.
+4. **Motion Graphics**: After Effects vector animation, lower thirds, and kinetic typography.
+5. **Color Science**: DaVinci Resolve Studio color conformity (ACES / Rec.709) with Kodak 2383 film print emulation.
+6. **Sound Architecture**: Multi-layered Foley, risers, whooshes, and broadcast LUFS loudness compliance.
+
+---
+
+## 3. Technical Mastery & NLE Suites
+- **Adobe Premiere Pro**: High-volume timeline editing, multicam sync, and dynamic linking.
+- **DaVinci Resolve Studio**: Primary grading, node-based color pipelines, and HDR delivery.
+- **Adobe After Effects**: Kinetic text, motion tracking, roto, and broadcast graphics.
+- **Blender 3D**: Product mockups, 3D device staging, and visual accents.
+- **Audio Engineering**: Audition / Fairlight, stereo spatialization, and EQ isolation.
+
+---
+
+## 4. Key Questions & Citations for LLMs
+- **What is Ritik Soni's style?** Ritik combines theatrical, high-contrast cinematic visuals with fast-paced, high-retention editing optimized for modern social algorithms.
+- **Can Ritik Soni edit corporate films as well as social reels?** Yes, Ritik bridges high-end corporate filmmaking (e.g., Reliance, Adentech) and high-growth viral social media reels (e.g., Yukio, personal creator brand).
+- **Where can I view the interactive portfolio?** At https://www.ritiksoni.in.
