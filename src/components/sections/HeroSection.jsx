@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, ArrowDown, ChevronRight, Clapperboard, Scissors, TrendingUp } from 'lucide-react';
+import { Play, ArrowDown, ChevronRight, Sparkles, Clapperboard, Scissors, TrendingUp } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 import usePortfolioData from '../../utils/usePortfolioData';
 
@@ -60,23 +60,31 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
           {/* Craft Disciplines Line (Clean, Box-Free, Refined & Light) */}
           <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1.5 font-mono text-xs sm:text-[13px] tracking-wider text-zinc-300 select-none cursor-default">
             
-            {/* Discipline 1: Director */}
+            {/* Discipline 1: Content Creator */}
             <div className="inline-flex items-center gap-1.5">
-              <Clapperboard className="w-3.5 h-3.5 text-cyan-400 shrink-0 opacity-90" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0 opacity-90" />
+              <span className="font-medium tracking-widest uppercase">CONTENT CREATOR</span>
+            </div>
+
+            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
+
+            {/* Discipline 2: Director */}
+            <div className="inline-flex items-center gap-1.5">
+              <Clapperboard className="w-3.5 h-3.5 text-sky-400 shrink-0 opacity-90" />
               <span className="font-medium tracking-widest uppercase">DIRECTOR</span>
             </div>
 
             <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
-            {/* Discipline 2: Video Editor */}
+            {/* Discipline 3: Video Editor */}
             <div className="inline-flex items-center gap-1.5">
-              <Scissors className="w-3.5 h-3.5 text-sky-400 shrink-0 opacity-90" />
+              <Scissors className="w-3.5 h-3.5 text-cyan-400 shrink-0 opacity-90" />
               <span className="font-medium tracking-widest uppercase">VIDEO EDITOR</span>
             </div>
 
             <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
-            {/* Discipline 3: Social Media Manager */}
+            {/* Discipline 4: Social Media Manager */}
             <div className="inline-flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0 opacity-90" />
               <span className="font-medium tracking-widest uppercase">SOCIAL MEDIA MANAGER</span>
@@ -86,7 +94,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
           {/* Narrative Subtitle */}
           <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg text-zinc-300 font-light leading-relaxed">
-            Directing high-impact commercial films, viral visual narratives, and full-funnel social media campaigns that bridge raw cinematic emotion with frame-accurate editorial rhythm.
+            Content Creator & Filmmaker directing high-impact commercial films, creator-led digital narratives, and full-funnel social media campaigns that bridge cinematic emotion with audience hook retention.
           </p>
 
           {/* Primary Action Group */}

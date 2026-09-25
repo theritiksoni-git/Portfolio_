@@ -19,7 +19,7 @@ const AboutPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 font-mono text-[11px] tracking-widest uppercase mb-3">
           <Aperture className="w-3.5 h-3.5 text-cyan-400" />
-          <span>SCENE 02 // DIRECTOR DOSSIER • BIOGRAPHY & CAREER ARC</span>
+          <span>SCENE 02 // CONTENT CREATOR & DIRECTOR DOSSIER • BIOGRAPHY & CAREER ARC</span>
         </div>
         <h1 className="font-syne text-4xl sm:text-5xl lg:text-6xl font-extrabold uppercase text-white tracking-tight">
           ABOUT{' '}
@@ -28,7 +28,7 @@ const AboutPage = () => {
           </span>
         </h1>
         <p className="mt-3 text-sm sm:text-base text-zinc-400 max-w-2xl font-light leading-relaxed">
-          {settings?.bioSummary || `The intersection of cinematic production mastery and audience psychology. Discover ${name}'s background, production journey with premier brands, and directorial philosophy.`}
+          {settings?.bioSummary || `The intersection of content creation, cinematic production mastery, and audience psychology. Discover ${name}'s creator channels, production journey with premier brands, and directorial philosophy.`}
         </p>
       </div>
 

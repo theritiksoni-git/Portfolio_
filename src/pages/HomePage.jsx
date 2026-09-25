@@ -152,7 +152,7 @@ const HomePage = ({ onSelectProject, onOpenResume }) => {
             <div className="lg:col-span-8 space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-white/10 text-cyan-400 font-mono text-[11px] tracking-widest uppercase">
                 <Award className="w-3 h-3" />
-                <span>DIRECTOR // SMM & POST LEAD</span>
+                <span>CONTENT CREATOR // DIRECTOR // SMM LEAD</span>
               </div>
               <h2 className="font-syne text-2xl sm:text-3xl lg:text-4xl font-bold uppercase text-white tracking-tight leading-snug">
                 BRIDGING HIGH-END CINEMATIC EMOTION WITH{' '}
@@ -161,7 +161,7 @@ const HomePage = ({ onSelectProject, onOpenResume }) => {
                 </span>
               </h2>
               <p className="text-zinc-300 text-sm sm:text-base font-light leading-relaxed max-w-2xl">
-                Unlike traditional directors who overlook social distribution or editors who miss big-picture storytelling, my workflow synthesizes the full arc: from raw pre-production vision through to viral editorial delivery.
+                Combining the instincts of an active digital content creator with the precision of a commercial film director, my workflow synthesizes the entire arc: from magnetic viral hooks through to retention-focused post-production.
               </p>
             </div>
 
