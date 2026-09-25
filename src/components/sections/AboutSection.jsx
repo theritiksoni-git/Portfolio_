@@ -11,8 +11,6 @@ import {
   Check, 
   Film, 
   Award, 
-  Clock,
-  Video,
   ArrowRight,
   Send,
   Radio
@@ -495,60 +493,7 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          3. UNIFIED METRICS TELEMETRY RIBBON (SLENDER COMPACT HUD)
-          ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md px-4 sm:px-6 py-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-0 lg:divide-x divide-white/10">
-          
-          <div className="lg:px-5 first:pl-0 flex flex-col justify-center">
-            <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-              <TrendingUp className="w-3 h-3 text-cyan-400" />
-              TOTAL DIGITAL VIEWS
-            </span>
-            <div className="mt-1 font-syne font-extrabold text-xl sm:text-2xl text-white tracking-tight">
-              50M+
-            </div>
-            <span className="text-[11px] font-mono text-zinc-500">Cumulative organic reach</span>
-          </div>
-
-          <div className="lg:px-5 flex flex-col justify-center">
-            <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Film className="w-3 h-3 text-amber-400" />
-              COMMERCIAL CUTS
-            </span>
-            <div className="mt-1 font-syne font-extrabold text-xl sm:text-2xl text-white tracking-tight">
-              100+
-            </div>
-            <span className="text-[11px] font-mono text-zinc-500">Master brand deliverables</span>
-          </div>
-
-          <div className="lg:px-5 flex flex-col justify-center">
-            <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Clock className="w-3 h-3 text-blue-400" />
-              PRODUCTION CRAFT
-            </span>
-            <div className="mt-1 font-syne font-extrabold text-xl sm:text-2xl text-white tracking-tight">
-              5+ Yrs
-            </div>
-            <span className="text-[11px] font-mono text-zinc-500">Direction & lead editorial</span>
-          </div>
-
-          <div className="lg:px-5 last:pr-0 flex flex-col justify-center">
-            <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Video className="w-3 h-3 text-emerald-400" />
-              FORMAT MASTERY
-            </span>
-            <div className="mt-1 font-syne font-extrabold text-xl sm:text-2xl text-white tracking-tight whitespace-nowrap">
-              9:16 & 16:9
-            </div>
-            <span className="text-[11px] font-mono text-zinc-500">Mobile viral & cinema aspect</span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────────────────────────
-          4. CREATOR CHANNELS & VERIFIED HUBS (FULL-WIDTH 4-CARD DOCK)
+          3. CREATOR CHANNELS & VERIFIED HUBS (FULL-WIDTH 4-CARD DOCK)
           ───────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 space-y-4 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
@@ -598,7 +543,7 @@ const AboutSection = () => {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          5. ARCHITECTURAL EDITORIAL FRAMEWORK (NUMBERED LINES — NO REPETITIVE CARDS)
+          4. ARCHITECTURAL EDITORIAL FRAMEWORK (NUMBERED LINES — NO REPETITIVE CARDS)
           ───────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 space-y-6 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
