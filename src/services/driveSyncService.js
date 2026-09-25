@@ -165,9 +165,11 @@ export function detectCategoryFromText(text) {
 export function synthesizeVideoProjectDetails(raw = {}) {
   const driveId = raw.driveId || (raw.id ? String(raw.id).replace(/^drive-/, '') : '') || extractFileId(raw.videoEmbedUrl || raw.driveViewUrl || '');
   const rawFileName = raw.fileName || raw.name || (driveId ? `Drive_Video_${driveId.substring(0, 6)}.mp4` : 'Video_Asset.mp4');
+  const folderName = raw.folderName || '';
+  const folderPath = raw.folderPath || raw.folderName || '';
 
-  // 1. Detect Client
-  const detectedClient = detectClientFromText(rawFileName + ' ' + (raw.description || '') + ' ' + (raw.title || ''));
+  // 1. Detect Client (analyzing filename + subfolder context + description)
+  const detectedClient = detectClientFromText(rawFileName + ' ' + folderPath + ' ' + (raw.description || '') + ' ' + (raw.title || ''));
   const client = (raw.client && raw.client !== 'Direct Drive Inbound' && raw.client !== 'Client Commission') 
     ? raw.client 
     : (detectedClient !== 'Client Commission' ? detectedClient : (raw.client || 'Client Commission'));
@@ -179,7 +181,7 @@ export function synthesizeVideoProjectDetails(raw = {}) {
 
   const isVerticalHeuristic = 
     (rawHeight > 0 && rawWidth > 0 && rawHeight > rawWidth) ||
-    /916|vertical|reel|tiktok|short/i.test(rawFileName) ||
+    /916|vertical|reel|tiktok|short/i.test(rawFileName + ' ' + folderPath) ||
     (raw.aspectRatio && raw.aspectRatio.includes('9:16'));
 
   const isCinemaScopeHeuristic = 
@@ -205,7 +207,7 @@ export function synthesizeVideoProjectDetails(raw = {}) {
     if (isVerticalHeuristic) {
       category = 'reels';
     } else {
-      category = detectCategoryFromText(rawFileName + ' ' + (raw.description || '') + ' ' + (raw.title || ''));
+      category = detectCategoryFromText(rawFileName + ' ' + folderPath + ' ' + (raw.description || '') + ' ' + (raw.title || ''));
     }
   }
 
@@ -217,7 +219,7 @@ export function synthesizeVideoProjectDetails(raw = {}) {
   };
   const categoryLabel = categoryLabels[category] || 'Corporate / Client Work';
 
-  // 4. Project Title
+  // 4. Project Title (using folder context if filename is generic like "final.mp4")
   let title = raw.title;
   const isGenericTitle = !title || 
     title.startsWith('Google Drive Project') || 
@@ -227,7 +229,16 @@ export function synthesizeVideoProjectDetails(raw = {}) {
 
   if (isGenericTitle) {
     const cleaned = cleanDriveFileName(rawFileName);
-    if (cleaned && cleaned !== 'Untitled Project' && !cleaned.toLowerCase().includes('drive video')) {
+    const cleanedLower = (cleaned || '').toLowerCase();
+    const genericNames = ['final', 'master', 'cut', 'video', 'render', 'export', 'edit', 'short', 'reel', 'untitled project'];
+    const isCleanedTooGeneric = !cleaned || genericNames.includes(cleanedLower) || cleanedLower.includes('drive video');
+
+    if (isCleanedTooGeneric && folderName) {
+      const cleanFolder = cleanDriveFileName(folderName);
+      if (cleanFolder && cleanFolder !== 'Untitled Project') {
+        title = cleanFolder;
+      }
+    } else if (cleaned && !isCleanedTooGeneric) {
       title = cleaned;
     } else {
       const clientLabel = client !== 'Client Commission' ? client : 'Cinematic';
@@ -405,6 +416,8 @@ export function synthesizeVideoProjectDetails(raw = {}) {
     synopsis,
     deliverables,
     stats,
+    folderName,
+    folderPath,
     colorTheme: raw.colorTheme || theme.theme,
     accentColor: raw.accentColor || theme.accent,
     videoEmbedUrl,
@@ -444,31 +457,58 @@ export async function fetchDriveFileMetadata(fileId, apiKey) {
 export async function syncFromGoogleDrive({ folderUrl, folderId, apiKey, scriptUrl }) {
   const targetFolderId = folderId || extractFolderId(folderUrl);
 
-  // Strategy 1: Google Drive v3 REST API
+  // Strategy 1: Google Drive v3 REST API with Deep Recursive Subfolder Discovery
   if (targetFolderId && apiKey) {
     try {
-      const q = encodeURIComponent(`'${targetFolderId}' in parents and trashed = false`);
-      const fields = encodeURIComponent('files(id, name, mimeType, size, createdTime, modifiedTime, description, thumbnailLink, webViewLink, videoMediaMetadata)');
-      const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&key=${apiKey}&pageSize=50`;
+      const queue = [{ id: targetFolderId, name: '', path: '' }];
+      const allMediaFiles = [];
+      const visited = new Set([targetFolderId]);
+      const MAX_FOLDERS = 50; // allow deep traversal across up to 50 sub-folders
+      let foldersScanned = 0;
 
-      const res = await fetch(apiUrl);
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson?.error?.message || `Google Drive API returned HTTP ${res.status}`);
+      while (queue.length > 0 && foldersScanned < MAX_FOLDERS) {
+        const currentFolder = queue.shift();
+        foldersScanned++;
+
+        const q = encodeURIComponent(`'${currentFolder.id}' in parents and trashed = false`);
+        const fields = encodeURIComponent('files(id, name, mimeType, size, createdTime, modifiedTime, description, thumbnailLink, webViewLink, videoMediaMetadata)');
+        const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&key=${apiKey}&pageSize=100`;
+
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          if (foldersScanned === 1) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson?.error?.message || `Google Drive API returned HTTP ${res.status}`);
+          }
+          continue;
+        }
+
+        const data = await res.json();
+        const files = data.files || [];
+
+        for (const f of files) {
+          if (f.mimeType === 'application/vnd.google-apps.folder') {
+            if (!visited.has(f.id) && queue.length < MAX_FOLDERS) {
+              visited.add(f.id);
+              const folderPath = currentFolder.path ? `${currentFolder.path} / ${f.name}` : f.name;
+              queue.push({ id: f.id, name: f.name, path: folderPath });
+            }
+          } else if (
+            (f.mimeType && f.mimeType.startsWith('video/')) ||
+            /\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(f.name) ||
+            (f.mimeType && f.mimeType.startsWith('image/'))
+          ) {
+            allMediaFiles.push({
+              ...f,
+              folderName: currentFolder.name,
+              folderPath: currentFolder.path,
+            });
+          }
+        }
       }
 
-      const data = await res.json();
-      const files = data.files || [];
-
-      // Filter for video files or relevant media
-      const mediaFiles = files.filter((f) => 
-        (f.mimeType && f.mimeType.startsWith('video/')) ||
-        /\.(mp4|mov|m4v|webm|mkv)$/i.test(f.name) ||
-        (f.mimeType && f.mimeType.startsWith('image/'))
-      );
-
       // Synthesize each file into a complete, rich portfolio specification
-      const stagedItems = mediaFiles.map((f) => {
+      const stagedItems = allMediaFiles.map((f) => {
         return synthesizeVideoProjectDetails({
           driveId: f.id,
           fileName: f.name,
@@ -479,21 +519,24 @@ export async function syncFromGoogleDrive({ folderUrl, folderId, apiKey, scriptU
           thumbnailLink: f.thumbnailLink,
           webViewLink: f.webViewLink,
           videoMediaMetadata: f.videoMediaMetadata,
+          folderName: f.folderName,
+          folderPath: f.folderPath,
         });
       });
 
       return {
         success: true,
         items: stagedItems,
-        totalFound: mediaFiles.length,
-        strategy: 'Google Drive API v3 (Direct)',
+        totalFound: allMediaFiles.length,
+        foldersScanned,
+        strategy: `Google Drive API v3 (Deep Recursive: ${foldersScanned} folder${foldersScanned > 1 ? 's' : ''})`,
       };
     } catch (err) {
       console.warn('Google Drive v3 API sync notice:', err);
     }
   }
 
-  // Strategy 2: Google Apps Script Webhook
+  // Strategy 2: Google Apps Script Webhook (Supports recursive results)
   if (scriptUrl) {
     try {
       const res = await fetch(scriptUrl);
@@ -507,6 +550,8 @@ export async function syncFromGoogleDrive({ folderUrl, folderId, apiKey, scriptU
             size: f.size,
             mimeType: f.mimeType,
             description: f.description,
+            folderName: f.folderName || '',
+            folderPath: f.folderPath || f.folderName || '',
           });
         });
 
@@ -514,7 +559,7 @@ export async function syncFromGoogleDrive({ folderUrl, folderId, apiKey, scriptU
           success: true,
           items: stagedItems,
           totalFound: stagedItems.length,
-          strategy: 'Google Apps Script Webhook Bridge',
+          strategy: 'Google Apps Script Webhook Bridge (Recursive)',
         };
       }
     } catch (err) {

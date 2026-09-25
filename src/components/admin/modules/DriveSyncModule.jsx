@@ -112,9 +112,10 @@ export default function DriveSyncModule() {
       if (res.success && Array.isArray(res.items) && res.items.length > 0) {
         const added = adminStore.addMultipleStagedProjects(res.items);
         adminStore.updateDriveSettings({ lastDriveSync: new Date().toISOString() });
+        const folderCount = res.foldersScanned || 1;
         setScanNotice({
           type: 'success',
-          text: `Scan complete! Discovered ${res.items.length} file(s) (${added.length} new items staged in review queue).`,
+          text: `Scan complete! Discovered ${res.items.length} file(s) across ${folderCount} folder${folderCount > 1 ? 's' : ''} (${added.length} new items staged in review queue).`,
         });
       } else if (res.needsConfig) {
         // Helpful prompt if credentials missing
@@ -335,23 +336,48 @@ export default function DriveSyncModule() {
     });
   };
 
-  // Copy sample Google Apps Script code
+  // Copy sample Google Apps Script code (with recursive subfolder scanning)
   const handleCopyScript = () => {
-    const scriptCode = `// Google Apps Script: Paste into script.google.com and deploy as Web App
+    const scriptCode = `// Google Apps Script: Paste into script.google.com and deploy as Web App (Anyone access)
 function doGet() {
-  var folderId = "${extractFolderId(driveFolderUrl) || 'YOUR_FOLDER_ID_HERE'}";
-  var folder = DriveApp.getFolderById(folderId);
-  var files = folder.getFiles();
+  var rootFolderId = "${extractFolderId(driveFolderUrl) || 'YOUR_FOLDER_ID_HERE'}";
   var result = [];
-  while (files.hasNext()) {
-    var file = files.next();
-    result.push({
-      id: file.getId(),
-      name: file.getName(),
-      mimeType: file.getMimeType(),
-      size: file.getSize()
-    });
+
+  function scanFolder(folder, path) {
+    // 1. Scan video and media files in current folder
+    var files = folder.getFiles();
+    while (files.hasNext()) {
+      var file = files.next();
+      var mime = file.getMimeType();
+      var name = file.getName();
+      if (mime.indexOf('video/') === 0 || /\\.(mp4|mov|m4v|webm|mkv|avi)$/i.test(name)) {
+        result.push({
+          id: file.getId(),
+          name: name,
+          mimeType: mime,
+          size: file.getSize(),
+          description: file.getDescription() || '',
+          folderName: folder.getName(),
+          folderPath: path ? path + ' / ' + folder.getName() : folder.getName()
+        });
+      }
+    }
+    // 2. Recursively scan all sub-folders and sub-subfolders
+    var subfolders = folder.getFolders();
+    while (subfolders.hasNext()) {
+      var sub = subfolders.next();
+      scanFolder(sub, path ? path + ' / ' + folder.getName() : folder.getName());
+    }
   }
+
+  try {
+    var root = DriveApp.getFolderById(rootFolderId);
+    scanFolder(root, '');
+  } catch (e) {
+    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }`;
@@ -783,8 +809,18 @@ function doGet() {
                 {/* Card Content & Details */}
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <div className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">
-                      Client: {item.client || 'Client Commission'}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-semibold truncate">
+                        Client: {item.client || 'Client Commission'}
+                      </div>
+                      {(item.folderPath || item.folderName) && (
+                        <span 
+                          className="px-1.5 py-0.5 rounded bg-zinc-900 border border-cyan-500/30 text-[9px] font-mono text-cyan-300/90 truncate max-w-[140px] shrink-0" 
+                          title={`Google Drive Location: ${item.folderPath || item.folderName}`}
+                        >
+                          📁 {item.folderName || item.folderPath}
+                        </span>
+                      )}
                     </div>
                     <h4 className="font-syne font-bold text-base text-white group-hover:text-cyan-200 transition-colors line-clamp-1 mt-0.5">
                       {item.title}
@@ -868,6 +904,12 @@ function doGet() {
                 <h3 className="font-syne text-xl sm:text-2xl font-bold text-white mt-0.5 truncate max-w-lg">
                   {publishForm.title}
                 </h3>
+                {(publishForm.folderPath || publishForm.folderName) && (
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 mt-1">
+                    <span className="text-zinc-500 uppercase text-[9px] tracking-wider">Drive Subfolder:</span>
+                    <span className="text-cyan-300 font-semibold truncate">📁 {publishForm.folderPath || publishForm.folderName}</span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => {
