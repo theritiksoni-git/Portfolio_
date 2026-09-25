@@ -1080,7 +1080,7 @@ class AdminStore {
       capabilities: Array.isArray(userData.capabilities) ? userData.capabilities : [],
       createdAt: new Date().toISOString().split('T')[0],
       lastActive: 'Just invited',
-      avatar: userData.avatar || '/img/ritik-portrait.webp', // Default to verified studio portrait
+      avatar: userData.avatar || '', // Custom uploaded picture or fallback initials
       email: email,
       emailEncrypted: encryptSecret(email),
       passcodeHash: hashPasscode(passcode),

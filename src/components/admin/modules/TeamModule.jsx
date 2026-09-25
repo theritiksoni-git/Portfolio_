@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import adminStore, { CAPABILITIES } from '../../../services/adminStore';
 import { 
   Users, 
@@ -19,7 +19,9 @@ import {
   MessageSquare,
   BarChart3,
   FileText,
-  Settings
+  Settings,
+  Upload,
+  Camera
 } from 'lucide-react';
 import sound from '../../../utils/SoundEngine';
 import { showAdminToast, showAdminConfirm } from '../common/AdminPopupMessage';
@@ -35,6 +37,28 @@ const CAPABILITY_ICONS = {
   TEAM: Users,
 };
 
+// Resilient User Avatar with Initial Fallback
+const UserAvatar = ({ src, name, className = "w-12 h-12 rounded-xl" }) => {
+  const [hasError, setHasError] = useState(false);
+  
+  if (!src || hasError) {
+    return (
+      <div className={`${className} bg-gradient-to-br from-cyan-950/80 to-zinc-900 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-syne font-bold text-base select-none shrink-0 shadow-sm`}>
+        {name ? name.charAt(0).toUpperCase() : 'C'}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setHasError(true)}
+      className={`${className} object-cover border border-white/10 shrink-0 shadow-sm`}
+    />
+  );
+};
+
 export default function TeamModule() {
   const [activeTab, setActiveTab] = useState('adminUsers'); // 'adminUsers' | 'crew'
   const [adminUsers, setAdminUsers] = useState(adminStore.getAdminUsers());
@@ -46,12 +70,110 @@ export default function TeamModule() {
   const [revealedPins, setRevealedPins] = useState({});
   const [showModalPin, setShowModalPin] = useState(false);
 
+  // Photo Upload Refs & State
+  const userFileInputRef = useRef(null);
+  const crewFileInputRef = useRef(null);
+  const [isProcessingPhoto, setIsProcessingPhoto] = useState(false);
+
   // Modals
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   const [isCrewModalOpen, setIsCrewModalOpen] = useState(false);
   const [editingCrewMember, setEditingCrewMember] = useState(null);
+
+  // Optimized Client-Side Image Processor (Resizes to crisp 400x400 JPEG Data URL)
+  const processImageFile = (file, onSuccess) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showAdminToast({
+        type: 'error',
+        title: 'INVALID FILE FORMAT',
+        message: 'Please choose an image file (PNG, JPG, WebP).',
+        tag: 'FILE ERROR',
+      });
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      showAdminToast({
+        type: 'warning',
+        title: 'IMAGE TOO LARGE',
+        message: 'Selected image exceeds 15MB. Please choose a smaller picture.',
+        tag: 'SIZE LIMIT',
+      });
+      return;
+    }
+
+    setIsProcessingPhoto(true);
+    sound.playClick();
+
+    const reader = new FileReader();
+    reader.onerror = () => {
+      setIsProcessingPhoto(false);
+      showAdminToast({
+        type: 'error',
+        title: 'READ ERROR',
+        message: 'Failed to read image file from device.',
+        tag: 'UPLOAD FAILED',
+      });
+    };
+
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onerror = () => {
+        setIsProcessingPhoto(false);
+        showAdminToast({
+          type: 'error',
+          title: 'DECODE ERROR',
+          message: 'Unable to decode image file.',
+          tag: 'CORRUPTED FILE',
+        });
+      };
+
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_DIM = 400; // 400x400 max gives retina crispness and keeps storage lightweight
+          let w = img.width;
+          let h = img.height;
+
+          if (w > h) {
+            if (w > MAX_DIM) {
+              h = Math.round((h * MAX_DIM) / w);
+              w = MAX_DIM;
+            }
+          } else {
+            if (h > MAX_DIM) {
+              w = Math.round((w * MAX_DIM) / h);
+              h = MAX_DIM;
+            }
+          }
+
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          onSuccess(optimizedDataUrl);
+          setIsProcessingPhoto(false);
+
+          showAdminToast({
+            type: 'success',
+            title: 'PHOTO UPLOADED',
+            message: 'Profile picture attached successfully.',
+            tag: 'PICTURE READY',
+          });
+        } catch (err) {
+          setIsProcessingPhoto(false);
+          onSuccess(event.target.result);
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -84,7 +206,7 @@ export default function TeamModule() {
       passcode: randomPin,
       role: 'collaborator',
       capabilities: ['PROJECTS', 'MEDIA'],
-      avatar: '/img/ritik-portrait.webp',
+      avatar: '',
     });
     setIsUserModalOpen(true);
   };
@@ -175,7 +297,7 @@ export default function TeamModule() {
       type: 'Camera Department',
       email: '',
       status: 'Available On Call',
-      avatar: '/img/ritik-portrait.webp',
+      avatar: '',
       assignedProjectsCount: 1,
       skills: ['Camera Lighting', 'Sony FX3/FX6', 'Cinematography'],
     });
@@ -349,10 +471,10 @@ export default function TeamModule() {
               <div className="p-6 rounded-2xl bg-gradient-to-br from-zinc-950 via-zinc-900/90 to-amber-950/20 border-2 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="flex items-start sm:items-center gap-4">
                   <div className="relative">
-                    <img
+                    <UserAvatar
                       src={ownerUser.avatar}
-                      alt={ownerUser.name}
-                      className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400/60 shadow-lg"
+                      name={ownerUser.name}
+                      className="w-16 h-16 rounded-2xl border-2 border-amber-400/60 shadow-lg"
                     />
                     <div className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-black font-mono text-[9px] font-extrabold uppercase shadow">
                       OWNER
@@ -481,10 +603,10 @@ export default function TeamModule() {
                         {/* Card Header */}
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div className="flex items-center gap-3">
-                            <img
+                            <UserAvatar
                               src={user.avatar}
-                              alt={user.name}
-                              className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                              name={user.name}
+                              className="w-12 h-12 rounded-xl"
                             />
                             <div>
                               <div className="flex items-center gap-2">
@@ -641,10 +763,10 @@ export default function TeamModule() {
                   </div>
 
                   <div className="flex items-center gap-3.5 mb-3">
-                    <img
+                    <UserAvatar
                       src={member.avatar}
-                      alt={member.name}
-                      className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                      name={member.name}
+                      className="w-12 h-12 rounded-xl"
                     />
                     <div>
                       <h4 className="font-syne font-bold text-base text-white">
@@ -791,17 +913,101 @@ export default function TeamModule() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
-                  Avatar Photo URL
-                </label>
-                <input
-                  type="text"
-                  value={editingUser.avatar}
-                  onChange={(e) => setEditingUser({ ...editingUser, avatar: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500"
-                  placeholder="https://images.unsplash..."
-                />
+              {/* Profile Picture Upload & Customization */}
+              <div className="space-y-2 p-3.5 rounded-xl bg-zinc-900/60 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <label className="block text-zinc-300 font-mono text-[10px] uppercase tracking-wider font-bold">
+                    Person's Profile Picture
+                  </label>
+                  {editingUser.avatar && (
+                    <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Photo Attached
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {/* Avatar Preview with Camera overlay click */}
+                  <div
+                    onClick={() => userFileInputRef.current?.click()}
+                    className="relative group cursor-pointer shrink-0"
+                    title="Click to choose picture from files"
+                  >
+                    <UserAvatar
+                      src={editingUser.avatar}
+                      name={editingUser.name || 'User'}
+                      className="w-16 h-16 rounded-xl border-2 border-white/15 group-hover:border-cyan-400 transition-all shadow-md"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex flex-col items-center justify-center text-cyan-300">
+                      <Camera className="w-5 h-5" />
+                      <span className="text-[8px] font-mono font-bold mt-0.5 uppercase">Choose</span>
+                    </div>
+                  </div>
+
+                  {/* Upload Actions & Controls */}
+                  <div className="flex-1 space-y-2">
+                    <input
+                      ref={userFileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          processImageFile(file, (dataUrl) => {
+                            setEditingUser((prev) => ({ ...prev, avatar: dataUrl }));
+                          });
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => userFileInputRef.current?.click()}
+                        disabled={isProcessingPhoto}
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>{isProcessingPhoto ? 'Optimizing...' : (editingUser.avatar ? 'Change Picture' : 'Upload Person Photo')}</span>
+                      </button>
+
+                      {editingUser.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sound.playClick();
+                            setEditingUser((prev) => ({ ...prev, avatar: '' }));
+                          }}
+                          className="px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-red-950/60 border border-white/10 hover:border-red-500/40 text-zinc-400 hover:text-red-400 font-mono text-xs flex items-center gap-1 transition-all"
+                          title="Remove attached picture"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="text-[10px] font-mono text-zinc-500">
+                      Auto-compressed (JPG/PNG/WebP, max 400×400) for zero lag.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Optional direct URL fallback */}
+                <div className="pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 mb-1">
+                    <span>Or image URL:</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingUser.avatar}
+                    onChange={(e) => setEditingUser({ ...editingUser, avatar: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-500"
+                    placeholder="https://images.unsplash.com/... or data:image/..."
+                  />
+                </div>
               </div>
 
               {/* Capability Matrix Selection */}
@@ -978,17 +1184,101 @@ export default function TeamModule() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider mb-1">
-                  Avatar Photo URL
-                </label>
-                <input
-                  type="text"
-                  value={editingCrewMember.avatar}
-                  onChange={(e) => setEditingCrewMember({ ...editingCrewMember, avatar: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-cyan-500 font-mono"
-                  placeholder="https://images.unsplash..."
-                />
+              {/* Profile Picture Upload & Customization */}
+              <div className="space-y-2 p-3.5 rounded-xl bg-zinc-900/60 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <label className="block text-zinc-300 font-mono text-[10px] uppercase tracking-wider font-bold">
+                    Crew Member Photo
+                  </label>
+                  {editingCrewMember.avatar && (
+                    <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Photo Attached
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {/* Avatar Preview with Camera overlay click */}
+                  <div
+                    onClick={() => crewFileInputRef.current?.click()}
+                    className="relative group cursor-pointer shrink-0"
+                    title="Click to choose picture from files"
+                  >
+                    <UserAvatar
+                      src={editingCrewMember.avatar}
+                      name={editingCrewMember.name || 'Crew'}
+                      className="w-16 h-16 rounded-xl border-2 border-white/15 group-hover:border-cyan-400 transition-all shadow-md"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex flex-col items-center justify-center text-cyan-300">
+                      <Camera className="w-5 h-5" />
+                      <span className="text-[8px] font-mono font-bold mt-0.5 uppercase">Choose</span>
+                    </div>
+                  </div>
+
+                  {/* Upload Actions & Controls */}
+                  <div className="flex-1 space-y-2">
+                    <input
+                      ref={crewFileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          processImageFile(file, (dataUrl) => {
+                            setEditingCrewMember((prev) => ({ ...prev, avatar: dataUrl }));
+                          });
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => crewFileInputRef.current?.click()}
+                        disabled={isProcessingPhoto}
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>{isProcessingPhoto ? 'Optimizing...' : (editingCrewMember.avatar ? 'Change Picture' : 'Upload Person Photo')}</span>
+                      </button>
+
+                      {editingCrewMember.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sound.playClick();
+                            setEditingCrewMember((prev) => ({ ...prev, avatar: '' }));
+                          }}
+                          className="px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-red-950/60 border border-white/10 hover:border-red-500/40 text-zinc-400 hover:text-red-400 font-mono text-xs flex items-center gap-1 transition-all"
+                          title="Remove attached picture"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="text-[10px] font-mono text-zinc-500">
+                      Auto-compressed (JPG/PNG/WebP, max 400×400) for zero lag.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Optional direct URL fallback */}
+                <div className="pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 mb-1">
+                    <span>Or image URL:</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingCrewMember.avatar}
+                    onChange={(e) => setEditingCrewMember({ ...editingCrewMember, avatar: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyan-500"
+                    placeholder="https://images.unsplash.com/... or data:image/..."
+                  />
+                </div>
               </div>
 
               <div>
