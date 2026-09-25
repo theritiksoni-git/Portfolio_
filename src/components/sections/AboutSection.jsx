@@ -1,5 +1,19 @@
-import React from 'react';
-import { Aperture, Eye, Target, Compass, TrendingUp, Briefcase, Sparkles, ExternalLink, Mail } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Aperture, 
+  Eye, 
+  Target, 
+  Compass, 
+  TrendingUp, 
+  Sparkles, 
+  ExternalLink, 
+  Copy, 
+  Check, 
+  Film, 
+  Sliders, 
+  Award, 
+  CheckCircle2
+} from 'lucide-react';
 import usePortfolioData from '../../utils/usePortfolioData';
 import sound from '../../utils/SoundEngine';
 
@@ -32,6 +46,9 @@ const XTwitterIcon = ({ className = "w-4 h-4" }) => (
 
 const AboutSection = () => {
   const { experience, settings, clients, socialLinks } = usePortfolioData();
+  const [readingMode, setReadingMode] = useState('creator'); // 'creator' | 'directing' | 'executive'
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [activeGearTab, setActiveGearTab] = useState('camera'); // 'camera' | 'post' | 'color'
 
   // Dynamic Current Role & Organization derived from Admin Store
   const currentExp = experience && experience.length > 0 ? experience[0] : null;
@@ -48,26 +65,37 @@ const AboutSection = () => {
   const brandList = Array.from(new Set([...otherExperienceCompanies, ...clientNames]))
     .filter((name) => name !== currentCompany);
   const brandHighlights = brandList.length > 0
-    ? brandList.slice(0, 3).join(', ')
-    : 'Arentech, Reliance, and Red Bull';
+    ? brandList.slice(0, 4).join(', ')
+    : 'Adentech, Reliance Industries, Zaggle, and Red Bull';
 
   const authorName = settings?.name || 'RITIK SONI';
   const firstName = authorName.split(' ')[0].toUpperCase();
+  const adminEmail = settings?.adminEmail || 'theritiksoni@gmail.com';
 
-  // Dynamic social links fallback / overrides from admin store
+  // Dynamic social links overrides from admin store
   const ytItem = socialLinks?.find((s) => s.platform?.toLowerCase().includes('youtube'));
   const igItem = socialLinks?.find((s) => s.platform?.toLowerCase().includes('instagram'));
   const liItem = socialLinks?.find((s) => s.platform?.toLowerCase().includes('linkedin'));
   const xItem = socialLinks?.find((s) => s.platform?.toLowerCase().includes('x') || s.platform?.toLowerCase().includes('twitter'));
 
-  // Verified Creator Channels & Social Links
+  const handleCopyEmail = () => {
+    sound.playClick();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(adminEmail);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2400);
+    }
+  };
+
+  // Creator Channels & Verified Profiles
   const creatorSocials = [
     {
       id: 'soc-yt',
       name: 'YouTube',
       handle: ytItem?.handle || '@theritiksoni',
       url: ytItem?.url || 'https://youtube.com/@theritiksoni',
-      tag: 'Essays & Shorts',
+      tag: 'Video Essays & Shorts',
+      metric: 'Flagship Creator Channel',
       icon: YouTubeIcon,
       color: 'text-red-400',
       bgColor: 'bg-red-950/40',
@@ -79,7 +107,8 @@ const AboutSection = () => {
       name: 'Instagram',
       handle: igItem?.handle || '@theritiksoni',
       url: igItem?.url || 'https://instagram.com/theritiksoni',
-      tag: 'Reels & Personal Brand',
+      tag: 'Viral Reels & Personal Brand',
+      metric: '50M+ Cumulative Reach',
       icon: InstagramIcon,
       color: 'text-pink-400',
       bgColor: 'bg-pink-950/40',
@@ -91,7 +120,8 @@ const AboutSection = () => {
       name: 'LinkedIn',
       handle: liItem?.handle || 'in/theritiksoni',
       url: liItem?.url || 'https://linkedin.com/in/theritiksoni',
-      tag: 'Executive Network',
+      tag: 'Executive & Brand Network',
+      metric: 'Industry Partnerships',
       icon: LinkedInIcon,
       color: 'text-sky-400',
       bgColor: 'bg-sky-950/40',
@@ -103,51 +133,82 @@ const AboutSection = () => {
       name: 'X (Twitter)',
       handle: xItem?.handle || '@theritiksoni',
       url: xItem?.url || 'https://x.com/theritiksoni',
-      tag: 'Thoughts & Trends',
+      tag: 'Film Pacing & Trends',
+      metric: 'Real-Time Insights',
       icon: XTwitterIcon,
       color: 'text-zinc-300',
       bgColor: 'bg-zinc-900/60',
       borderColor: 'hover:border-cyan-500/40',
       shadowColor: 'hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]',
     },
-    {
-      id: 'soc-email',
-      name: 'Direct Transmit',
-      handle: settings?.adminEmail || 'theritiksoni@gmail.com',
-      url: `mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}`,
-      tag: 'Collabs & Retainers',
-      icon: Mail,
-      color: 'text-cyan-400',
-      bgColor: 'bg-cyan-950/40',
-      borderColor: 'hover:border-cyan-500/50',
-      shadowColor: 'hover:shadow-[0_0_20px_rgba(6,182,212,0.25)]',
-    },
   ];
 
+  // Studio Gear & Weapons Matrix
+  const gearMatrix = {
+    camera: [
+      { name: 'Sony FX3 Cinema Line', role: 'A-Camera (4K 120p 10-Bit 4:2:2 Full-Frame)' },
+      { name: 'Sony FX6 Production Camera', role: 'Commercial Multi-Cam & Electronic NDs' },
+      { name: 'Sony G-Master II Optics', role: '24-70mm f/2.8 GM II, 50mm f/1.2 GM, 85mm f/1.4' },
+      { name: 'DJI RS3 Pro & Follow Focus', role: 'Cinematic Dynamic Tracking & Gimbal Crane Moves' },
+    ],
+    post: [
+      { name: 'Adobe Premiere Pro', role: 'Dynamic NLE Assembly, Multi-Cam Sync & Trimming' },
+      { name: 'After Effects', role: 'Kinetic Typography, Motion Graphics & Visual Effects' },
+      { name: 'Adobe Audition', role: 'Multi-Track Foley, Dialogue De-Noise & -14 LUFS Mastering' },
+      { name: 'Photoshop & Illustrator', role: 'Viral 3-Second Thumbnail Hook Design & Storyboards' },
+    ],
+    color: [
+      { name: 'DaVinci Resolve Studio 19', role: 'Node-Based Primary & Secondary Color Grading' },
+      { name: 'ACES Color Science', role: 'Color Space Transforms & Wide Dynamic Range Conformity' },
+      { name: 'Kodak 2383 Print Emulation', role: 'Authentic 35mm Analog Halation & Grain Texturing' },
+      { name: 'Calibrated DCI-P3 Suite', role: 'Targeted Color Accuracy for YouTube, Mobile & Cinema' },
+    ],
+  };
+
   return (
-    <section id="about" className="relative py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="about" className="relative py-24 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       
+      {/* Background Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
+
       {/* Section Header */}
-      <div className="mb-14">
+      <div className="mb-14 relative z-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 font-mono text-xs tracking-widest uppercase mb-3">
-          <Aperture className="w-3.5 h-3.5" />
+          <Aperture className="w-3.5 h-3.5 text-cyan-400" />
           <span>SCENE 02 // CREATIVE IDENTITY & CONTENT CREATOR</span>
         </div>
-        <h2 className="font-syne font-bold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight">
-          ABOUT{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-200">
-            {firstName}
-          </span>
-        </h2>
-        <p className="mt-2 text-sm sm:text-base text-zinc-400 max-w-2xl">
-          {settings?.tagline || `Content Creator, Director & Video Editor bridging cinematic storytelling with data-backed organic growth.`}
-        </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="font-syne font-bold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight">
+              ABOUT{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-200">
+                {firstName}
+              </span>
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-zinc-400 max-w-2xl font-light">
+              {settings?.tagline || `Content Creator, Director & Video Editor bridging cinematic storytelling with data-backed organic growth.`}
+            </p>
+          </div>
+
+          {/* Quick Copy Contact Pill */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={handleCopyEmail}
+              className="px-4 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-white/10 hover:border-cyan-500/40 text-xs font-mono text-zinc-300 hover:text-white flex items-center gap-2 transition-all shadow-md active:scale-95"
+              title="Copy direct email address"
+            >
+              {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-cyan-400" />}
+              <span>{copiedEmail ? 'EMAIL COPIED' : adminEmail}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Main Grid: Visual Frame & Narrative */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start relative z-10">
         
-        {/* Left: Cinematic Portrait & Frame (5 cols) */}
+        {/* Left: Cinematic Portrait & Retro CRT Television (5 cols) */}
         <div className="lg:col-span-5 relative group">
           
           {/* Glowing Backlight */}
@@ -207,42 +268,161 @@ const AboutSection = () => {
               </div>
             </div>
           </div>
+
+          {/* Quick Creator Telemetry Stat Cards Under TV Frame */}
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
+              <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
+                <TrendingUp className="w-3 h-3 text-cyan-400" />
+                TOTAL VIEWS
+              </span>
+              <div className="mt-1 font-syne font-extrabold text-2xl text-white">50M+</div>
+              <span className="text-[10px] font-mono text-zinc-400">Cumulative impressions</span>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 backdrop-blur-md flex flex-col justify-between">
+              <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest flex items-center gap-1">
+                <Film className="w-3 h-3 text-amber-400" />
+                COMMERCIALS
+              </span>
+              <div className="mt-1 font-syne font-extrabold text-2xl text-white">100+</div>
+              <span className="text-[10px] font-mono text-zinc-400">Delivered master cuts</span>
+            </div>
+          </div>
         </div>
 
-        {/* Right: Narrative Storytelling (7 cols) */}
+        {/* Right: Narrative Storytelling & Interactive Perspectives (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           
-          <div className="p-5 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 text-cyan-200 font-syne text-lg sm:text-xl font-bold leading-relaxed">
-            "As an active Content Creator, Film Director, and Video Editor, I don't just edit footage—I engineer attention. From the first 3-second hook to the final conversion, I merge cinematic depth with viral social psychology."
+          {/* Interactive Reading Mode Switcher */}
+          <div className="flex items-center justify-between p-1.5 rounded-2xl bg-zinc-950/90 border border-white/10">
+            <div className="flex items-center gap-1 w-full">
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setReadingMode('creator');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  readingMode === 'creator'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Creator & Attention</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setReadingMode('directing');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  readingMode === 'directing'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Film className="w-3.5 h-3.5" />
+                <span>Director & Craft</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  setReadingMode('executive');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                  readingMode === 'executive'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5" />
+                <span>Executive Dossier</span>
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-4 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
-            <p>
-              I am a <strong className="text-white font-medium">Content Creator</strong> and <strong className="text-white font-medium">Filmmaker</strong> who understands both sides of the screen. In today’s high-velocity digital economy, breathtaking visuals mean nothing if viewers scroll past in two seconds. Having built and scaled personal brand channels (<a href="https://instagram.com/theritiksoni" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-mono">@theritiksoni</a>) with multi-million impression short-form content in psychology, self-improvement, and cinematic storytelling, I know firsthand how to capture and retain modern audience attention.
-            </p>
-            <p>
-              Alongside my creator channels, I serve as <strong className="text-white font-medium">{currentRole}</strong> at{' '}
-              <strong className="text-cyan-300 font-medium">{currentCompany}</strong>
-              {brandHighlights ? (
-                <> and have collaborated on creative campaigns involving names like <strong className="text-white font-medium">{brandHighlights}</strong>,</>
-              ) : (
-                <>,</>
-              )}{' '}
-              managing the entire production arc: from market research, trend scouting, and editorial content calendars to multi-cam cinema shoots, micro-pacing, sound design, and algorithm optimization.
-            </p>
+          {/* Narrative Content Based on Mode */}
+          {readingMode === 'creator' && (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="p-5 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 text-cyan-200 font-syne text-lg sm:text-xl font-bold leading-relaxed">
+                "In today’s hyper-fast digital feed, viewers decide in 1.8 seconds whether to stay or scroll. I engineer retention from the very first frame."
+              </div>
 
-            {currentMission && (
-              <p className="border-l-2 border-cyan-500/50 pl-3 py-1 italic text-cyan-200/90 text-xs sm:text-sm bg-cyan-950/20 rounded-r-lg">
-                "{currentMission}"
-              </p>
-            )}
+              <div className="space-y-4 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+                <p>
+                  As an active <strong className="text-white font-medium">Content Creator</strong> with over <strong className="text-cyan-300 font-medium">50M+ cumulative digital impressions</strong> across my personal channels (<a href="https://instagram.com/theritiksoni" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-mono font-medium">@theritiksoni</a>), I understand what works because I test it live on real audiences every single week.
+                </p>
+                <p>
+                  I specialize in behavioral psychology, retention curve pacing, kinetic typography, and audio disruption. By analyzing algorithmic shifts across Instagram Reels, YouTube Shorts, and long-form video essays, I translate complex brand concepts into viral, high-retention formats that stop the thumb and convert viewers into devoted advocates.
+                </p>
+                <p>
+                  Whether scaling a brand's short-form presence from zero or directing multi-platform social campaigns, my approach is rooted in measurable impact, emotional truth, and relentless creative agility.
+                </p>
+              </div>
+            </div>
+          )}
 
-            <p>
-              Whether orchestrating a 30-day Instagram Reel growth sprint engineered to stop the scroll, directing a corporate brand film, or producing creator-first YouTube video essays, my mission is clear: <span className="text-white font-medium">turn casual scrollers into loyal communities and measurable brand momentum.</span>
-            </p>
-          </div>
+          {readingMode === 'directing' && (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="p-5 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-amber-200 font-syne text-lg sm:text-xl font-bold leading-relaxed">
+                "Every cut is an emotional choice. From camera blocking to ACES color conformity and sound design, every detail serves the story."
+              </div>
 
-          {/* Creator Channels & Social Links Dock */}
+              <div className="space-y-4 text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+                <p>
+                  Directing and lead editorial require a holistic command of the entire production arc. Currently leading post-production as <strong className="text-white font-medium">{currentRole}</strong> at <strong className="text-amber-300 font-medium">{currentCompany}</strong>, I bridge the divide between visionary creative concepts and disciplined execution.
+                </p>
+                <p>
+                  My commercial work spans over 100+ delivered brand campaigns, collaborating with premier names including <strong className="text-white font-medium">{brandHighlights}</strong>. From multi-camera anamorphic shoots to node-based DaVinci Resolve color grading and immersive multi-layer soundscapes, I ensure broadcast conformity that looks breathtaking on IMAX and mobile screens alike.
+                </p>
+                {currentMission && (
+                  <p className="border-l-2 border-amber-500/50 pl-3 py-1 italic text-amber-200/90 text-xs sm:text-sm bg-amber-950/20 rounded-r-lg">
+                    "{currentMission}"
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {readingMode === 'executive' && (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="p-5 rounded-2xl bg-zinc-900 border border-white/10 text-white font-syne text-lg sm:text-xl font-bold leading-relaxed">
+                Executive Dossier // Ritik Soni — Creative Director, Content Creator & Lead Video Editor
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CURRENT POST</div>
+                  <div className="text-white font-bold">{currentRole}</div>
+                  <div className="text-cyan-400">@{currentCompany}</div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">LOCATIONS & AVAILABILITY</div>
+                  <div className="text-white font-bold">Pune & Mumbai, India</div>
+                  <div className="text-emerald-400">Open for Global Remote & Retainers</div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">CORE CAPABILITIES</div>
+                  <div className="text-zinc-300">Commercial Direction, 9:16 Viral Reels, DaVinci Resolve Color, Sound Design</div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                  <div className="text-zinc-500 uppercase tracking-widest text-[9px]">PROVEN TRACTION</div>
+                  <div className="text-zinc-300">50M+ Organic Video Views, 100+ Commercial Master Cuts, 5+ Years Industry Experience</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Creator Channels & Social Hubs Dock */}
           <div className="pt-2 border-t border-white/10 space-y-3">
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs uppercase tracking-wider text-zinc-300 flex items-center gap-1.5 font-semibold">
@@ -250,11 +430,11 @@ const AboutSection = () => {
                 <span>CREATOR CHANNELS & SOCIAL HUBS</span>
               </span>
               <span className="font-mono text-[10px] text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-                CONNECT DIRECTLY
+                VERIFIED PLATFORMS
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {creatorSocials.map((item) => {
                 const IconComponent = item.icon;
                 return (
@@ -265,20 +445,23 @@ const AboutSection = () => {
                     rel="noopener noreferrer"
                     onMouseEnter={() => sound.playHover()}
                     data-cursor="VIEW"
-                    className={`group relative p-3 rounded-2xl bg-zinc-950/80 border border-white/10 ${item.borderColor} transition-all duration-300 flex items-center justify-between gap-3 ${item.shadowColor}`}
+                    className={`group relative p-3.5 rounded-2xl bg-zinc-950/80 border border-white/10 ${item.borderColor} transition-all duration-300 flex items-center justify-between gap-3 ${item.shadowColor}`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-9 h-9 rounded-xl ${item.bgColor} border border-white/10 flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform shrink-0`}>
-                        <IconComponent className="w-4 h-4" />
+                      <div className={`w-10 h-10 rounded-xl ${item.bgColor} border border-white/10 flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform shrink-0`}>
+                        <IconComponent className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-syne font-bold text-xs text-white group-hover:text-cyan-300 transition-colors flex items-center gap-1">
+                        <div className="font-syne font-bold text-xs text-white group-hover:text-cyan-300 transition-colors flex items-center gap-1.5">
                           <span>{item.name}</span>
+                          <span className="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1 rounded">
+                            {item.metric}
+                          </span>
                         </div>
                         <div className="font-mono text-[11px] text-zinc-400 truncate">
                           {item.handle}
                         </div>
-                        <div className="text-[9px] font-mono text-zinc-500">
+                        <div className="text-[10px] font-mono text-zinc-500">
                           {item.tag}
                         </div>
                       </div>
@@ -290,59 +473,89 @@ const AboutSection = () => {
             </div>
           </div>
 
-          {/* Dynamic Production Timeline / Active Milestones Arc */}
-          {experience && experience.length > 0 && (
-            <div className="pt-2 border-t border-white/10 space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                <span className="flex items-center gap-1.5 text-cyan-400">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  ACTIVE PRODUCTION ARC ({experience.length} MILESTONES)
-                </span>
-                <span className="text-zinc-500 font-mono text-[9px]">LIVE SYNC</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {experience.map((exp, idx) => (
-                  <div
-                    key={exp.id || idx}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950/80 border border-white/10 hover:border-cyan-500/40 transition-colors text-xs group"
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ backgroundColor: exp.accentColor || '#06b6d4' }}
-                    />
-                    <span className="text-white font-medium group-hover:text-cyan-300 transition-colors">
-                      {exp.role}
-                    </span>
-                    <span className="text-zinc-400 font-mono text-[10px]">
-                      @{exp.company}
-                    </span>
-                    <span className="text-[9px] font-mono text-cyan-400/90 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                      {exp.timelinePosition || exp.period || exp.durationLabel || 'Active'}
-                    </span>
-                  </div>
-                ))}
+          {/* Interactive Weapons & Technical Console */}
+          <div className="pt-2 border-t border-white/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs uppercase tracking-wider text-zinc-300 flex items-center gap-1.5 font-semibold">
+                <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+                <span>DIRECTOR & POST-PRODUCTION ARSENAL</span>
+              </span>
+
+              {/* Weapon Category Tabs */}
+              <div className="flex items-center gap-1 bg-zinc-900 rounded-lg p-0.5 border border-white/5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setActiveGearTab('camera');
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-mono transition-colors ${
+                    activeGearTab === 'camera' ? 'bg-cyan-500 text-black font-bold' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Camera
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setActiveGearTab('post');
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-mono transition-colors ${
+                    activeGearTab === 'post' ? 'bg-cyan-500 text-black font-bold' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Post NLE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playClick();
+                    setActiveGearTab('color');
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-mono transition-colors ${
+                    activeGearTab === 'color' ? 'bg-cyan-500 text-black font-bold' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Color & Audio
+                </button>
               </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {gearMatrix[activeGearTab].map((gear, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 rounded-xl bg-zinc-950/70 border border-white/5 hover:border-cyan-500/30 transition-all flex items-start gap-2.5"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-syne font-bold text-xs text-white">{gear.name}</div>
+                    <div className="text-[11px] font-mono text-zinc-400">{gear.role}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Pillars of Craft Grid (4 Pillars) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1">
+            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1 hover:border-cyan-500/30 transition-colors">
               <Eye className="w-4 h-4 text-cyan-400" />
               <span className="font-syne font-bold text-xs text-white">Visual Grammar</span>
               <span className="text-[11px] font-mono text-zinc-400">Cinematic Lighting & Tone</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1">
+            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1 hover:border-cyan-500/30 transition-colors">
               <Target className="w-4 h-4 text-cyan-400" />
               <span className="font-syne font-bold text-xs text-white">Pacing & Retention</span>
               <span className="text-[11px] font-mono text-zinc-400">Frame-Accurate Cuts</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1">
+            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1 hover:border-cyan-500/30 transition-colors">
               <TrendingUp className="w-4 h-4 text-cyan-400" />
               <span className="font-syne font-bold text-xs text-white">Creator Psychology</span>
               <span className="text-[11px] font-mono text-zinc-400">Viral Hooks & Algorithmic Lift</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1">
+            <div className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 flex flex-col gap-1 hover:border-cyan-500/30 transition-colors">
               <Compass className="w-4 h-4 text-cyan-400" />
               <span className="font-syne font-bold text-xs text-white">Full-Funnel</span>
               <span className="text-[11px] font-mono text-zinc-400">Idea to Conversion</span>
@@ -358,4 +571,3 @@ const AboutSection = () => {
 };
 
 export default AboutSection;
-
