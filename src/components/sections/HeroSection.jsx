@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, ArrowDown, ChevronRight, Sparkles, Clapperboard, Scissors, TrendingUp } from 'lucide-react';
+import { Play, ArrowDown, ChevronRight, Sparkles, Scissors, TrendingUp } from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 import usePortfolioData from '../../utils/usePortfolioData';
 
@@ -68,15 +68,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
             <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
-            {/* Discipline 2: Director */}
-            <div className="inline-flex items-center gap-1.5">
-              <Clapperboard className="w-3.5 h-3.5 text-sky-400 shrink-0 opacity-90" />
-              <span className="font-medium tracking-widest uppercase">DIRECTOR</span>
-            </div>
-
-            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
-
-            {/* Discipline 3: Video Editor */}
+            {/* Discipline 2: Video Editor */}
             <div className="inline-flex items-center gap-1.5">
               <Scissors className="w-3.5 h-3.5 text-cyan-400 shrink-0 opacity-90" />
               <span className="font-medium tracking-widest uppercase">VIDEO EDITOR</span>
@@ -84,7 +76,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
 
             <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
 
-            {/* Discipline 4: Social Media Manager */}
+            {/* Discipline 3: Social Media Manager */}
             <div className="inline-flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0 opacity-90" />
               <span className="font-medium tracking-widest uppercase">SOCIAL MEDIA MANAGER</span>
