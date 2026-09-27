@@ -128,7 +128,8 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
     if (location.pathname === '/skills') return 'skills';
     if (location.pathname === '/resume') return 'skills';
     if (location.pathname === '/contact') return 'contact';
-    return 'home';
+    if (location.pathname === '/') return 'home';
+    return '404';
   })();
 
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -250,11 +251,24 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   );
 }
 
+// Known valid application routes that trigger the full cinematic onboarding
+const VALID_ROUTES = new Set(['/', '/about', '/work', '/process', '/skills', '/contact', '/resume']);
+
+const shouldSkipLoadingScreen = (pathname) => {
+  if (!pathname) return false;
+  const cleanPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  // Skip on admin routes
+  if (cleanPath.startsWith('/admin')) return true;
+  // Skip on 404 or any invalid/unknown route
+  if (!VALID_ROUTES.has(cleanPath)) return true;
+  return false;
+};
+
 function App() {
-  // If someone accesses the website by "/admin" link, skip the headphone and loading screen
+  // If someone accesses the website via an invalid 404 link or "/admin", skip the headphone and loading screen
   const [isLoading, setIsLoading] = useState(() => {
     if (typeof window !== 'undefined') {
-      return !window.location.pathname.startsWith('/admin');
+      return !shouldSkipLoadingScreen(window.location.pathname);
     }
     return true;
   });
