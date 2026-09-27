@@ -756,50 +756,6 @@ const ContactSection = ({ onOpenResume, isStandalonePage = false }) => {
 
       </div>
 
-      {/* Verified Brand Trust Strip */}
-      <div className="pt-10 border-t border-white/10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-          <div className="font-mono text-[11px] text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span>TRUSTED BY LEADING ENTERPRISES & CREATORS</span>
-          </div>
-          <span className="font-mono text-[10px] text-zinc-500">
-            50M+ CUMULATIVE VIEWS • COMMERCIAL & DIGITAL DIRECTION
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
-            <img 
-              src="/img/client-logos/redbull.png" 
-              alt="Red Bull" 
-              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
-            />
-          </div>
-          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
-            <img 
-              src="/img/client-logos/reliance-industries-limited.png" 
-              alt="Reliance Industries" 
-              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
-            />
-          </div>
-          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
-            <img 
-              src="/img/client-logos/adentech.png" 
-              alt="AdenTech" 
-              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
-            />
-          </div>
-          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
-            <img 
-              src="/img/client-logos/vishwa-vinayak-group.png" 
-              alt="Vishwa Vinayak Group" 
-              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
-            />
-          </div>
-        </div>
-      </div>
-
     </section>
   );
 };
