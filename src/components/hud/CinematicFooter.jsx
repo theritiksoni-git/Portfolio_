@@ -89,7 +89,7 @@ const CinematicFooter = ({ onOpenResume }) => {
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 </div>
                 <div className="text-[10px] tracking-widest text-zinc-400 font-mono">
-                  FILMMAKER • VIDEO PRODUCTION EXECUTIVE • SMM LEAD
+                  CONTENT CREATOR • VIDEO EDITOR • SOCIAL MEDIA MANAGER
                 </div>
               </div>
             </div>
