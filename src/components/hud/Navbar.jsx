@@ -98,8 +98,8 @@ const Navbar = ({ onOpenResume, isBackgroundSoundOn, onToggleBackgroundSound, is
                 RITIK SONI
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
               </div>
-              <div className="text-[9px] sm:text-[10px] tracking-wider sm:tracking-widest text-zinc-400 font-mono transition-colors duration-300 group-hover:text-zinc-300">
-                CONTENT CREATOR • VIDEO EDITOR • SOCIAL MEDIA MANAGER
+              <div className="text-[9px] sm:text-[10px] tracking-wider sm:tracking-widest text-zinc-400 font-mono transition-colors duration-300 group-hover:text-zinc-300 whitespace-nowrap">
+                CONTENT CREATOR • VIDEO EDITOR • SMM
               </div>
             </div>
           </button>

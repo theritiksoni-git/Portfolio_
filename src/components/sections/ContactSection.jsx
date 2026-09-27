@@ -54,13 +54,7 @@ const PROJECT_TYPES = [
   },
 ];
 
-// Quick Select Chips for streamlined 1-click selection
-const QUICK_SCOPES = [
-  { label: 'Commercial Film', value: 'Corporate Video / Client Production', icon: Video },
-  { label: 'Viral Reels & SMM', value: 'Social Media Management & Growth Strategy', icon: Sparkles },
-  { label: 'Executive Role', value: 'Full-Time Video Production Executive', icon: Film },
-  { label: 'YouTube Long-Form', value: 'YouTube Long-Form Storytelling', icon: Tv },
-];
+
 
 // Crisp Inline Social Brand SVGs
 const LinkedInIcon = ({ className = "w-4 h-4" }) => (
@@ -534,37 +528,11 @@ const ContactSection = ({ onOpenResume, isStandalonePage = false }) => {
               />
             </div>
 
-            {/* Quick Scope Filter Chips */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between font-mono text-xs text-zinc-400 uppercase tracking-wider">
-                <span>PROJECT SCOPE</span>
-                <span className="text-[10px] text-cyan-400/80 font-mono">[ QUICK SELECT ]</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mb-1">
-                {QUICK_SCOPES.map((qs) => {
-                  const isSelected = formData.projectType === qs.value;
-                  const Icon = qs.icon;
-                  return (
-                    <button
-                      key={qs.value}
-                      type="button"
-                      onClick={() => handleSelectProjectType(qs.value)}
-                      className={`px-2.5 py-1.5 rounded-lg font-mono text-[11px] flex items-center gap-1.5 transition-all ${
-                        isSelected
-                          ? 'bg-cyan-500 text-black font-semibold shadow-[0_0_12px_rgba(56,189,248,0.35)]'
-                          : 'bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:border-white/20'
-                      }`}
-                    >
-                      <Icon className="w-3 h-3" />
-                      <span>{qs.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Project Scope Custom Decorated Dropdown */}
             <div className="relative" ref={dropdownRef}>
+              <label htmlFor="projectType" className="block font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1.5">
+                PROJECT SCOPE
+              </label>
               {/* Custom Dropdown Trigger Button */}
               <button
                 type="button"
