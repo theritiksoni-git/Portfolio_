@@ -73,12 +73,18 @@ export default function usePageMetadata() {
   }, []);
 
   useEffect(() => {
-    const meta = PAGE_METADATA[pathname] || PAGE_METADATA['/'];
+    const meta = PAGE_METADATA[pathname] || {
+      title: '404: Timeline Not Found | Ritik Soni',
+      description: 'The requested sequence or transmission frequency does not exist on this timeline.',
+      name: '404',
+    };
     let title = meta.title;
+
     if (pathname === '/' && settings?.studioTitle && settings.studioTitle !== 'Ritik Soni' && settings.studioTitle !== 'Ritik Soni Creative Studios') {
       title = `${settings.studioTitle} | Video Editor & Filmmaker in Pune, India`;
     }
     document.title = title;
+
 
     const description = (pathname === '/' && settings?.metaDescription)
       ? settings.metaDescription

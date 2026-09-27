@@ -214,6 +214,7 @@ const ExperienceSection = () => {
     }, 50);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, selectedExpId, triggerCut]);
 
   // Calculate percentage from mouse or touch event on the timeline track
@@ -230,6 +231,7 @@ const ExperienceSection = () => {
     if (activeExp && activeExp.id !== selectedExpId) {
       setSelectedExpId(activeExp.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExpId]);
 
   const handleTimelineMouseDown = (e) => {

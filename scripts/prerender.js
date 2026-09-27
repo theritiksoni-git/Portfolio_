@@ -260,4 +260,20 @@ for (const route of ROUTES) {
   console.log(`[PRERENDER SUCCESS] ${route.path} -> ${path.relative(BUILD_DIR, targetFile)} (${renderedHtml.length} bytes)`);
 }
 
+// Generate static build/404.html for hosting platforms (e.g., Vercel, GitHub Pages)
+const notFoundHtml = generatePageHtml({
+  path: '/404',
+  title: '404: Timeline Not Found | Ritik Soni',
+  description: 'The requested sequence or transmission frequency does not exist on this timeline.',
+  heading: '404: Frame Missing // Timeline Offline - Ritik Soni',
+  content: `
+    <h2>404 — Signal Lost / Reel Not Found</h2>
+    <p>The requested page or sequence does not exist on this timeline. Return to the <a href="/">Cinematic Home Reel</a> or explore the <a href="/work">Commercial Portfolio</a>.</p>
+  `
+});
+const notFoundTarget = path.join(BUILD_DIR, '404.html');
+fs.writeFileSync(notFoundTarget, notFoundHtml, 'utf8');
+console.log(`[PRERENDER SUCCESS] /404 -> 404.html (${notFoundHtml.length} bytes)`);
+
 console.log('[PRERENDER COMPLETE] All routes successfully pre-rendered for search engines.');
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
@@ -29,6 +29,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ResumePage = lazy(() => import('./pages/ResumePage'));
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Lazy-Loaded Heavy Interactive Modals
 const ProjectModal = lazy(() => import('./components/sections/ProjectModal'));
@@ -52,7 +53,6 @@ const RouteLoadingFallback = () => (
  */
 function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
   const location = useLocation();
-  const navigate = useNavigate();
   usePageMetadata();
   const { projects } = usePortfolioData();
   const [selectedProject, setSelectedProject] = useState(null);
@@ -100,21 +100,11 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
     }
   }, [location.pathname]);
 
-  // Redirect to hero page ('/') on initial site visit or browser reload
+  // Ensure proper scroll restoration behavior
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    const scrollToHero = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    };
-    scrollToHero();
-    requestAnimationFrame(scrollToHero);
-
-    if (location.pathname !== '/' && !location.pathname.startsWith('/admin')) {
-      navigate('/', { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -218,16 +208,8 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
               />
               <Route path="/admin" element={<Admin />} />
               <Route path="/adminhome" element={<AdminHome />} />
-              {/* Fallback to Home */}
-              <Route
-                path="*"
-                element={
-                  <HomePage
-                    onSelectProject={(proj) => setSelectedProject(proj)}
-                    onOpenResume={() => setIsResumeOpen(true)}
-                  />
-                }
-              />
+              {/* 404 Dedicated Not Found Fallback */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>
