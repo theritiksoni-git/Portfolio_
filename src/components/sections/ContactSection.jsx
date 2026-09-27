@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Send, RotateCcw, CheckCircle2, AlertCircle, Sparkles, MessageSquare, ChevronDown, Check, Film, Video, Tv, Layers, FileText } from 'lucide-react';
+import { 
+  Mail, Send, RotateCcw, CheckCircle2, AlertCircle, Sparkles, 
+  MessageSquare, ChevronDown, Check, Film, Video, Tv, Layers, 
+  FileText, Copy 
+} from 'lucide-react';
 import sound from '../../utils/SoundEngine';
 import adminStore from '../../services/adminStore';
 import usePortfolioData from '../../utils/usePortfolioData';
 
 // Define the types of projects that can be selected in the contact form.
-// Each project type has a value, label, description, icon, and badge.
-// This array is used to populate the dropdown menu in the contact form.
 const PROJECT_TYPES = [
   {
     value: 'Full-Time Video Production Executive',
@@ -52,10 +54,15 @@ const PROJECT_TYPES = [
   },
 ];
 
-// Crisp Inline Social Brand SVGs
+// Quick Select Chips for streamlined 1-click selection
+const QUICK_SCOPES = [
+  { label: 'Commercial Film', value: 'Corporate Video / Client Production', icon: Video },
+  { label: 'Viral Reels & SMM', value: 'Social Media Management & Growth Strategy', icon: Sparkles },
+  { label: 'Executive Role', value: 'Full-Time Video Production Executive', icon: Film },
+  { label: 'YouTube Long-Form', value: 'YouTube Long-Form Storytelling', icon: Tv },
+];
 
-// This component renders inline social brand SVGs.
-// Each SVG represents a different social media platform.
+// Crisp Inline Social Brand SVGs
 const LinkedInIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2Z" />
@@ -82,10 +89,7 @@ const XTwitterIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-// This component renders the contact section of the portfolio.
-// It includes a form for users to submit their project inquiries and contact information.
-
-const ContactSection = ({ onOpenResume }) => {
+const ContactSection = ({ onOpenResume, isStandalonePage = false }) => {
   const { settings, availability } = usePortfolioData();
   const [formData, setFormData] = useState({
     Name: '',
@@ -98,12 +102,13 @@ const ContactSection = ({ onOpenResume }) => {
   const [botTrap, setBotTrap] = useState('');
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
   const dropdownRef = useRef(null);
 
-  // This useEffect hook handles the dropdown menu functionality.
-  // It adds event listeners for clicks outside the dropdown and key presses.
-
+  // Performance-optimized dropdown listeners: only attach when dropdown is active
   useEffect(() => {
+    if (!isDropdownOpen) return;
+
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
@@ -119,7 +124,7 @@ const ContactSection = ({ onOpenResume }) => {
       document.removeEventListener('pointerdown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isDropdownOpen]);
 
   const handleSelectProjectType = (val) => {
     sound.playClick();
@@ -127,18 +132,23 @@ const ContactSection = ({ onOpenResume }) => {
     setIsDropdownOpen(false);
   };
 
-  // Find the selected project type object from the PROJECT_TYPES array.
-  // If no match is found, default to the second project type in the array.
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    sound.playClick();
+    const emailToCopy = settings?.adminEmail || 'theritiksoni@gmail.com';
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(emailToCopy);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2400);
+    }
+  };
 
-  const selectedProjectTypeObj = PROJECT_TYPES.find((t) => t.value === formData.projectType) || PROJECT_TYPES[1];
+  const selectedProjectTypeObj = PROJECT_TYPES.find((t) => t.value === formData.projectType) || PROJECT_TYPES[2];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  // This function resets the form data and status.
-  // It is called when the user clicks the reset button.
 
   const handleReset = () => {
     sound.playClick();
@@ -151,20 +161,17 @@ const ContactSection = ({ onOpenResume }) => {
     setStatus({ state: 'idle', message: '' });
   };
 
-  // This function handles the form submission.
-  // It sends the form data to the server and updates the status accordingly.
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Anti-bot honeypot check (silently drop bot submissions)
+    // 1. Anti-bot honeypot check
     if (botTrap && botTrap.trim() !== '') {
       sound.playShutter();
       setStatus({ state: 'success', message: 'INQUIRY TRANSMITTED SUCCESSFULLY' });
       return;
     }
 
-    // 2. Cooldown rate limiter (prevent rapid repeated flooding)
+    // 2. Cooldown rate limiter
     const now = Date.now();
     if (now - lastSubmitTime < 15000) {
       sound.playClick();
@@ -186,7 +193,7 @@ const ContactSection = ({ onOpenResume }) => {
     const submissionMessage = (formData.Message || '').trim().slice(0, 3000);
     const targetEmail = settings?.adminEmail || 'theritiksoni@gmail.com';
 
-    // 1. Immediately record lead in central admin control room store
+    // 4. Record lead in central admin control room store
     try {
       adminStore.addLead({
         name: submissionName,
@@ -202,7 +209,7 @@ const ContactSection = ({ onOpenResume }) => {
 
     let emailDispatched = false;
 
-    // 2. Direct online delivery via Web3Forms (if access key provided in Admin Settings)
+    // 5. Direct delivery via Web3Forms (if access key configured)
     if (settings?.web3formsKey) {
       try {
         const w3Res = await fetch('https://api.web3forms.com/submit', {
@@ -229,7 +236,7 @@ const ContactSection = ({ onOpenResume }) => {
       }
     }
 
-    // 3. Direct online delivery via FormSubmit AJAX service
+    // 6. Direct online delivery via FormSubmit AJAX service
     let isActivationPending = false;
     if (!emailDispatched) {
       try {
@@ -264,7 +271,7 @@ const ContactSection = ({ onOpenResume }) => {
       }
     }
 
-    // 4. Local / Cloud server backend delivery fallback
+    // 7. Local / Cloud backend delivery fallback
     try {
       const backendUrl = settings?.backendApiUrl || 'http://localhost:3001';
       await fetch(`${backendUrl}/submitFormData`, {
@@ -282,7 +289,7 @@ const ContactSection = ({ onOpenResume }) => {
       // Local server offline, expected in frontend-only environments
     }
 
-    // 5. Present clean user alert: email is sent or not
+    // 8. Present clean user alert
     if (emailDispatched) {
       setFormData({
         Name: '',
@@ -293,37 +300,34 @@ const ContactSection = ({ onOpenResume }) => {
       setStatus({
         state: 'success',
         message: isActivationPending
-          ? 'INQUIRY LOGGED! OWNER SETUP: PLEASE CHECK YOUR EMAIL AND CLICK "ACTIVATE FORM" FOR THIS DOMAIN.'
-          : 'INQUIRY SENT SUCCESSFULLY! THANK YOU FOR REACHING OUT, I WILL GET BACK TO YOU SHORTLY.',
+          ? 'INQUIRY LOGGED! OWNER SETUP: PLEASE CHECK YOUR EMAIL AND ACTIVATE FORM.'
+          : 'INQUIRY TRANSMITTED SUCCESSFULLY! THANK YOU FOR REACHING OUT, I WILL GET BACK TO YOU SHORTLY.',
       });
     } else {
       setStatus({
         state: 'error',
-        message: 'COULD NOT TRANSMIT INQUIRY. PLEASE CHECK YOUR CONNECTION OR TRY AGAIN.',
+        message: 'COULD NOT TRANSMIT INQUIRY. PLEASE CHECK YOUR CONNECTION OR EMAIL THERITIKSONI@GMAIL.COM DIRECTLY.',
       });
     }
   };
 
-  // This function renders the contact section component.
-  // It includes the section header, direct contact information, and the interactive message terminal.
-
   return (
-    <section id="contact" className="relative py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="contact" className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isStandalonePage ? 'py-4 sm:py-6' : 'py-20 sm:py-28'}`}>
 
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 font-mono text-xs tracking-widest uppercase mb-4">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>FINAL SCENE // GET IN TOUCH</span>
+      {/* Unified Section Header */}
+      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 font-mono text-xs tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+          <Send className="w-3.5 h-3.5 text-cyan-400" />
+          <span>SCENE 06 // PRODUCTION TERMINAL • DIRECT TRANSMISSION</span>
         </div>
-        <h2 className="font-syne font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight uppercase leading-tight">
+        <h1 className="font-syne font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight uppercase leading-tight">
           HAVE A STORY TO TELL? <br />
           <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 bg-clip-text text-transparent">
             LET'S MAKE SOMETHING WORTH WATCHING.
           </span>
-        </h2>
-        <p className="mt-4 text-zinc-400 text-sm sm:text-base font-light">
-          Available for full-time executive production roles, corporate video commissions, and high-impact freelance creative projects.
+        </h1>
+        <p className="mt-4 text-zinc-400 text-sm sm:text-base font-light max-w-2xl mx-auto leading-relaxed">
+          Available for full-time executive production roles, corporate video commissions, and high-impact freelance creative projects. All messages transmit directly to Ritik's priority terminal.
         </p>
       </div>
 
@@ -334,26 +338,43 @@ const ContactSection = ({ onOpenResume }) => {
         <div className="lg:col-span-5 space-y-6">
 
           <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl space-y-6">
-            <h3 className="font-syne font-bold text-xl text-white">
-              Direct Communication
-            </h3>
-            <p className="text-zinc-400 text-xs sm:text-sm font-light leading-relaxed">
-              Whether you need end-to-end video production, high-retention social edits, or a creative lead for your next film, my inbox is open.
-            </p>
+            <div>
+              <h2 className="font-syne font-bold text-xl text-white">
+                Direct Communication
+              </h2>
+              <p className="mt-2 text-zinc-400 text-xs sm:text-sm font-light leading-relaxed">
+                Whether you need end-to-end video production, high-retention social edits, or a creative lead for your next film, my inbox is open.
+              </p>
+            </div>
 
             <div className="space-y-4 font-mono text-xs">
-              <a
-                href={`mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}`}
-                onMouseEnter={() => sound.playHover()}
-                data-cursor="VIEW"
-                className="flex items-center gap-3 p-3.5 rounded-xl bg-zinc-900/80 border border-white/5 hover:border-cyan-500/40 hover:text-cyan-300 text-zinc-200 transition-colors"
-              >
-                <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>{settings?.adminEmail || 'theritiksoni@gmail.com'}</span>
-              </a>
+              {/* Email with 1-Click Copy and Mailto Action */}
+              <div className="flex items-center gap-2">
+                <a
+                  href={`mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}`}
+                  onMouseEnter={() => sound.playHover()}
+                  data-cursor="EMAIL"
+                  className="flex-1 flex items-center gap-3 p-3.5 rounded-xl bg-zinc-900/80 border border-white/5 hover:border-cyan-500/40 hover:text-cyan-300 text-zinc-200 transition-colors truncate"
+                  title="Click to compose email"
+                >
+                  <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span className="truncate">{settings?.adminEmail || 'theritiksoni@gmail.com'}</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  onMouseEnter={() => sound.playHover()}
+                  data-cursor="COPY"
+                  className="px-3.5 py-3.5 rounded-xl bg-zinc-900/80 border border-white/5 hover:border-cyan-500/40 text-zinc-400 hover:text-cyan-300 transition-colors flex items-center justify-center shrink-0"
+                  title="Copy email address"
+                >
+                  {copiedEmail ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
 
               {/* Live Studio Availability Badge */}
-              <div className="p-3.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 font-mono text-[11px] space-y-1">
+              <div className="p-3.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 font-mono text-[11px] space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-zinc-400 uppercase tracking-wider text-[10px]">PRODUCTION STATUS:</span>
                   <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-[10px]">
@@ -364,6 +385,10 @@ const ContactSection = ({ onOpenResume }) => {
                 {availability?.subtext && (
                   <p className="text-zinc-400 text-[10px] font-sans font-light leading-relaxed">{availability.subtext}</p>
                 )}
+                <div className="pt-1.5 border-t border-cyan-500/20 flex items-center justify-between text-[10px] text-zinc-400">
+                  <span>RESPONSE TIME:</span>
+                  <span className="text-cyan-300 font-semibold">&lt; 24H GUARANTEED</span>
+                </div>
               </div>
             </div>
 
@@ -426,13 +451,14 @@ const ContactSection = ({ onOpenResume }) => {
             {/* Quick Resume Link in Card */}
             <div className="pt-2">
               <button
+                type="button"
                 onClick={() => {
                   sound.playClick();
                   onOpenResume();
                 }}
                 onMouseEnter={() => sound.playHover()}
                 data-cursor="VIEW"
-                className="w-full py-3 rounded-xl bg-zinc-900/90 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 hover:text-cyan-200 font-mono text-xs font-bold tracking-wider transition-all duration-200 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] flex items-center justify-center gap-2 group"
+                className="w-full py-3.5 rounded-xl bg-zinc-900/90 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 hover:text-cyan-200 font-mono text-xs font-bold tracking-wider transition-all duration-200 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] flex items-center justify-center gap-2 group"
               >
                 <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
                 <span>ACCESS RESUME & CV DOSSIER</span>
@@ -458,7 +484,7 @@ const ContactSection = ({ onOpenResume }) => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Honeypot anti-spam trap (hidden from users, catches automated bots) */}
+            {/* Honeypot anti-spam trap */}
             <div className="hidden" aria-hidden="true" style={{ display: 'none', position: 'absolute', left: '-9999px' }}>
               <label htmlFor="company_website_verification">Leave this empty</label>
               <input
@@ -508,13 +534,37 @@ const ContactSection = ({ onOpenResume }) => {
               />
             </div>
 
+            {/* Quick Scope Filter Chips */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between font-mono text-xs text-zinc-400 uppercase tracking-wider">
+                <span>PROJECT SCOPE</span>
+                <span className="text-[10px] text-cyan-400/80 font-mono">[ QUICK SELECT ]</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-1">
+                {QUICK_SCOPES.map((qs) => {
+                  const isSelected = formData.projectType === qs.value;
+                  const Icon = qs.icon;
+                  return (
+                    <button
+                      key={qs.value}
+                      type="button"
+                      onClick={() => handleSelectProjectType(qs.value)}
+                      className={`px-2.5 py-1.5 rounded-lg font-mono text-[11px] flex items-center gap-1.5 transition-all ${
+                        isSelected
+                          ? 'bg-cyan-500 text-black font-semibold shadow-[0_0_12px_rgba(56,189,248,0.35)]'
+                          : 'bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:border-white/20'
+                      }`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      <span>{qs.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Project Scope Custom Decorated Dropdown */}
             <div className="relative" ref={dropdownRef}>
-              <label htmlFor="projectType" className="block font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span>PROJECT SCOPE / INQUIRY TYPE</span>
-                <span className="text-[10px] text-cyan-400/80 font-mono tracking-widest">[ SELECT SCENE ]</span>
-              </label>
-
               {/* Custom Dropdown Trigger Button */}
               <button
                 type="button"
@@ -563,7 +613,7 @@ const ContactSection = ({ onOpenResume }) => {
                 >
                   <div className="text-[9px] font-mono text-cyan-400/80 px-3 pt-1 pb-1 tracking-widest uppercase flex items-center justify-between border-b border-white/5 mb-1">
                     <span>{"// SELECT PRODUCTION CATEGORY"}</span>
-                    <span>5 OPTIONS</span>
+                    <span>{PROJECT_TYPES.length} OPTIONS</span>
                   </div>
 
                   {PROJECT_TYPES.map((type) => {
@@ -632,9 +682,14 @@ const ContactSection = ({ onOpenResume }) => {
 
             {/* Message Textarea */}
             <div>
-              <label htmlFor="Message" className="block font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1.5">
-                PROJECT VISION & DETAILS
-              </label>
+              <div className="flex items-center justify-between mb-1.5 font-mono text-xs text-zinc-400 uppercase tracking-wider">
+                <label htmlFor="Message">
+                  PROJECT VISION & DETAILS
+                </label>
+                <span className="text-[10px] text-zinc-500 font-mono">
+                  {formData.Message.length} / 3000
+                </span>
+              </div>
               <textarea
                 id="Message"
                 name="Message"
@@ -680,7 +735,7 @@ const ContactSection = ({ onOpenResume }) => {
                 className="flex-1 py-3.5 px-6 rounded-xl bg-cyan-500 text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 hover:shadow-[0_0_25px_rgba(56,189,248,0.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
-                <span>TRANSMIT INQUIRY</span>
+                <span>{status.state === 'sending' ? 'TRANSMITTING...' : 'TRANSMIT INQUIRY'}</span>
               </button>
 
               <button
@@ -700,6 +755,51 @@ const ContactSection = ({ onOpenResume }) => {
         </div>
 
       </div>
+
+      {/* Verified Brand Trust Strip */}
+      <div className="pt-10 border-t border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+          <div className="font-mono text-[11px] text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>TRUSTED BY LEADING ENTERPRISES & CREATORS</span>
+          </div>
+          <span className="font-mono text-[10px] text-zinc-500">
+            50M+ CUMULATIVE VIEWS • COMMERCIAL & DIGITAL DIRECTION
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
+            <img 
+              src="/img/client-logos/redbull.png" 
+              alt="Red Bull" 
+              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
+            />
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
+            <img 
+              src="/img/client-logos/reliance-industries-limited.png" 
+              alt="Reliance Industries" 
+              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
+            />
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
+            <img 
+              src="/img/client-logos/adentech.png" 
+              alt="AdenTech" 
+              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
+            />
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/5 hover:border-white/15 transition-all flex items-center justify-center h-20 group">
+            <img 
+              src="/img/client-logos/vishwa-vinayak-group.png" 
+              alt="Vishwa Vinayak Group" 
+              className="max-h-7 max-w-[110px] object-contain opacity-50 group-hover:opacity-100 transition-opacity filter grayscale group-hover:grayscale-0" 
+            />
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 };
