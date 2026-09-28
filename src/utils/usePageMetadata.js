@@ -40,6 +40,16 @@ const PAGE_METADATA = {
     description: "View Ritik Soni's professional background, content creation metrics, client campaigns, and commercial production experience.",
     name: 'Resume',
   },
+  '/privacy': {
+    title: 'Privacy Policy | Ritik Soni Creative Studios',
+    description: 'Privacy policy, telemetry transparency, and data governance standards for ritiksoni.in and commercial film production services.',
+    name: 'Privacy Policy',
+  },
+  '/terms': {
+    title: 'Terms & Conditions | Ritik Soni Creative Studios',
+    description: 'Operational terms, creative intellectual property rights, and commercial production commission terms for Ritik Soni.',
+    name: 'Terms & Conditions',
+  },
 };
 
 function setOrCreateMeta(nameOrProp, attrName, value) {

@@ -71,6 +71,23 @@
 
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
+    <!-- Google Analytics 4 (GA4) Telemetry Framework (Privacy-Preserving & Edge-Safe) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      try {
+        var gaId = window.REACT_APP_GA_ID || '%REACT_APP_GA_ID%';
+        if (gaId && typeof gaId === 'string' && gaId.indexOf('%') === -1) {
+          var gaScript = document.createElement('script');
+          gaScript.async = true;
+          gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+          document.head.appendChild(gaScript);
+          gtag('config', gaId, { anonymize_ip: true });
+        }
+      } catch (e) {}
+    </script>
+
     <!-- JSON-LD STRUCTURED DATA (SEO & LLMO KNOWLEDGE GRAPH) -->
     <script type="application/ld+json">
     {

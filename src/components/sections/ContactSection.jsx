@@ -187,6 +187,26 @@ const ContactSection = ({ onOpenResume, isStandalonePage = false }) => {
     const submissionMessage = (formData.Message || '').trim().slice(0, 3000);
     const targetEmail = settings?.adminEmail || 'theritiksoni@gmail.com';
 
+    // 3b. Strict email format & minimum name validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(submissionEmail)) {
+      sound.playClick();
+      setStatus({
+        state: 'error',
+        message: 'TRANSMISSION ERROR: PLEASE ENTER A VALID EMAIL ADDRESS (e.g. name@company.com)',
+      });
+      return;
+    }
+
+    if (submissionName.length < 2) {
+      sound.playClick();
+      setStatus({
+        state: 'error',
+        message: 'TRANSMISSION ERROR: PLEASE ENTER YOUR NAME OR BRAND (MINIMUM 2 CHARACTERS)',
+      });
+      return;
+    }
+
     // 4. Record lead in central admin control room store
     try {
       adminStore.addLead({

@@ -54,9 +54,9 @@ const CinematicFooter = ({ onOpenResume }) => {
   const navigate = useNavigate();
 
   const activeSocials = (socialLinks && socialLinks.length > 0 ? socialLinks : [
-    { platform: 'LinkedIn', url: 'https://linkedin.com/in/ritiksoni' },
+    { platform: 'LinkedIn', url: 'https://linkedin.com/in/theritiksoni' },
     { platform: 'Instagram', url: 'https://instagram.com/theritiksoni' },
-    { platform: 'YouTube', url: 'https://youtube.com' },
+    { platform: 'YouTube', url: 'https://youtube.com/@theritiksoni' },
     { platform: 'Email Transmit', url: `mailto:${settings?.adminEmail || 'theritiksoni@gmail.com'}` },
   ]).filter((s) => s.active !== false);
 
@@ -71,7 +71,7 @@ const CinematicFooter = ({ onOpenResume }) => {
   };
 
   return (
-    <footer className="relative z-10 border-t border-white/10 bg-black/90 backdrop-blur-2xl py-14 px-4 sm:px-6 lg:px-12 select-none">
+    <footer className="relative z-10 border-t border-white/10 bg-black/90 backdrop-blur-2xl py-14 px-4 sm:px-6 lg:px-12">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Upper Footer: Brand & Scene Index Grid */}
@@ -182,19 +182,37 @@ const CinematicFooter = ({ onOpenResume }) => {
 
         </div>
 
-        {/* Lower Footer: Telemetry & Copyright Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-zinc-500">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span>© {new Date().getFullYear()} RITIK SONI. ALL RIGHTS RESERVED.</span>
+        {/* Lower Footer: Telemetry, Legal & Copyright Bar */}
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-[11px] text-zinc-400">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
+            <div className="flex items-center gap-2 text-zinc-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              <span>© {new Date().getFullYear()} RITIK SONI. ALL RIGHTS RESERVED.</span>
+            </div>
+            <span className="text-zinc-600 hidden sm:inline">•</span>
+            <button
+              onClick={() => handleNav('/privacy')}
+              onMouseEnter={() => sound.playHover()}
+              className="text-zinc-400 hover:text-cyan-300 underline underline-offset-4 decoration-white/15 hover:decoration-cyan-400 transition-colors"
+            >
+              PRIVACY POLICY
+            </button>
+            <span className="text-zinc-600">•</span>
+            <button
+              onClick={() => handleNav('/terms')}
+              onMouseEnter={() => sound.playHover()}
+              className="text-zinc-400 hover:text-cyan-300 underline underline-offset-4 decoration-white/15 hover:decoration-cyan-400 transition-colors"
+            >
+              TERMS & CONDITIONS
+            </button>
           </div>
 
-          <div className="flex items-center gap-4 text-zinc-600">
+          <div className="flex items-center gap-3 text-zinc-400">
             <span>24.00 FPS MASTER</span>
             <span>•</span>
             <span>4K DCI CINEMA</span>
             <span>•</span>
-            <span className="text-cyan-400/80">WEBGL 3D ENVIRONMENT</span>
+            <span className="text-cyan-400 font-medium">WEBGL 3D ENVIRONMENT</span>
           </div>
         </div>
 

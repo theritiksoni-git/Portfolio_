@@ -66,7 +66,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               <span className="font-medium tracking-widest uppercase">CONTENT CREATOR</span>
             </div>
 
-            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
+            <span className="text-zinc-400 font-mono text-xs select-none">{"//"}</span>
 
             {/* Discipline 2: Video Editor */}
             <div className="inline-flex items-center gap-1.5">
@@ -74,7 +74,7 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               <span className="font-medium tracking-widest uppercase">VIDEO EDITOR</span>
             </div>
 
-            <span className="text-zinc-600 font-mono text-xs select-none">{"//"}</span>
+            <span className="text-zinc-400 font-mono text-xs select-none">{"//"}</span>
 
             {/* Discipline 3: Social Media Manager */}
             <div className="inline-flex items-center gap-1.5">
@@ -89,24 +89,10 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
             Content Creator & Filmmaker directing high-impact commercial films, creator-led digital narratives, and full-funnel social media campaigns that bridge cinematic emotion with audience hook retention.
           </p>
 
-          {/* Primary Action Group */}
+          {/* Action Group: Clear Primary Focus */}
           <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 w-full sm:w-auto">
             
-            {/* Action 1: About Me */}
-            <button
-              onClick={(e) => {
-                sound.playLensClick(e.clientX);
-                onExploreAbout();
-              }}
-              onMouseEnter={(e) => sound.playHover(e.clientX)}
-              data-cursor="ABOUT"
-              className="group h-12 px-7 rounded-full bg-zinc-950/90 text-white font-mono font-bold text-xs sm:text-sm tracking-wider uppercase border border-white/20 hover:border-cyan-400 hover:text-cyan-300 hover:bg-zinc-900/90 hover:shadow-[0_0_25px_rgba(56,189,248,0.25)] hover:scale-102 active:scale-[0.98] transition-all duration-300 focus:outline-none flex items-center justify-center gap-2 backdrop-blur-md w-full sm:w-auto cursor-pointer"
-            >
-              <span>ABOUT ME</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform duration-300" />
-            </button>
-
-            {/* Action 2: Explore Selected Work */}
+            {/* Primary Dominant CTA: Explore Selected Work */}
             <button
               onClick={(e) => {
                 sound.playLensClick(e.clientX);
@@ -114,10 +100,25 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               }}
               onMouseEnter={(e) => sound.playHover(e.clientX)}
               data-cursor="EXPLORE"
-              className="group relative h-12 px-7 rounded-full bg-gradient-to-r from-cyan-500 to-sky-400 text-black font-mono font-bold text-xs sm:text-sm tracking-wider uppercase border border-transparent shadow-[0_0_25px_rgba(56,189,248,0.4)] hover:shadow-[0_0_35px_rgba(56,189,248,0.7)] hover:scale-102 active:scale-[0.98] transition-all duration-300 focus:outline-none flex items-center justify-center gap-2.5 w-full sm:w-auto cursor-pointer overflow-hidden"
+              className="group relative h-12 px-8 rounded-full bg-gradient-to-r from-cyan-400 via-cyan-500 to-sky-400 text-black font-mono font-bold text-xs sm:text-sm tracking-wider uppercase border border-transparent shadow-[0_0_25px_rgba(56,189,248,0.5)] hover:shadow-[0_0_35px_rgba(56,189,248,0.8)] hover:scale-102 active:scale-[0.98] transition-all duration-300 focus:outline-none flex items-center justify-center gap-2.5 w-full sm:w-auto cursor-pointer overflow-hidden"
             >
+              <span className="w-2 h-2 rounded-full bg-black animate-ping" />
               <span>EXPLORE SELECTED WORK</span>
               <ChevronRight className="w-4 h-4 text-black group-hover:translate-x-0.5 transition-transform duration-300" />
+            </button>
+
+            {/* Secondary Action: About Me */}
+            <button
+              onClick={(e) => {
+                sound.playLensClick(e.clientX);
+                onExploreAbout();
+              }}
+              onMouseEnter={(e) => sound.playHover(e.clientX)}
+              data-cursor="ABOUT"
+              className="group h-12 px-7 rounded-full bg-zinc-950/90 text-zinc-200 font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase border border-white/20 hover:border-cyan-400 hover:text-cyan-300 hover:bg-zinc-900/90 hover:shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:scale-102 active:scale-[0.98] transition-all duration-300 focus:outline-none flex items-center justify-center gap-2 backdrop-blur-md w-full sm:w-auto cursor-pointer"
+            >
+              <span>ABOUT ME</span>
+              <ChevronRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform duration-300" />
             </button>
           </div>
 
@@ -127,10 +128,10 @@ const HeroSection = ({ onExploreWork, onExploreAbout, onPlayReel }) => {
               <React.Fragment key={idx}>
                 <div className="inline-flex items-center gap-1.5 shrink-0">
                   <span className="text-cyan-400 font-medium">{m.val}</span>
-                  <span className="text-zinc-400 font-normal uppercase">{m.label}</span>
+                  <span className="text-zinc-300 font-normal uppercase">{m.label}</span>
                 </div>
                 {idx < metrics.length - 1 && (
-                  <span className="text-zinc-700 text-[9px] shrink-0 select-none">•</span>
+                  <span className="text-zinc-500 text-[9px] shrink-0 select-none">•</span>
                 )}
               </React.Fragment>
             ))}

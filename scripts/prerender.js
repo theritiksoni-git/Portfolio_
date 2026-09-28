@@ -174,6 +174,38 @@ const ROUTES = [
       <h2>Core Metrics</h2>
       <p>50M+ Organic Views • 100+ Master Commercial Cuts • 78%+ Average Audience Retention Rate</p>
     `
+  },
+  {
+    path: '/privacy',
+    title: 'Privacy Policy | Ritik Soni Creative Studios',
+    description: 'Privacy policy, telemetry transparency, and data governance standards for ritiksoni.in and commercial film production services.',
+    heading: 'Privacy Policy & Data Governance // Ritik Soni',
+    content: `
+      <h2>Privacy Protocol & Transparent Data Governance</h2>
+      <p>Ritik Soni operates ritiksoni.in with data minimization and respectful visitor privacy as foundational principles.</p>
+      <h2>Information We Collect</h2>
+      <p>We do not deploy third-party advertising cookies or cross-site tracking profiles. We collect direct inquiries submitted through our contact terminal (name, email, project scope) solely to evaluate and communicate regarding commercial film commissions.</p>
+      <h2>Privacy-First Performance Telemetry</h2>
+      <p>This portfolio utilizes privacy-respecting Vercel Analytics and Speed Insights to monitor Core Web Vitals and ensure 60fps rendering without storing personal identity or selling data.</p>
+      <h2>Contact</h2>
+      <p>Inquiries regarding privacy or data modification requests can be transmitted directly to <a href="mailto:theritiksoni@gmail.com">theritiksoni@gmail.com</a>.</p>
+    `
+  },
+  {
+    path: '/terms',
+    title: 'Terms & Conditions | Ritik Soni Creative Studios',
+    description: 'Operational terms, creative intellectual property rights, and commercial production commission terms for Ritik Soni.',
+    heading: 'Terms & Conditions // Operational Charter | Ritik Soni',
+    content: `
+      <h2>Operational Terms & Acceptance</h2>
+      <p>By browsing ritiksoni.in or initiating commercial video production commissions, you agree to these Terms and Conditions and our Privacy Policy.</p>
+      <h2>Intellectual Property & Commercial Showreels</h2>
+      <p>All video cuts, commercials, motion design, custom WebGL 3D shaders, and audio tracks hosted on this portfolio belong to Ritik Soni or respective licensed brand partners. Scraping, unauthorized re-uploading, or redistributing without written consent is prohibited.</p>
+      <h2>Commercial Engagements & Deliverables</h2>
+      <p>Commercial project inquiries, milestone deliverables, and master exports (ProRes / Rec.709) are governed by individual client agreements and scope confirmations.</p>
+      <h2>Governing Law</h2>
+      <p>These terms are governed by the laws of India, with exclusive jurisdiction in the courts of Pune, Maharashtra, India.</p>
+    `
   }
 ];
 
@@ -215,6 +247,8 @@ function generatePageHtml(route) {
         <a href="/skills" style="color: #38bdf8; text-decoration: underline;">Skills</a>
         <a href="/resume" style="color: #38bdf8; text-decoration: underline;">Resume</a>
         <a href="/contact" style="color: #38bdf8; text-decoration: underline;">Contact</a>
+        <a href="/privacy" style="color: #38bdf8; text-decoration: underline;">Privacy</a>
+        <a href="/terms" style="color: #38bdf8; text-decoration: underline;">Terms</a>
       </nav>
     </header>
     <main>

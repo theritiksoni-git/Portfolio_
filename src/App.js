@@ -20,6 +20,8 @@ import usePageMetadata from './utils/usePageMetadata';
 import HomePage from './pages/HomePage';
 import usePortfolioData from './utils/usePortfolioData';
 
+import CookieConsentBanner from './components/common/CookieConsentBanner';
+
 // Lazy-Loaded Secondary Pages for Lightweight Initial Bundle
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const WorkPage = lazy(() => import('./pages/WorkPage'));
@@ -27,6 +29,8 @@ const ProcessPage = lazy(() => import('./pages/ProcessPage'));
 const SkillsPage = lazy(() => import('./pages/SkillsPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ResumePage = lazy(() => import('./pages/ResumePage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -122,7 +126,7 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
 
   // Map route to active cinematic scene
   const activeScene = (() => {
-    if (location.pathname === '/about') return 'about';
+    if (location.pathname === '/about' || location.pathname === '/privacy' || location.pathname === '/terms') return 'about';
     if (location.pathname === '/work') return 'work';
     if (location.pathname === '/process') return 'process';
     if (location.pathname === '/skills') return 'skills';
@@ -207,6 +211,8 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
                 path="/resume"
                 element={<ResumePage onOpenResume={() => setIsResumeOpen(true)} />}
               />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/adminhome" element={<AdminHome />} />
               {/* 404 Dedicated Not Found Fallback */}
@@ -246,13 +252,16 @@ function ExperienceShell({ isBackgroundSoundOn, onToggleBackgroundSound }) {
             onSelectProject={(project) => setSelectedProject(project)}
           />
         </Suspense>
+
+        {/* Global Privacy & Telemetry Cookie Consent Banner */}
+        <CookieConsentBanner />
       </div>
     </WebGLFallback>
   );
 }
 
 // Known valid application routes that trigger the full cinematic onboarding
-const VALID_ROUTES = new Set(['/', '/about', '/work', '/process', '/skills', '/contact', '/resume']);
+const VALID_ROUTES = new Set(['/', '/about', '/work', '/process', '/skills', '/contact', '/resume', '/privacy', '/terms']);
 
 const shouldSkipLoadingScreen = (pathname) => {
   if (!pathname) return false;
