@@ -145,11 +145,15 @@ class SoundEngine {
       '/audio/golden-hour/gh5.wav',
       '/audio/golden-hour/gh6.wav',
     ];
+    this._goldenHourVolume = 0.16; // Balanced volume (~50% reduction from 0.35, harmonizing with 0.18 soundtrack)
     this._goldenHourBuffers = [];
+    this._goldenHourArrayBuffers = [];
+    this._goldenHourBlobUrls = [];
     this._lastGhIndex = -1;
     this._lastGhTime = 0;
     this._currentGhSource = null;
     this._currentGhGain = null;
+    this._ghCacheName = 'ritik-golden-hour-cache-v1';
 
     // SFX throttling
     this._lastHoverTime = 0;
@@ -169,6 +173,13 @@ class SoundEngine {
     this.playViolinSymphonyScroll = this.playGearScroll;
     this.playMajAScrollNote = this.playGearScroll;
     this.playCinematicScroll = this.playGearScroll;
+
+    // Eagerly pre-cache and load Golden Hour sounds into persistent browser cache on startup
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        this.preloadGoldenHour().catch(() => {});
+      }, 0);
+    }
   }
 
   _isAdminPage() {
@@ -227,6 +238,11 @@ class SoundEngine {
 
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
+    }
+
+    // Decode any pre-cached ArrayBuffers into Web Audio AudioBuffers immediately
+    if (this.ctx && this._goldenHourArrayBuffers && this._goldenHourArrayBuffers.length > 0) {
+      this._decodeCachedGoldenHourBuffers();
     }
 
     return this.ctx;
@@ -310,23 +326,105 @@ class SoundEngine {
     } catch (e) {}
   }
 
+  _decodeCachedGoldenHourBuffers() {
+    if (!this.ctx) return;
+    this._goldenHourArrayBuffers.forEach((ab, idx) => {
+      if (ab && !this._goldenHourBuffers[idx] && (!this._ghLoading || !this._ghLoading[idx])) {
+        if (!this._ghLoading) this._ghLoading = {};
+        this._ghLoading[idx] = true;
+        try {
+          this.ctx.decodeAudioData(ab.slice(0))
+            .then((decoded) => {
+              this._goldenHourBuffers[idx] = decoded;
+              this._ghLoading[idx] = false;
+            })
+            .catch(() => {
+              this._ghLoading[idx] = false;
+            });
+        } catch (e) {
+          this._ghLoading[idx] = false;
+        }
+      }
+    });
+  }
+
   async preloadGoldenHour() {
-    this.initContext();
-    if (!this.ctx || this._isPreloadingGh) return;
+    if (typeof window === 'undefined') return;
+    if (this._isPreloadingGh) return;
     this._isPreloadingGh = true;
-    const promises = this._goldenHourUrls.map(async (url, idx) => {
-      if (this._goldenHourBuffers[idx]) return this._goldenHourBuffers[idx];
+
+    // 1. Open persistent browser CacheStorage API
+    let cacheStorage = null;
+    if ('caches' in window) {
       try {
-        const res = await fetch(url);
-        const ab = await res.arrayBuffer();
-        const decoded = await this.ctx.decodeAudioData(ab);
-        this._goldenHourBuffers[idx] = decoded;
-        return decoded;
+        cacheStorage = await window.caches.open(this._ghCacheName);
+      } catch (e) {
+        cacheStorage = null;
+      }
+    }
+
+    const promises = this._goldenHourUrls.map(async (url, idx) => {
+      try {
+        // Already decoded in-memory AudioBuffer
+        if (this._goldenHourBuffers[idx]) return this._goldenHourBuffers[idx];
+
+        let arrayBuffer = this._goldenHourArrayBuffers[idx];
+
+        // Retrieve from browser CacheStorage first (0 network round-trip)
+        if (!arrayBuffer && cacheStorage) {
+          try {
+            const cachedRes = await cacheStorage.match(url);
+            if (cachedRes) {
+              arrayBuffer = await cachedRes.arrayBuffer();
+            }
+          } catch (e) {}
+        }
+
+        // If not in cache yet, fetch from server once and store in CacheStorage
+        if (!arrayBuffer) {
+          try {
+            const res = await fetch(url, { cache: 'force-cache' });
+            if (res.ok) {
+              if (cacheStorage) {
+                try {
+                  await cacheStorage.put(url, res.clone());
+                } catch (e) {}
+              }
+              arrayBuffer = await res.arrayBuffer();
+            }
+          } catch (e) {}
+        }
+
+        if (arrayBuffer) {
+          this._goldenHourArrayBuffers[idx] = arrayBuffer;
+
+          // Create local Blob URL (100% offline from RAM, zero server requests)
+          if (!this._goldenHourBlobUrls[idx]) {
+            try {
+              const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+              this._goldenHourBlobUrls[idx] = URL.createObjectURL(blob);
+            } catch (e) {}
+          }
+
+          // If AudioContext exists, decode into Web Audio AudioBuffer
+          if (this.ctx) {
+            try {
+              const decoded = await this.ctx.decodeAudioData(arrayBuffer.slice(0));
+              this._goldenHourBuffers[idx] = decoded;
+              return decoded;
+            } catch (e) {}
+          }
+        }
       } catch (e) {
         return null;
       }
     });
-    await Promise.all(promises);
+
+    try {
+      await Promise.all(promises);
+    } finally {
+      this._isPreloadingGh = false;
+    }
   }
 
   _playGhBuffer(buffer, clientX) {
@@ -339,7 +437,7 @@ class SoundEngine {
       src.buffer = buffer;
 
       const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+      gain.gain.setValueAtTime(this._goldenHourVolume, this.ctx.currentTime);
 
       if (clientX !== undefined && this.ctx.createStereoPanner) {
         const panner = this.ctx.createStereoPanner();
@@ -606,37 +704,34 @@ class SoundEngine {
       this.preloadGoldenHour().catch(() => {});
     }
 
-    // 1. Instant zero-latency playback via decoded Web Audio buffer if ready
+    // 1. Instant zero-latency playback via decoded Web Audio buffer if ready (0ms, 0 network requests)
     if (this.ctx && this._goldenHourBuffers && this._goldenHourBuffers[nextIdx]) {
       this._playGhBuffer(this._goldenHourBuffers[nextIdx], clientX);
       return;
     }
 
-    // 2. Immediate playback via HTML5 Audio element
+    // 2. Immediate playback via cached Blob URL (100% in-browser RAM, 0 network requests)
+    if (this._goldenHourBlobUrls && this._goldenHourBlobUrls[nextIdx]) {
+      try {
+        const chime = new Audio(this._goldenHourBlobUrls[nextIdx]);
+        chime.volume = this._goldenHourVolume;
+        const p = chime.play();
+        if (p !== undefined) p.catch(() => {});
+        return;
+      } catch (e) {}
+    }
+
+    // 3. Fallback: ensure cache preloader is running and play with standard element
+    if (!this._isPreloadingGh) {
+      this.preloadGoldenHour().catch(() => {});
+    }
+
     try {
       const chime = new Audio(this._goldenHourUrls[nextIdx]);
-      chime.volume = 0.35;
+      chime.volume = this._goldenHourVolume;
       const p = chime.play();
-      if (p !== undefined) {
-        p.catch(() => {});
-      }
+      if (p !== undefined) p.catch(() => {});
     } catch (e) {}
-
-    // 3. Load & decode this buffer asynchronously so subsequent clicks are zero-latency
-    if (this.ctx && !this._goldenHourBuffers[nextIdx] && (!this._ghLoading || !this._ghLoading[nextIdx])) {
-      if (!this._ghLoading) this._ghLoading = {};
-      this._ghLoading[nextIdx] = true;
-      fetch(this._goldenHourUrls[nextIdx])
-        .then((r) => r.arrayBuffer())
-        .then((ab) => this.ctx.decodeAudioData(ab))
-        .then((decoded) => {
-          this._goldenHourBuffers[nextIdx] = decoded;
-          this._ghLoading[nextIdx] = false;
-        })
-        .catch(() => {
-          this._ghLoading[nextIdx] = false;
-        });
-    }
   }
 
   playClick(clientX) {
@@ -649,6 +744,12 @@ class SoundEngine {
 
   playShutter() {
     this.playGoldenHour();
+  }
+
+  setGoldenHourVolume(volume) {
+    if (typeof volume === 'number' && !isNaN(volume)) {
+      this._goldenHourVolume = Math.max(0, Math.min(1, volume));
+    }
   }
 
   /**
