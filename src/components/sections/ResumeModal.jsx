@@ -93,7 +93,7 @@ Instagram Content Creator & Personal Brand Builder | Self-Employed / Freelance (
 - Produced scroll-stopping videos using strong hooks, storytelling structures, and audience retention techniques to maintain a loyal niche audience.
 - Secured paid content creation contracts (including Yukio Co-Living) based purely on organic content quality and reach.
 
-Lead Video Editor & Content Specialist (Selected Client Engagements) | (2022 — Present)
+Lead Video Editor & Content Specialist (Selected Client Engagements) | (2026 — Present)
 - Arentech Projects: Edited corporate tech showcase films highlighting infrastructure and technological innovation with custom kinetic typography.
 - Reliance Related Projects: Synchronized and cut multi-camera live footage from corporate conferences and leadership sessions with fast turnaround.
 - Red Bull Event Content: Crafted high-octane action cuts with speed ramping and layered Foley sound design.
@@ -370,7 +370,7 @@ Instagram Content Creator & Personal Brand Builder | Self-Employed / Freelance (
 - Produced scroll-stopping videos using strong hooks, storytelling structures, and audience retention techniques to maintain a loyal niche audience.
 - Secured paid content creation contracts (including Yukio Co-Living) based purely on organic content quality and reach.
 
-Lead Video Editor & Content Specialist (Selected Client Engagements) | (2022 — Present)
+Lead Video Editor & Content Specialist (Selected Client Engagements) | (2026 — Present)
 - Arentech Projects: Edited corporate tech showcase films highlighting infrastructure and technological innovation with custom kinetic typography.
 - Reliance Related Projects: Synchronized and cut multi-camera live footage from corporate conferences and leadership sessions with fast turnaround.
 - Red Bull Event Content: Crafted high-octane action cuts with speed ramping and layered Foley sound design.

@@ -514,6 +514,29 @@ class AdminStore {
           });
         }
 
+        // 4c. Upgrade resume dates for Selected Client Engagements to 2026 — Present
+        if (this.cache.experience && Array.isArray(this.cache.experience)) {
+          this.cache.experience = this.cache.experience.map((exp) => {
+            const role = (exp.role || '').toLowerCase();
+            const company = (exp.company || '').toLowerCase();
+            if (
+              role.includes('lead video editor') ||
+              role.includes('selected client') ||
+              company.includes('selected client') ||
+              company.includes('arentech, reliance, red bull')
+            ) {
+              return {
+                ...exp,
+                period: '2026 — Present',
+                timelinePosition: '2026 — Present',
+                durationLabel: '2026 — Present',
+                yearStart: 2026.0,
+              };
+            }
+            return exp;
+          });
+        }
+
         // 5. Upgrade settings to encrypted credentials
         if (this.cache.settings) {
           this.cache.settings.adminPasscodeHash = this.cache.settings.adminPasscodeHash || hashPasscode(this.cache.settings.adminPasscode || '2026');

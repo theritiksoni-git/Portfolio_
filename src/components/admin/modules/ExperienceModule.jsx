@@ -27,9 +27,9 @@ export default function ExperienceModule() {
       role: '',
       company: '',
       shortLabel: '',
-      period: '2024 — Present',
-      timelinePosition: '2024 — Present',
-      durationLabel: '2024 — Present',
+      period: '2026 — Present',
+      timelinePosition: '2026 — Present',
+      durationLabel: '2026 — Present',
       track: 'V1',
       badge: 'FULL-TIME EXECUTIVE',
       summary: '',
@@ -49,7 +49,7 @@ export default function ExperienceModule() {
           ? exp.highlights
           : ((exp.responsibilities && exp.responsibilities.length > 0) ? exp.responsibilities : []));
     const safeSummary = exp.summary || exp.coreMission || '';
-    const safePeriod = exp.timelinePosition || exp.period || exp.durationLabel || '2024 — Present';
+    const safePeriod = exp.timelinePosition || exp.period || exp.durationLabel || '2026 — Present';
     const safeTools = exp.toolsUsed && exp.toolsUsed.length > 0 ? exp.toolsUsed : ['Premiere Pro', 'After Effects'];
 
     setEditingExp({
@@ -73,7 +73,7 @@ export default function ExperienceModule() {
     sound.playClick();
     const cleanPoints = (editingExp.points || []).map((p) => p.trim()).filter(Boolean);
     const summaryVal = (editingExp.summary || editingExp.coreMission || '').trim();
-    const periodVal = (editingExp.timelinePosition || editingExp.period || editingExp.durationLabel || '2024 — Present').trim();
+    const periodVal = (editingExp.timelinePosition || editingExp.period || editingExp.durationLabel || '2026 — Present').trim();
     const parsedTools = editingExp.toolsInput
       ? editingExp.toolsInput.split(',').map((t) => t.trim()).filter(Boolean)
       : (editingExp.toolsUsed || ['Premiere Pro', 'After Effects']);
